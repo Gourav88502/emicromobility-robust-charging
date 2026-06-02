@@ -1,0 +1,24 @@
+EXECUTIVE SUMMARY
+Robust Charging Infrastructure Design Under Demand Uncertainty
+Site: Newcastle upon Tyne, UK | Constrained grid connection: 8.0 kW
+========================================================================
+
+RECOMMENDED ROBUST STATION SPECIFICATION
+  Solar PV array     : 25 kWp
+  Battery storage    : 50 kWh
+  Charge points      : 4 units
+  Capital cost       : GBP 68,400
+
+WHY ROBUST DESIGN MATTERS (value of robustness)
+  vs a naive average-demand design, the robust design cuts worst-case
+  annual cost by GBP 31,574/yr (60.0%) and lifts guaranteed fleet
+  service from 90.0% to 100.0% under the worst demand scenario.
+
+SUSTAINABILITY (recommended design, high-demand scenario)
+  Solar fraction     : 35.7%
+  Carbon saving      : 6.19 tCO2/yr (84% vs grid-only)
+
+KEY UNCERTAINTY DRIVERS (tornado, ranked)
+  - Equipment cost multiplier: swing GBP 6,033/yr
+  - Demand intensity (trips/scooter/day): swing GBP 5,086/yr
+  - Daily fleet utilisation: swing GBP 1,919/yr
