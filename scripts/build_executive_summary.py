@@ -187,20 +187,20 @@ def build():
     # ---- 1. Problem Understanding ------------------------------------------
     criterion_heading(doc, 1, "Problem Understanding")
     body(doc, [
-        ("Shared e-micromobility fleets face highly variable charging demand — driven by "
-         "season, weather, local events and multi-year growth. This creates a sizing dilemma "
-         "for a solar charging station: a station built for ", False),
+        ("A shared-micromobility operator depot charges a mixed fleet of e-scooters, e-bikes and "
+         "e-cargo bikes whose demand swings with season, weather, events and multi-year growth. "
+         "This creates a sizing dilemma for a solar charging hub: one built for ", False),
         ("average", True),
         (" demand fails at peaks and strands the fleet, while one built for the ", False),
         ("worst case", True),
         (" sinks capital into rarely-used equipment. The dilemma sharpens under a ", False),
         ("constrained grid connection", True),
-        (" — upgrading the connection needs a costly network reinforcement — so the evening "
-         "charging peak must be served from on-site solar and storage. Sizing therefore becomes "
-         "a decision under deep uncertainty: under-build and lose service; over-build and waste "
-         "money. The demand range is grounded in the real national e-scooter trial monitoring "
-         "dataset (monthly trips, fleet size, daily utilisation, trip distance), so the problem "
-         "is posed on observed data rather than assumption.", False),
+        (" — a higher import limit needs a costly DNO reinforcement — so the evening charging "
+         "peak must be served from on-site solar and storage, across enough charge bays. Sizing "
+         "becomes a decision under deep uncertainty: under-build and lose service; over-build and "
+         "waste money. Demand is anchored to the REAL DfT Newcastle e-scooter trial (monthly "
+         "trips, fleet size, deployment, trip distance), so the problem is posed on observed "
+         "data, not assumption.", False),
     ])
 
     # ---- 2. Relevance & Innovativeness -------------------------------------
@@ -214,7 +214,7 @@ def build():
          "charging-station sizing is almost always ", False),
         ("deterministic", True),
         (" (a single demand forecast). We instead apply ", False),
-        ("robust optimisation — minimax-regret and maximin — alongside a chance-constrained "
+        ("robust optimisation — minimax-regret, maximin and CVaR — alongside a two-stage "
          "stochastic program", True),
         (", choosing a design that performs across the entire demand space, and we define and "
          "quantify the ", False),
@@ -242,15 +242,16 @@ def build():
          "4–20 chargers) against the nine scenarios, pricing unmet demand as lost service, "
          "to form a cost matrix; ", False),
         ("(iv)", True),
-        (" apply four decision rules — naive deterministic, chance-constrained stochastic, "
-         "minimax-regret and maximin — and map the cost-vs-robustness Pareto frontier; ", False),
+        (" apply five decision rules — naive, a two-stage stochastic program (expected cost), "
+         "CVaR (risk-averse), minimax-regret and maximin — and map the cost-vs-robustness Pareto "
+         "frontier; ", False),
         ("(v)", True),
-        (" propagate uncertainty through a 500-sample correlated Monte-Carlo fan; ", False),
+        (" propagate uncertainty through a 500-sample correlated Monte-Carlo fan and rank drivers "
+         "with a tornado and variance-based global (Sobol) sensitivity; ", False),
         ("(vi)", True),
-        (" rank the drivers with both a tornado (one-at-a-time) and a variance-based global "
-         "sensitivity analysis (total-effect Sobol indices, Saltelli estimator). The hourly "
-         "controller is a transparent greedy priority rule (optimal for a single store) and the "
-         "full study runs in about 30 seconds.", False),
+        (" confirm the conclusion is not an artefact via a robustness-of-robustness sweep (it "
+         "holds across every penalty x grid combination) and validate seven outputs against "
+         "published benchmarks. The full study runs in under a minute.", False),
     ])
     doc.add_picture(str(OUT / "methodology_flow.png"), width=Inches(6.1))
     doc.paragraphs[-1].alignment = WD_ALIGN_PARAGRAPH.CENTER
@@ -270,37 +271,40 @@ def build():
          "battery-replacement and grid costs. ", False),
         ("Operational:", True),
         (" it yields one deployable specification plus the confidence interval around it. ", False),
+        ("Validated:", True),
+        (" seven key outputs (PV yield, carbon intensity, round-trip efficiency, solar fraction, "
+         "LCOE, carbon saving, trip distance) all fall within published ranges. ", False),
         ("Computational:", True),
-        (" the entire model is open-source Python, deterministic, regenerates all data and "
-         "figures from a single command, and is covered by an automated regression-test suite — "
-         "so any reviewer can reproduce and audit every number.", False),
+        (" the model is open-source Python, deterministic, regenerates all data and figures from "
+         "one command, and passes an automated test suite — any reviewer can reproduce every "
+         "number.", False),
     ])
 
     # ---- 5. Originality & Authenticity -------------------------------------
     criterion_heading(doc, 5, "Originality & Authenticity (AI / Plagiarism)")
     body(doc, [
         ("All model code, the dispatch engine, the optimisation formulation and every figure "
-         "were written from scratch for this submission. The only redistributed dataset is the "
-         "national DfT e-scooter monitoring data, reused under the Open Government Licence; the "
-         "solar and grid-carbon series are physically modelled and calibrated to published "
-         "references (with an optional live-API path), not copied. Every numerical assumption "
-         "carries an inline source citation and all literature is referenced. The repository is "
-         "fully self-contained and reproducible — fixed random seed, one-command rebuild, passing "
-         "tests — directly supporting the competition’s AI and plagiarism checks. No "
-         "third-party text or code is reproduced.", False),
+         "were written from scratch for this submission. All three datasets are REAL: DfT "
+         "e-scooter monitoring data (Open Government Licence), hourly solar pulled live from the "
+         "EU PVGIS API, and regional grid-carbon intensity from the National Grid ESO API. Every "
+         "numerical assumption carries an inline source citation and all literature is referenced. "
+         "The repository is fully self-contained and reproducible — fixed random seed, one-command "
+         "rebuild, passing tests — directly supporting the competition’s AI and plagiarism checks. "
+         "No third-party text or code is reproduced.", False),
     ])
 
     # ---- Results figures (2-up) --------------------------------------------
     ft = doc.add_table(rows=1, cols=2)
     ft.alignment = WD_TABLE_ALIGNMENT.CENTER
     no_borders(ft)
-    for i, img in enumerate(["02_pareto.png", "03_design_comparison.png"]):
+    for i, img in enumerate(["02_pareto.png", "10_robustness.png"]):
         c = ft.rows[0].cells[i]; c.width = Mm(90)
         c.paragraphs[0].alignment = WD_ALIGN_PARAGRAPH.CENTER
         run = c.paragraphs[0].add_run()
-        run.add_picture(str(OUT / img), width=Inches(3.0))
-    cap = para(doc, "Figure 2 — Cost-vs-robustness Pareto frontier (four decision rules).      "
-               "Figure 3 — Expected vs worst-case annual cost by rule.",
+        run.add_picture(str(OUT / img), width=Inches(3.05))
+    cap = para(doc, "Figure 2 — Cost-vs-robustness Pareto frontier (five decision rules).      "
+               "Figure 3 — Robustness of the conclusion: robust beats naive across every "
+               "penalty x grid combination.",
                size=8, italic=True, color=GREY, align=WD_ALIGN_PARAGRAPH.CENTER, after=0)
 
     out = OUT / "Executive_Summary.docx"

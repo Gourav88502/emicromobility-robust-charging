@@ -1,0 +1,6 @@
+horizon_years,value_of_robustness_pct,recommended,rec_pv_kwp,rec_bess_kwh,rec_chargers
+3,49.1,PV=10kWp | BESS=0kWh | 8 chargers,10,0,8
+4,51.8,PV=25kWp | BESS=50kWh | 8 chargers,25,50,8
+5,55.3,PV=25kWp | BESS=50kWh | 8 chargers,25,50,8
+6,52.0,PV=25kWp | BESS=50kWh | 12 chargers,25,50,12
+7,44.2,PV=25kWp | BESS=50kWh | 12 chargers,25,50,12

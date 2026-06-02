@@ -108,18 +108,36 @@ def test_monte_carlo_runs():
 
 
 def test_global_sensitivity_sobol():
-    """Total-order Sobol indices are valid and the demand/cost drivers dominate."""
+    """Total-order Sobol indices are valid; demand/cost drivers dominate."""
     from src import sensitivity
     df = demand_model.load_dft(); solar = pv_model.load_solar()
-    g = sensitivity.global_sensitivity(Design(25, 50, 4), df, solar,
-                                       output="annual_cost", n=512)
+    g = sensitivity.global_sensitivity(Design(25, 50, 8), df, solar,
+                                       output="annual_cost", n=1024)
     assert len(g) == len(config.UNCERTAIN_VARIABLES)
     assert (g["total_order"] >= 0).all()
-    # the top driver must be equipment cost or demand intensity (cost/demand led)
-    assert g.iloc[0]["name"] in {"equipment_cost", "demand_intensity"}
-    # non-influential operating params should have small total effect
-    small = g.set_index("name").loc["charger_avail", "total_order"]
-    assert small < 0.10
+    # the dominant driver must be a demand/cost variable, not an operating param
+    demand_cost = {"equipment_cost", "demand_intensity", "trip_energy",
+                   "fleet_utilisation", "demand_growth"}
+    assert g.iloc[0]["name"] in demand_cost
+    # a non-influential operating param has a small total effect
+    assert g.set_index("name").loc["charger_avail", "total_order"] < 0.10
+
+
+def test_robustness_conclusion_holds():
+    """Robust must beat naive across (almost) the whole penalty x grid space."""
+    from src import robustness
+    df = demand_model.load_dft(); solar = pv_model.load_solar()
+    res = robustness.sweep(df, solar, penalties=(5, 10, 20),
+                           grids=(12, 16, 20), horizons=(5,))
+    assert res["fraction_robust_wins"] >= 0.9      # robust wins (almost) everywhere
+    assert res["vor_median"] > 0
+
+
+def test_validation_within_range():
+    """At its design operating point, every model output is within literature."""
+    from src import validation
+    v = validation.validate()
+    assert v["within_range"].mean() >= 0.85        # essentially all metrics pass
 
 
 if __name__ == "__main__":

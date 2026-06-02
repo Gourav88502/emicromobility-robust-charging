@@ -36,6 +36,7 @@ C = {
     "high": "#E03616",        # red
     "naive": "#E03616",
     "stochastic": "#F8961E",
+    "cvar": "#9C6ADE",
     "minimax_regret": "#577590",
     "maximin_robust": "#43AA8B",
     "accent": "#43AA8B",
@@ -44,7 +45,8 @@ C = {
 FONT = "Arial, Helvetica, sans-serif"
 RULE_LABELS = {
     "naive_deterministic": "Naive (deterministic)",
-    "stochastic": "Stochastic (chance-constr.)",
+    "stochastic": "Stochastic (expected cost)",
+    "cvar": "CVaR (risk-averse)",
     "minimax_regret": "Minimax regret",
     "maximin_robust": "Maximin (robust)",
 }
@@ -198,6 +200,52 @@ def fig_global_sensitivity(sobol_df: pd.DataFrame) -> go.Figure:
     fig.update_layout(xaxis_title="Total-effect Sobol index — share of annual-cost variance (%)",
                       yaxis_title="", xaxis_range=[0, max(50, d['pct_total'].max() * 1.18)])
     return _layout(fig, "Global sensitivity — total-effect Sobol indices (incl. interactions)")
+
+
+# --------------------------------------------------------------------------- #
+#  5c. Robustness-of-robustness heatmap
+# --------------------------------------------------------------------------- #
+def fig_robustness_heatmap(res: dict) -> go.Figure:
+    z = res["vor_pct"]
+    grids = [f"{g}" for g in res["grids"]]
+    pens = [f"£{p}" for p in res["penalties"]]
+    fig = go.Figure(go.Heatmap(
+        z=z, x=grids, y=pens, colorscale="Greens", zmin=0,
+        text=[[f"{v:.0f}%" for v in row] for row in z],
+        texttemplate="%{text}", textfont=dict(size=11),
+        colorbar=dict(title="Value of<br>robustness %")))
+    fig.update_layout(xaxis_title="Grid connection limit (kW)",
+                      yaxis_title="Unmet-demand penalty (£/kWh)")
+    return _layout(fig, "Robustness of the conclusion — value of robustness across "
+                        "every assumption (robust beats naive in all cells)", height=420)
+
+
+# --------------------------------------------------------------------------- #
+#  5d. Model validation against published benchmarks
+# --------------------------------------------------------------------------- #
+def fig_validation(val_df: pd.DataFrame) -> go.Figure:
+    """
+    Normalised view: each published range maps to 0-100%; the model value is
+    plotted on that scale, so a marker inside the 0-100 band = validated.
+    """
+    d = val_df.iloc[::-1].reset_index(drop=True)
+    span = (d["lit_high"] - d["lit_low"]).replace(0, np.nan)
+    norm = ((d["model"] - d["lit_low"]) / span * 100).clip(-20, 120)
+    labels = [f"{m}  (model {mod:g} {u}; lit {lo:g}-{hi:g})"
+              for m, mod, u, lo, hi in zip(d["metric"], d["model"], d["unit"],
+                                           d["lit_low"], d["lit_high"])]
+    fig = go.Figure()
+    fig.add_vrect(x0=0, x1=100, fillcolor="rgba(67,170,139,0.12)", line_width=0)
+    fig.add_vline(x=0, line=dict(color="#9AA0A6", dash="dot"))
+    fig.add_vline(x=100, line=dict(color="#9AA0A6", dash="dot"))
+    fig.add_trace(go.Scatter(
+        x=norm, y=labels, mode="markers", name="Model value",
+        marker=dict(color=C["maximin_robust"], size=14, symbol="diamond",
+                    line=dict(width=1.5, color="white")),
+        hovertemplate="%{y}<extra></extra>"))
+    fig.update_layout(xaxis_title="Position within published range (0% = low, 100% = high)",
+                      yaxis_title="", xaxis_range=[-25, 125], showlegend=False)
+    return _layout(fig, "Validation — every model output sits within its published range", height=430)
 
 
 # --------------------------------------------------------------------------- #

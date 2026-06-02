@@ -32,7 +32,8 @@ import numpy as np
 import pandas as pd
 
 from src import (config, demand_model, pv_model, economics, optimization,
-                 monte_carlo, sensitivity, emissions, visualize)
+                 monte_carlo, sensitivity, emissions, visualize, robustness,
+                 validation)
 from src.energy_balance import simulate
 
 ROOT = Path(__file__).resolve().parent
@@ -132,6 +133,18 @@ def main():
     figs["09_global_sensitivity"] = _save_fig(
         visualize.fig_global_sensitivity(sob), "09_global_sensitivity")
 
+    # ---- 4b. Robustness-of-robustness (is the conclusion an artefact?) ----- #
+    print("\n[4b] Robustness-of-robustness (penalty x grid x horizon) ...")
+    rob = robustness.sweep(df, solar)
+    print("     " + robustness.summary_text(rob))
+    figs["10_robustness"] = _save_fig(visualize.fig_robustness_heatmap(rob), "10_robustness")
+
+    # ---- 4c. Validation against published benchmarks ----------------------- #
+    print("\n[4c] Validation against published benchmarks ...")
+    val = validation.validate(df, solar, carbon, recommended)
+    print(f"     {int(val['within_range'].sum())}/{len(val)} metrics within published range")
+    figs["11_validation"] = _save_fig(visualize.fig_validation(val), "11_validation")
+
     # ---- 5. Dispatch + emissions ------------------------------------------ #
     print("\n[5] Hourly energy-balance dispatch & emissions (recommended design) ...")
     demand_hi = demand_model.hourly_demand_series(
@@ -149,7 +162,8 @@ def main():
 
     # ---- 6. Persist results ------------------------------------------------ #
     print("\n[6] Writing results.json, executive summary and combined report ...")
-    results = _collect_results(opt, s_rob, s_nai, tor, sob, sim, emis, recommended, naive)
+    results = _collect_results(opt, s_rob, s_nai, tor, sob, sim, emis, recommended, naive,
+                               rob, val)
     (OUT / "results.json").write_text(json.dumps(results, indent=2), encoding="utf-8")
     _write_summary(results)
     _write_report(figs, results)
@@ -159,6 +173,8 @@ def main():
     opt["pareto"].to_csv(OUT / "pareto_frontier.csv", index=False)
     tor.to_csv(OUT / "tornado_sensitivity.csv", index=False)
     sob.to_csv(OUT / "global_sensitivity_sobol.csv", index=False)
+    val.to_csv(OUT / "validation_benchmarks.csv", index=False)
+    rob["horizon_table"].to_csv(OUT / "robustness_horizon_sweep.csv", index=False)
     mc_robust.to_csv(OUT / "monte_carlo_robust.csv", index=False)
     mc_naive.to_csv(OUT / "monte_carlo_naive.csv", index=False)
 
@@ -185,7 +201,8 @@ def main():
     print(f"Open the report: {OUT / 'index.html'}")
 
 
-def _collect_results(opt, s_rob, s_nai, tor, sob, sim, emis, recommended, naive) -> dict:
+def _collect_results(opt, s_rob, s_nai, tor, sob, sim, emis, recommended, naive,
+                     rob, val) -> dict:
     def design_dict(d):
         return {"pv_kwp": d.pv_kwp, "battery_kwh": d.battery_kwh, "n_chargers": d.n_chargers}
     cap = economics.capex(recommended)
@@ -213,6 +230,15 @@ def _collect_results(opt, s_rob, s_nai, tor, sob, sim, emis, recommended, naive)
             "naive": {k: round(float(v), 1) for k, v in s_nai.items()}},
         "top_sensitivities": tor[["variable", "swing"]].head(3).to_dict("records"),
         "global_sensitivity_sobol_total": sob[["variable", "pct_total"]].head(3).to_dict("records"),
+        "robustness_of_robustness": {
+            "fraction_robust_beats_naive_pct": round(rob["fraction_robust_wins"] * 100, 0),
+            "value_of_robustness_min_pct": round(rob["vor_min"], 0),
+            "value_of_robustness_median_pct": round(rob["vor_median"], 0),
+            "value_of_robustness_max_pct": round(rob["vor_max"], 0),
+            "n_combinations": int(rob["vor_pct"].size)},
+        "validation": {
+            "metrics_within_published_range": f"{int(val['within_range'].sum())}/{len(val)}",
+            "all_pass": bool(val["within_range"].all())},
         "recommended_performance_high_scenario": {
             "service_level_pct": round(sim["service_level"] * 100, 1),
             "solar_fraction_pct": round(sim["solar_fraction"] * 100, 1),
@@ -258,18 +284,20 @@ def _write_report(figs: dict, r: dict):
     rec = r["recommended_design"]
     vor = r["value_of_robustness"]
     order = ["01_scenario_demand", "04_demand_fan", "02_pareto", "03_design_comparison",
-             "05_cost_distribution", "06_tornado", "09_global_sensitivity",
-             "07_energy_balance", "08_energy_sources"]
+             "05_cost_distribution", "10_robustness", "06_tornado", "09_global_sensitivity",
+             "11_validation", "07_energy_balance", "08_energy_sources"]
     titles = {
         "01_scenario_demand": "1. Demand scenarios (from real DfT Newcastle data)",
         "04_demand_fan": "2. Monte-Carlo demand fan (500 samples)",
-        "02_pareto": "3. Cost vs robustness — Pareto frontier",
+        "02_pareto": "3. Cost vs robustness — Pareto frontier (5 decision rules)",
         "03_design_comparison": "4. Decision-rule comparison",
         "05_cost_distribution": "5. Cost distribution: naive vs robust",
-        "06_tornado": "6. Tornado sensitivity (one-at-a-time)",
-        "09_global_sensitivity": "7. Global sensitivity — total-effect Sobol indices",
-        "07_energy_balance": "8. Hourly dispatch & battery profile (Theme 2)",
-        "08_energy_sources": "9. Energy mix & carbon savings (Theme 3)",
+        "10_robustness": "6. Robustness of the conclusion (penalty x grid sweep)",
+        "06_tornado": "7. Tornado sensitivity (one-at-a-time)",
+        "09_global_sensitivity": "8. Global sensitivity — total-effect Sobol indices",
+        "11_validation": "9. Validation vs published benchmarks",
+        "07_energy_balance": "10. Hourly dispatch & battery profile (Theme 2)",
+        "08_energy_sources": "11. Energy mix & carbon savings (Theme 3)",
     }
     cards = "".join(
         f'<section><h2>{titles[k]}</h2>'

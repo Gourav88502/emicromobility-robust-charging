@@ -55,7 +55,12 @@ def annual_battery_replacement_cost(design: Design,
                                     annual_throughput_kwh: float,
                                     battery_cost: float | None = None,
                                     cycle_life: int | None = None) -> float:
-    """Amortised battery replacement cost (GBP/yr) from energy throughput."""
+    """
+    Amortised battery replacement cost (GBP/yr). The battery ages BOTH by cycling
+    (throughput / DoD-adjusted cycle life) AND by calendar time, so the annual
+    replacement fraction is the greater of the two — capturing that a lightly
+    cycled pack is still replaced at end of calendar life (Lith 2021; Mongird 2020).
+    """
     if design.battery_kwh <= 0:
         return 0.0
     battery_cost = config.BATTERY_CAPEX_PER_KWH["baseline"] if battery_cost is None else battery_cost
@@ -63,8 +68,14 @@ def annual_battery_replacement_cost(design: Design,
     usable = design.battery_kwh * config.BATTERY_DOD
     if usable <= 0:
         return 0.0
+    # Deeper depth-of-discharge shortens cycle life (Lith 2021): derate roughly
+    # linearly with DoD relative to a 0.8 reference.
+    dod_derate = max(0.5, 1.0 - 0.6 * (config.BATTERY_DOD - 0.8))
+    effective_cycle_life = cycle_life * dod_derate
     equivalent_full_cycles = annual_throughput_kwh / usable
-    fraction_of_life_per_year = equivalent_full_cycles / cycle_life
+    cycle_fraction = equivalent_full_cycles / effective_cycle_life
+    calendar_fraction = 1.0 / config.BATTERY_CALENDAR_LIFE_YEARS
+    fraction_of_life_per_year = max(cycle_fraction, calendar_fraction)
     return design.battery_kwh * battery_cost * fraction_of_life_per_year
 
 
@@ -94,6 +105,15 @@ def annual_costs(design: Design,
     crf = annuity_factor(config.DISCOUNT_RATE, config.PROJECT_LIFETIME_YEARS)
     annualised_capex = cap["total"] * crf
 
+    # PV residual value: panels last PV_LIFETIME_YEARS (>project life), so a linear
+    # residual of the PV capital remains at the horizon — credited as an annuitised
+    # salvage value discounted back over the project life.
+    residual_frac = max(0.0, (config.PV_LIFETIME_YEARS - config.PROJECT_LIFETIME_YEARS)
+                        / config.PV_LIFETIME_YEARS)
+    pv_salvage_pv = (cap["pv"] * residual_frac
+                     / (1 + config.DISCOUNT_RATE) ** config.PROJECT_LIFETIME_YEARS)
+    pv_residual_credit = pv_salvage_pv * crf
+
     fixed_om = cap["total"] * opex_frac
     battery_repl = annual_battery_replacement_cost(
         design, energy.get("battery_throughput_kwh", 0.0), battery_cost, cycle_life)
@@ -102,10 +122,11 @@ def annual_costs(design: Design,
     unmet_penalty = energy.get("unmet_demand_kwh", 0.0) * config.UNMET_DEMAND_PENALTY
 
     total_annual = (annualised_capex + fixed_om + battery_repl
-                    + grid_cost - export_credit + unmet_penalty)
+                    + grid_cost - export_credit + unmet_penalty - pv_residual_credit)
     return {
         "capex_total": cap["total"],
         "annualised_capex": annualised_capex,
+        "pv_residual_credit": pv_residual_credit,
         "fixed_om": fixed_om,
         "battery_replacement": battery_repl,
         "grid_cost": grid_cost,
@@ -117,10 +138,14 @@ def annual_costs(design: Design,
 
 
 def lcoe(design: Design, energy: dict, **kwargs) -> float:
-    """Levelised cost of energy served (GBP/kWh)."""
+    """
+    Levelised cost of energy DELIVERED (GBP/kWh). Excludes the unmet-demand
+    penalty, which is a notional value-of-lost-load for the optimisation
+    objective, not a cost of the energy actually served.
+    """
     costs = annual_costs(design, energy, **kwargs)
     served = max(energy.get("demand_served_kwh", 0.0), 1e-6)
-    return costs["total_annual_cost"] / served
+    return (costs["total_annual_cost"] - costs["unmet_penalty"]) / served
 
 
 if __name__ == "__main__":

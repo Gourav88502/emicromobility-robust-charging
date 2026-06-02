@@ -49,10 +49,10 @@ def build_scenarios(df=None, year_index: int | None = None) -> list[Scenario]:
     """
     Structured demand scenario set spanning the EoI Low/Medium/High framing.
 
-    Axes: demand level (trips/scooter/day x fleet utilisation, the primary
-    lever) x year-on-year demand growth, evaluated at a mid-life horizon.
-    3 levels x 3 growth rates = 9 interpretable scenarios with
-    literature-based probability weights (central outcomes more likely).
+    Axes: demand level (trips/scooter/day x fleet deployment, the EoI Low/Medium/
+    High lever) x year-on-year demand growth on a finer 5-point grid, evaluated at
+    the design horizon. 3 levels x 5 growth rates = 15 probability-weighted
+    scenarios (central outcomes more likely; triangular-style weights).
     """
     if df is None:
         df = demand_model.load_dft()
@@ -64,10 +64,11 @@ def build_scenarios(df=None, year_index: int | None = None) -> list[Scenario]:
         "Medium": (config.TRIPS_PER_SCOOTER_DAY["medium"], config.FLEET_UTILISATION["baseline"]),
         "High":   (config.TRIPS_PER_SCOOTER_DAY["high"], config.FLEET_UTILISATION["high"]),
     }
-    growth = {"low": config.DEMAND_GROWTH["low"], "med": config.DEMAND_GROWTH["medium"],
-              "high": config.DEMAND_GROWTH["high"]}
+    gmax = config.DEMAND_GROWTH["high"]
+    growth = {"g0": 0.0, "g1": 0.25 * gmax, "g2": 0.5 * gmax,
+              "g3": 0.75 * gmax, "g4": gmax}
     w_level = {"Low": 0.25, "Medium": 0.50, "High": 0.25}
-    w_growth = {"low": 0.25, "med": 0.50, "high": 0.25}
+    w_growth = {"g0": 0.10, "g1": 0.20, "g2": 0.40, "g3": 0.20, "g4": 0.10}
 
     scenarios = []
     for lname, (tpd, util) in levels.items():
@@ -131,13 +132,39 @@ def robustly_feasible_mask(service: np.ndarray) -> np.ndarray:
     return (service >= config.SERVICE_LEVEL_TARGET).all(axis=1)
 
 
+def _cvar(cost: np.ndarray, probs: np.ndarray, alpha: float) -> np.ndarray:
+    """
+    Conditional Value-at-Risk at level alpha for each design (row of `cost`):
+    the probability-weighted mean cost over the worst (1-alpha) tail of scenarios.
+    Discrete-distribution CVaR (Rockafellar & Uryasev, 2000).
+    """
+    tail = 1.0 - alpha
+    nD = cost.shape[0]
+    out = np.empty(nD)
+    for i in range(nD):
+        order = np.argsort(-cost[i])              # worst (highest cost) first
+        c = cost[i][order]; p = probs[order]
+        cum = np.cumsum(p)
+        prev = cum - p
+        w = np.clip(tail - prev, 0.0, p)          # portion of each scenario in the tail
+        out[i] = (w * c).sum() / tail
+    return out
+
+
 def solve(designs: list[Design], scenarios: list[Scenario],
           cost: np.ndarray, service: np.ndarray) -> dict:
     """
-    Apply the four decision rules. Unmet demand is priced into `cost` as a soft
-    penalty (config.UNMET_DEMAND_PENALTY), so the rules trade capital against the
-    risk of stranding the fleet — no hard feasibility masking is required, which
-    lets each rule select a genuinely different design.
+    Apply five decision rules. Unmet demand is priced into `cost` as a soft
+    recourse penalty (config.UNMET_DEMAND_PENALTY), so the rules trade capital
+    against the risk of stranding the fleet:
+
+      naive_deterministic : size for the single central (Medium) scenario only.
+      stochastic          : two-stage stochastic program — minimise EXPECTED total
+                            cost (here-and-now design + expected operational
+                            recourse), Birge & Louveaux (2011).
+      cvar                : risk-averse stochastic program — minimise CVaR of cost.
+      minimax_regret      : minimise the worst-case regret across scenarios.
+      maximin_robust      : minimise the worst-case absolute cost.
     """
     probs = np.array([s.probability for s in scenarios])
 
@@ -145,34 +172,28 @@ def solve(designs: list[Design], scenarios: list[Scenario],
     best_per_scenario = cost.min(axis=0)
     regret = cost - best_per_scenario[None, :]
 
-    expected_cost = (cost * probs[None, :]).sum(axis=1)     # expected total cost
+    expected_cost = (cost * probs[None, :]).sum(axis=1)     # two-stage SP objective
     worst_cost = cost.max(axis=1)                            # maximin objective
     max_regret = regret.max(axis=1)                          # minimax-regret objective
+    cvar_cost = _cvar(cost, probs, config.CVAR_ALPHA)        # risk-averse objective
 
     robust_feasible = robustly_feasible_mask(service)
-    medium_idx = next(i for i, s in enumerate(scenarios)
-                      if s.demand_level == "Medium"
-                      and abs(s.demand_growth - config.DEMAND_GROWTH["medium"]) < 1e-9)
+    # central scenario = Medium level, growth nearest the medium rate
+    med_rows = [i for i, s in enumerate(scenarios) if s.demand_level == "Medium"]
+    medium_idx = min(med_rows, key=lambda i: abs(scenarios[i].demand_growth
+                                                  - config.DEMAND_GROWTH["medium"]))
     feasible_in_medium = service[:, medium_idx] >= config.SERVICE_LEVEL_TARGET
 
-    # Probability mass of scenarios each design serves at/above the target.
     served_ok = service >= config.SERVICE_LEVEL_TARGET
     prob_served = (served_ok * probs[None, :]).sum(axis=1)
 
-    # The naive planner sizes for the single central scenario only.
     naive_candidates = np.where(feasible_in_medium, cost[:, medium_idx], np.inf)
     naive_idx = int(np.argmin(naive_candidates))
 
-    # Chance-constrained stochastic program: min expected cost s.t. the service
-    # target is met in scenarios totalling >= beta probability.
-    chance_ok = prob_served >= config.CHANCE_CONSTRAINT_BETA - 1e-9
-    stoch_candidates = np.where(chance_ok, expected_cost, np.inf)
-    stochastic_idx = int(np.argmin(stoch_candidates)) if chance_ok.any() \
-        else int(np.argmin(expected_cost))
-
     rules = {
         "naive_deterministic": naive_idx,
-        "stochastic": stochastic_idx,
+        "stochastic": int(np.argmin(expected_cost)),
+        "cvar": int(np.argmin(cvar_cost)),
         "minimax_regret": int(np.argmin(max_regret)),
         "maximin_robust": int(np.argmin(worst_cost)),
     }
@@ -186,6 +207,7 @@ def solve(designs: list[Design], scenarios: list[Scenario],
             "index": idx,
             "expected_cost": float(expected_cost[idx]),
             "worst_cost": float(worst_cost[idx]),
+            "cvar_cost": float(cvar_cost[idx]),
             "max_regret": float(max_regret[idx]),
             "mean_service": float(service[idx].mean()),
             "min_service": float(service[idx].min()),

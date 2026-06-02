@@ -11,7 +11,7 @@ Tabs
   1. Overview          – headline result & KPIs
   2. Station designer  – live "what-if": move the sliders, watch the energy
                          balance, service level, cost and carbon respond
-  3. Robust optimiser  – Pareto frontier + four decision rules + value of robustness
+  3. Robust optimiser  – Pareto frontier + five decision rules + value of robustness
   4. Uncertainty       – Monte-Carlo demand fan and cost distribution
   5. Sensitivity       – tornado chart
   6. Data & method     – datasets, assumptions and methodology
@@ -236,20 +236,21 @@ with tab_data:
     st.markdown(f"""
 - **DfT shared e-scooter trials (REAL)** — Newcastle/Neuron monthly trips, fleet
   size, trips/scooter/day, trip distance & duration (Jan 2022 – May 2024).
-- **PVGIS-calibrated solar** — hourly generation for Newcastle
-  (lat {config.SITE_LAT}, lon {config.SITE_LON}), ≈900 kWh/m²/yr GHI.
-- **Carbon intensity** — National Grid ESO regional series for
-  {config.CARBON_REGION_NAME} (≈220 gCO₂/kWh mean).
+- **PVGIS solar (REAL, live API)** — hourly generation for Newcastle
+  (lat {config.SITE_LAT}, lon {config.SITE_LON}), ≈979 kWh/kWp/yr.
+- **Carbon intensity (REAL, live API)** — National Grid ESO regional series for
+  {config.CARBON_REGION_NAME} (≈152 gCO₂/kWh mean).
 """)
     st.subheader("Method")
     st.markdown("""
-1. Build **Low / Medium / High** demand scenarios from the real DfT data.
+1. Build **Low / Medium / High × growth** demand scenarios from the real DfT data.
 2. **Hourly energy-balance** dispatch over 8,760 h with a *constrained grid
    connection* (PV → battery → capped grid, off-peak battery top-up).
-3. **Robust optimisation** of 150 designs × 9 scenarios via four rules: naive
-   deterministic, chance-constrained stochastic, **minimax regret**, **maximin**.
+3. **Robust optimisation** of 150 designs × 15 scenarios via five rules: naive,
+   two-stage **stochastic program**, **CVaR**, **minimax regret**, **maximin**.
 4. **Monte-Carlo** (500 correlated samples) for the demand & cost fan.
-5. **Tornado** one-at-a-time sensitivity analysis.
+5. **Tornado** + variance-based **global (Sobol)** sensitivity.
+6. **Robustness-of-robustness** sweep + benchmark **validation**.
 """)
     st.subheader("Headline scenario demand (from real Newcastle data)")
     st.dataframe(demand_model.scenario_summary(), use_container_width=True, hide_index=True)

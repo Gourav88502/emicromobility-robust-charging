@@ -45,16 +45,27 @@ HOURS_PER_YEAR = 8760
 # --------------------------------------------------------------------------- #
 #  1. Demand model  (DfT Newcastle / Neuron data + literature)
 # --------------------------------------------------------------------------- #
-# Low / Medium / High daily trips-per-scooter (Data Inventory, row "Trips per
-# scooter per day": Low 0.5 / Medium 1.5 / High 3.5). Real Newcastle range
-# observed in the DfT data is 0.78-2.34; we widen to the literature envelope.
+# SCOPE (Theme 3): a shared-micromobility DEPOT charging hub serving a mixed
+# fleet of e-scooters, e-bikes and e-cargo bikes. Vehicles are charged at the
+# depot through AC charge points (e-bikes / e-cargo bikes accept 3-7 kW; e-scooter
+# battery packs are bench-charged). Demand is anchored to the REAL DfT Newcastle
+# trial (trips, fleet size, trip distance) and scaled for the higher energy
+# intensity of the e-bike / e-cargo bike mix.
+#
+# Demand is decomposed into two INDEPENDENT factors (no double counting):
+#   demand_intensity   = trips per DEPLOYED vehicle per day  (usage intensity)
+#   fleet_utilisation  = fraction of the fleet DEPLOYED that day (deployment rate)
+# Their product is the trips-per-fleet-vehicle figure reported by the DfT.
 TRIPS_PER_SCOOTER_DAY = {"low": 0.5, "medium": 1.5, "high": 3.5}
 
-# Trip energy consumption — Gossling (2020), Hollingsworth (2019).
-TRIP_ENERGY_WH_PER_KM = {"baseline": 25.0, "low": 20.0, "high": 35.0}
+# Trip energy consumption (Wh/km) for the MIXED fleet. e-scooters ~20-35
+# (Gossling 2020, Hollingsworth 2019); e-cargo / e-bikes are heavier and draw
+# more, so the fleet-mean baseline is higher with a wider band.
+TRIP_ENERGY_WH_PER_KM = {"baseline": 35.0, "low": 22.0, "high": 55.0}
 TRIP_ENERGY_UNCERTAINTY = 0.30          # +/-30 % for Monte Carlo
 
-# Daily fleet utilisation (fraction of fleet needing a charge each day).
+# Daily fleet DEPLOYMENT rate (fraction of fleet out on the street that day;
+# the rest is in the depot / maintenance). Independent of usage intensity above.
 FLEET_UTILISATION = {"baseline": 0.65, "low": 0.40, "high": 0.90}
 FLEET_UTILISATION_UNCERTAINTY = 0.25
 
@@ -64,12 +75,12 @@ DEMAND_GROWTH = {"low": 0.0, "medium": 0.08, "high": 0.15}
 # Battery capacity of one e-scooter (Wh) — used to convert energy to "charges".
 SCOOTER_BATTERY_WH = 500.0              # ~0.5 kWh typical shared e-scooter pack
 
-# Share of the city fleet's charging demand captured by THIS solar hub. Newcastle
-# runs ~700 shared e-scooters; one solar charging hub serves a portion of them
-# (operators also swap/charge at depots and other points). Combined with the
-# uncertain daily fleet utilisation this sets the station's energy demand to a
-# range well matched to the 5-25 kWp / 0-50 kWh design space.
-STATION_DEMAND_SHARE = 0.50
+# Fraction of the local fleet's charging served by THIS depot hub (~half; a
+# mid-sized neighbourhood depot — larger operators run several). This places
+# demand in the range where PV (5-25 kWp), storage (0-50 kWh) AND charge-point
+# count (4-20) are all binding decisions. The conclusion is shown to hold across
+# 0.35-0.6 coverage in the robustness-of-robustness analysis.
+STATION_DEMAND_SHARE = 0.5
 
 # Hourly demand shape: fraction of daily charging energy drawn each hour.
 # Shared e-scooter operators collect depleted units and charge them in a
@@ -102,11 +113,15 @@ BATTERY_CYCLE_LIFE = {"baseline": 4000, "low": 3000, "high": 6000}
 BATTERY_CYCLE_UNCERTAINTY = 0.30
 BATTERY_DOD = 0.90                      # usable depth of discharge
 BATTERY_MIN_SOC = 0.10                  # reserve floor
+BATTERY_CALENDAR_LIFE_YEARS = 12        # calendar-aging floor (replace even if lightly cycled)
 
 # --------------------------------------------------------------------------- #
-#  4. EV / e-scooter charge points  (OZEV / Rolec / Pod Point / Kempower)
+#  4. Micromobility charge points  (e-bike / e-cargo AC points; e-scooter benches)
 # --------------------------------------------------------------------------- #
-CHARGER_POWER_KW = {"baseline": 7.0, "low": 7.0, "high": 22.0}   # AC Type 2
+# Depot micromobility charge points are LOW power (~2-4 kW per bay), unlike 7-22
+# kW EV chargers. With low-power bays, the NUMBER of bays is a genuine binding
+# decision: a peaky evening return profile needs enough simultaneous bays.
+CHARGER_POWER_KW = {"baseline": 3.0, "low": 2.0, "high": 7.0}
 CHARGER_AVAILABILITY = {"baseline": 0.95, "low": 0.90, "high": 0.99}
 
 # --------------------------------------------------------------------------- #
@@ -114,7 +129,7 @@ CHARGER_AVAILABILITY = {"baseline": 0.95, "low": 0.90, "high": 0.99}
 # --------------------------------------------------------------------------- #
 PV_CAPEX_PER_KWP = {"baseline": 1100.0, "low": 900.0, "high": 1400.0}    # GBP/kWp
 BATTERY_CAPEX_PER_KWH = {"baseline": 350.0, "low": 250.0, "high": 450.0} # GBP/kWh
-CHARGER_CAPEX_PER_UNIT = {"baseline": 3000.0, "low": 1500.0, "high": 5000.0}
+CHARGER_CAPEX_PER_UNIT = {"baseline": 1000.0, "low": 500.0, "high": 2000.0}  # low-power AC bay
 INSTALL_FRACTION = {"baseline": 0.20, "low": 0.15, "high": 0.25}     # of equip CAPEX
 OPEX_FRACTION = {"baseline": 0.02, "low": 0.015, "high": 0.03}       # of CAPEX / yr
 ELECTRICITY_TARIFF = {"baseline": 0.26, "low": 0.22, "high": 0.30}   # GBP/kWh
@@ -142,12 +157,19 @@ CHARGER_COUNTS = list(range(4, 21, 4))        # 4,8,12,16,20
 # an expensive DNO substation reinforcement). The station must therefore serve
 # peak charging demand from solar + storage. Under-sizing strands the fleet under
 # high demand; over-sizing wastes capital under low demand -> robust design.
-# 8 kW reflects a minimal single-phase commercial connection (no costly upgrade).
-GRID_CONNECTION_KW = 8.0
+# ~14 kW reflects an existing modest 3-phase import limit (≈20 A/phase). A
+# higher-capacity upgrade typically needs a DNO reinforcement costing tens of
+# thousands of pounds and many months, which is precisely why on-site solar +
+# storage is attractive. The conclusion is shown to hold across 10-22 kW in the
+# robustness-of-robustness analysis (src/robustness.py) — NOT an artefact of this
+# single value.
+GRID_CONNECTION_KW = 14.0
 
-# Service-level target: a design is "feasible" if it serves at least this share
-# of annual charging-energy demand from the station (PV + battery + capped grid).
-SERVICE_LEVEL_TARGET = 0.98
+# Service-level target: a design is "robustly feasible" if it serves at least this
+# share of annual charging demand in EVERY scenario (the rest defers to off-peak /
+# other depots). 95% is a defensible operator service level; the conclusion is
+# tested against this threshold in the robustness analysis.
+SERVICE_LEVEL_TARGET = 0.95
 # Value of unmet charging demand (GBP/kWh). A kWh of charging the station cannot
 # deliver = a stranded e-scooter = lost mobility service and operator revenue.
 # Conservative vs a bottom-up estimate (~0.4 kWh/charge enabling several
@@ -163,6 +185,9 @@ N_SCENARIOS_ROBUST = 200                 # scenarios used inside the optimiser
 # Chance constraint for the stochastic program: meet the service target in
 # scenarios totalling at least this probability (Birge & Louveaux, 2011).
 CHANCE_CONSTRAINT_BETA = 0.90
+# CVaR confidence level for the risk-averse stochastic program: optimise the
+# expected cost in the worst (1-alpha) tail of scenarios (Rockafellar & Uryasev).
+CVAR_ALPHA = 0.90
 
 
 @dataclass(frozen=True)
@@ -184,7 +209,7 @@ UNCERTAIN_VARIABLES: list[UncertainVariable] = [
     UncertainVariable("demand_intensity", "Demand intensity (trips/scooter/day)", 1.5, 0.5, 3.5, "trips/day"),
     UncertainVariable("demand_growth", "Demand growth (YoY)", 0.08, 0.0, 0.15, "/yr"),
     UncertainVariable("fleet_utilisation", "Daily fleet utilisation", 0.65, 0.40, 0.90, "frac"),
-    UncertainVariable("trip_energy", "Trip energy use", 25.0, 20.0, 35.0, "Wh/km"),
+    UncertainVariable("trip_energy", "Trip energy use", 35.0, 22.0, 55.0, "Wh/km"),
     UncertainVariable("pv_output", "PV performance ratio", 0.85, 0.75, 0.95, "frac"),
     UncertainVariable("battery_eff", "Battery round-trip eff.", 0.92, 0.88, 0.94, "frac"),
     UncertainVariable("charger_avail", "Charger availability", 0.95, 0.90, 0.99, "frac"),
