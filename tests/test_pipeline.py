@@ -107,6 +107,21 @@ def test_monte_carlo_runs():
     assert res["annual_cost"].notna().all()
 
 
+def test_global_sensitivity_sobol():
+    """Total-order Sobol indices are valid and the demand/cost drivers dominate."""
+    from src import sensitivity
+    df = demand_model.load_dft(); solar = pv_model.load_solar()
+    g = sensitivity.global_sensitivity(Design(25, 50, 4), df, solar,
+                                       output="annual_cost", n=512)
+    assert len(g) == len(config.UNCERTAIN_VARIABLES)
+    assert (g["total_order"] >= 0).all()
+    # the top driver must be equipment cost or demand intensity (cost/demand led)
+    assert g.iloc[0]["name"] in {"equipment_cost", "demand_intensity"}
+    # non-influential operating params should have small total effect
+    small = g.set_index("name").loc["charger_avail", "total_order"]
+    assert small < 0.10
+
+
 if __name__ == "__main__":
     fns = [v for k, v in sorted(globals().items()) if k.startswith("test_")]
     passed = 0

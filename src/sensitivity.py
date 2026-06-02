@@ -93,6 +93,66 @@ def tornado(design: Design, df=None, solar=None,
     return out
 
 
+def _evaluate_matrix(design, df, solar, base_yield, M, names, year_index, output):
+    """Evaluate the model output for each row of input matrix M (dict name->array)."""
+    n = len(M[names[0]])
+    y = np.empty(n)
+    for j in range(n):
+        kw = {nm: float(M[nm][j]) for nm in names}
+        res = _evaluate(design, df, solar, year_index=year_index, **kw)
+        y[j] = res[output]
+    return y
+
+
+def global_sensitivity(design: Design, df=None, solar=None,
+                       output: str = "annual_cost", n: int = 2048,
+                       seed: int = config.RANDOM_SEED) -> pd.DataFrame:
+    """
+    Variance-based global sensitivity via the Saltelli pick-freeze estimator
+    (Saltelli et al., 2010), returning first-order (S_i) and total-order (S_Ti)
+    Sobol indices for every uncertain input. S_i is the main effect; S_Ti also
+    captures interactions, so S_Ti - S_i quantifies interaction strength.
+    Uses n*(D+2) independent model evaluations.
+    """
+    if df is None:
+        df = demand_model.load_dft()
+    if solar is None:
+        solar = pv_model.load_solar()
+    base_yield = pv_model.specific_yield_per_kwp(solar)
+    year_index = config.OPTIMISATION_HORIZON_YEARS
+    rng = np.random.default_rng(seed)
+    vars_ = config.UNCERTAIN_VARIABLES
+    names = [v.name for v in vars_]
+
+    def sample_matrix():
+        out = {}
+        for v in vars_:
+            mode = min(max(v.baseline, v.low), v.high)
+            out[v.name] = (rng.triangular(v.low, mode, v.high, n) if v.high > v.low
+                           else np.full(n, mode))
+        return out
+
+    A, B = sample_matrix(), sample_matrix()
+    yA = _evaluate_matrix(design, df, solar, base_yield, A, names, year_index, output)
+    yB = _evaluate_matrix(design, df, solar, base_yield, B, names, year_index, output)
+    varY = np.var(np.concatenate([yA, yB]), ddof=1)
+    if varY <= 0:
+        varY = 1.0
+
+    rows = []
+    for v in vars_:
+        ABi = dict(A); ABi[v.name] = B[v.name]
+        yABi = _evaluate_matrix(design, df, solar, base_yield, ABi, names, year_index, output)
+        Si = float(np.mean(yB * (yABi - yA)) / varY)            # Saltelli 2010 first-order
+        STi = float(np.mean((yA - yABi) ** 2) / (2 * varY))     # Jansen 1999 total-order
+        rows.append({"variable": v.label, "name": v.name,
+                     "first_order": max(Si, 0.0), "total_order": max(STi, 0.0)})
+    out = pd.DataFrame(rows).sort_values("total_order", ascending=False).reset_index(drop=True)
+    out["pct_variance"] = (out["first_order"] * 100).round(1)
+    out["pct_total"] = (out["total_order"] * 100).round(1)
+    return out
+
+
 if __name__ == "__main__":
     df = demand_model.load_dft()
     solar = pv_model.load_solar()
@@ -102,3 +162,10 @@ if __name__ == "__main__":
     print(f"{'Variable':28s}{'Low GBP':>12s}{'High GBP':>12s}{'Swing GBP':>12s}")
     for _, r in t.iterrows():
         print(f"{r['variable']:28s}{r['low_output']:>12,.0f}{r['high_output']:>12,.0f}{r['swing']:>12,.0f}")
+
+    print("\nGlobal sensitivity — Sobol indices (annual cost), Saltelli estimator:")
+    print(f"  {'Variable':36s}{'first-order':>12s}{'total-order':>12s}")
+    g = global_sensitivity(design, df, solar, output="annual_cost", n=2048)
+    for _, r in g.iterrows():
+        print(f"  {r['variable']:36s}{r['pct_variance']:11.1f}%{r['pct_total']:11.1f}%")
+    print(f"  {'(sum)':36s}{g['pct_variance'].sum():11.1f}%{g['pct_total'].sum():11.1f}%")

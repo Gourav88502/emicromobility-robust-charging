@@ -116,6 +116,20 @@
       "swing": 1918.9879584230275
     }
   ],
+  "global_sensitivity_sobol_total": [
+    {
+      "variable": "Equipment cost multiplier",
+      "pct_total": 43.8
+    },
+    {
+      "variable": "Demand intensity (trips/scooter/day)",
+      "pct_total": 37.2
+    },
+    {
+      "variable": "Daily fleet utilisation",
+      "pct_total": 9.1
+    }
+  ],
   "recommended_performance_high_scenario": {
     "service_level_pct": 98.9,
     "solar_fraction_pct": 35.7,

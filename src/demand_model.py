@@ -41,11 +41,21 @@ def load_dft() -> pd.DataFrame:
     return pd.read_csv(path, parse_dates=["date"])
 
 
+_WEIGHTS_CACHE: dict[int, np.ndarray] = {}
+
+
 def seasonal_monthly_weights(df: pd.DataFrame) -> np.ndarray:
     """12-element vector of normalised monthly demand multipliers (mean = 1)."""
+    # Content-based cache key (robust to id() reuse after garbage collection).
+    key = hash((int(df["monthly_trips"].sum()), len(df)))
+    cached = _WEIGHTS_CACHE.get(key)
+    if cached is not None:
+        return cached
     monthly = df.groupby("month_num")["monthly_trips"].mean()
     monthly = monthly.reindex(range(1, 13)).interpolate().bfill().ffill()
-    return (monthly / monthly.mean()).values
+    w = (monthly / monthly.mean()).values
+    _WEIGHTS_CACHE[key] = w
+    return w
 
 
 def normalised_hourly_shape(shape: np.ndarray | None = None) -> np.ndarray:
@@ -75,6 +85,14 @@ def annual_demand_kwh(params: DemandParams, df: pd.DataFrame | None = None) -> f
     return daily_kwh * 365.0 * growth
 
 
+# Static hour-of-year calendar — computed once and reused (big speed-up for the
+# tens of thousands of demand-series builds in Monte-Carlo / sensitivity).
+_HOURS = pd.date_range("2023-01-01", periods=config.HOURS_PER_YEAR, freq="h")
+_MONTH_IDX = _HOURS.month.values - 1
+_HOUR_IDX = _HOURS.hour.values
+_DEFAULT_SHAPE = normalised_hourly_shape()
+
+
 def hourly_demand_series(params: DemandParams,
                          df: pd.DataFrame | None = None) -> np.ndarray:
     """8,760-hour charging-energy demand profile (kWh per hour)."""
@@ -82,17 +100,14 @@ def hourly_demand_series(params: DemandParams,
         df = load_dft()
     annual_kwh = annual_demand_kwh(params, df)
 
-    hours = pd.date_range("2023-01-01", periods=config.HOURS_PER_YEAR, freq="h")
     month_w = seasonal_monthly_weights(df)
-    hour_shape = normalised_hourly_shape(params.hourly_shape)
-
-    month_idx = hours.month.values - 1
-    hour_idx = hours.hour.values
+    hour_shape = _DEFAULT_SHAPE if params.hourly_shape is None \
+        else normalised_hourly_shape(params.hourly_shape)
 
     # Distribute annual energy: by month (seasonal weight) then within day (shape).
     base_daily = annual_kwh / 365.0
-    daily_by_month = base_daily * month_w[month_idx]
-    hourly = daily_by_month * hour_shape[hour_idx]
+    daily_by_month = base_daily * month_w[_MONTH_IDX]
+    hourly = daily_by_month * hour_shape[_HOUR_IDX]
     return hourly.astype(float)
 
 

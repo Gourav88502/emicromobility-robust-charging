@@ -184,6 +184,23 @@ def fig_tornado(tornado_df: pd.DataFrame, output_label: str = "Annual cost (GBP/
 
 
 # --------------------------------------------------------------------------- #
+#  5b. Global (variance-based) sensitivity — total-effect Sobol indices
+# --------------------------------------------------------------------------- #
+def fig_global_sensitivity(sobol_df: pd.DataFrame) -> go.Figure:
+    d = sobol_df.sort_values("total_order")          # ascending -> largest on top
+    colors = [C["accent"] if v >= d["pct_total"].max() - 1e-9 else C["battery"]
+              for v in d["pct_total"]]
+    fig = go.Figure(go.Bar(
+        y=d["variable"], x=d["pct_total"], orientation="h",
+        marker_color=colors, text=[f"{v:.0f}%" for v in d["pct_total"]],
+        textposition="outside",
+        hovertemplate="%{y}<br>total-effect: %{x:.1f}% of cost variance<extra></extra>"))
+    fig.update_layout(xaxis_title="Total-effect Sobol index — share of annual-cost variance (%)",
+                      yaxis_title="", xaxis_range=[0, max(50, d['pct_total'].max() * 1.18)])
+    return _layout(fig, "Global sensitivity — total-effect Sobol indices (incl. interactions)")
+
+
+# --------------------------------------------------------------------------- #
 #  6. Hourly energy-balance dispatch (representative week) — Theme 2
 # --------------------------------------------------------------------------- #
 def fig_energy_balance(sim_result: dict, start_hour: int = 4320, hours: int = 168) -> go.Figure:

@@ -121,11 +121,16 @@ def main():
     figs["05_cost_distribution"] = _save_fig(
         visualize.fig_cost_distribution(mc_naive, mc_robust), "05_cost_distribution")
 
-    # ---- 4. Tornado sensitivity ------------------------------------------- #
-    print("\n[4] Tornado sensitivity analysis (recommended design) ...")
+    # ---- 4. Sensitivity: tornado (OAT) + global Sobol --------------------- #
+    print("\n[4] Sensitivity analysis (recommended design) ...")
     tor = sensitivity.tornado(recommended, df, solar, output="annual_cost")
-    print(f"    Top driver: {tor.iloc[0]['variable']} (swing GBP{tor.iloc[0]['swing']:,.0f})")
+    print(f"    Tornado top driver : {tor.iloc[0]['variable']} (swing GBP{tor.iloc[0]['swing']:,.0f})")
     figs["06_tornado"] = _save_fig(visualize.fig_tornado(tor), "06_tornado")
+    sob = sensitivity.global_sensitivity(recommended, df, solar, output="annual_cost", n=2048)
+    print(f"    Global Sobol top   : {sob.iloc[0]['variable']} "
+          f"({sob.iloc[0]['pct_total']:.0f}% of cost variance, total-effect)")
+    figs["09_global_sensitivity"] = _save_fig(
+        visualize.fig_global_sensitivity(sob), "09_global_sensitivity")
 
     # ---- 5. Dispatch + emissions ------------------------------------------ #
     print("\n[5] Hourly energy-balance dispatch & emissions (recommended design) ...")
@@ -144,7 +149,7 @@ def main():
 
     # ---- 6. Persist results ------------------------------------------------ #
     print("\n[6] Writing results.json, executive summary and combined report ...")
-    results = _collect_results(opt, s_rob, s_nai, tor, sim, emis, recommended, naive)
+    results = _collect_results(opt, s_rob, s_nai, tor, sob, sim, emis, recommended, naive)
     (OUT / "results.json").write_text(json.dumps(results, indent=2), encoding="utf-8")
     _write_summary(results)
     _write_report(figs, results)
@@ -153,6 +158,7 @@ def main():
     scen_summary.to_csv(OUT / "scenario_summary.csv", index=False)
     opt["pareto"].to_csv(OUT / "pareto_frontier.csv", index=False)
     tor.to_csv(OUT / "tornado_sensitivity.csv", index=False)
+    sob.to_csv(OUT / "global_sensitivity_sobol.csv", index=False)
     mc_robust.to_csv(OUT / "monte_carlo_robust.csv", index=False)
     mc_naive.to_csv(OUT / "monte_carlo_naive.csv", index=False)
 
@@ -179,7 +185,7 @@ def main():
     print(f"Open the report: {OUT / 'index.html'}")
 
 
-def _collect_results(opt, s_rob, s_nai, tor, sim, emis, recommended, naive) -> dict:
+def _collect_results(opt, s_rob, s_nai, tor, sob, sim, emis, recommended, naive) -> dict:
     def design_dict(d):
         return {"pv_kwp": d.pv_kwp, "battery_kwh": d.battery_kwh, "n_chargers": d.n_chargers}
     cap = economics.capex(recommended)
@@ -206,6 +212,7 @@ def _collect_results(opt, s_rob, s_nai, tor, sim, emis, recommended, naive) -> d
             "robust": {k: round(float(v), 1) for k, v in s_rob.items()},
             "naive": {k: round(float(v), 1) for k, v in s_nai.items()}},
         "top_sensitivities": tor[["variable", "swing"]].head(3).to_dict("records"),
+        "global_sensitivity_sobol_total": sob[["variable", "pct_total"]].head(3).to_dict("records"),
         "recommended_performance_high_scenario": {
             "service_level_pct": round(sim["service_level"] * 100, 1),
             "solar_fraction_pct": round(sim["solar_fraction"] * 100, 1),
@@ -251,16 +258,18 @@ def _write_report(figs: dict, r: dict):
     rec = r["recommended_design"]
     vor = r["value_of_robustness"]
     order = ["01_scenario_demand", "04_demand_fan", "02_pareto", "03_design_comparison",
-             "05_cost_distribution", "06_tornado", "07_energy_balance", "08_energy_sources"]
+             "05_cost_distribution", "06_tornado", "09_global_sensitivity",
+             "07_energy_balance", "08_energy_sources"]
     titles = {
         "01_scenario_demand": "1. Demand scenarios (from real DfT Newcastle data)",
         "04_demand_fan": "2. Monte-Carlo demand fan (500 samples)",
         "02_pareto": "3. Cost vs robustness — Pareto frontier",
         "03_design_comparison": "4. Decision-rule comparison",
         "05_cost_distribution": "5. Cost distribution: naive vs robust",
-        "06_tornado": "6. Tornado sensitivity",
-        "07_energy_balance": "7. Hourly dispatch & battery profile (Theme 2)",
-        "08_energy_sources": "8. Energy mix & carbon savings (Theme 3)",
+        "06_tornado": "6. Tornado sensitivity (one-at-a-time)",
+        "09_global_sensitivity": "7. Global sensitivity — total-effect Sobol indices",
+        "07_energy_balance": "8. Hourly dispatch & battery profile (Theme 2)",
+        "08_energy_sources": "9. Energy mix & carbon savings (Theme 3)",
     }
     cards = "".join(
         f'<section><h2>{titles[k]}</h2>'

@@ -247,9 +247,10 @@ def build():
         ("(v)", True),
         (" propagate uncertainty through a 500-sample correlated Monte-Carlo fan; ", False),
         ("(vi)", True),
-        (" rank the drivers with a tornado sensitivity analysis. The hourly controller is a "
-         "transparent greedy priority rule (optimal for a single store) and the full study runs "
-         "in about 25 seconds.", False),
+        (" rank the drivers with both a tornado (one-at-a-time) and a variance-based global "
+         "sensitivity analysis (total-effect Sobol indices, Saltelli estimator). The hourly "
+         "controller is a transparent greedy priority rule (optimal for a single store) and the "
+         "full study runs in about 30 seconds.", False),
     ])
     doc.add_picture(str(OUT / "methodology_flow.png"), width=Inches(6.1))
     doc.paragraphs[-1].alignment = WD_ALIGN_PARAGRAPH.CENTER

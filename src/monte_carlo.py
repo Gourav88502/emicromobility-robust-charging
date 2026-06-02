@@ -63,10 +63,19 @@ def _triangular_ppf(p: float, lo: float, mode: float, hi: float) -> float:
     return hi - np.sqrt((1 - p) * (hi - lo) * (hi - mode))
 
 
-def draw_samples(n: int = config.N_MONTE_CARLO, seed: int = config.RANDOM_SEED) -> list[Sample]:
+def draw_samples(n: int = config.N_MONTE_CARLO, seed: int = config.RANDOM_SEED,
+                 correlated: bool = True) -> list[Sample]:
+    """
+    Draw n Monte-Carlo samples.
+
+    correlated=True  : the three demand drivers co-move through a shared demand
+                       regime (realistic; used for the uncertainty fan).
+    correlated=False : all inputs independent (required for variance-based
+                       global sensitivity / Sobol indices).
+    """
     rng = np.random.default_rng(seed)
     var = {v.name: v for v in config.UNCERTAIN_VARIABLES}
-    w = DEMAND_REGIME_CORR
+    w = DEMAND_REGIME_CORR if correlated else 0.0
 
     def corr_draw(name: str, regime: float) -> float:
         v = var[name]

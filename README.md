@@ -3,7 +3,7 @@
 **Solar-powered shared e‑micromobility charging station — Newcastle upon Tyne**
 
 [![Python](https://img.shields.io/badge/Python-3.10%2B-blue.svg)](https://www.python.org/)
-[![Tests](https://img.shields.io/badge/tests-8%2F8%20passing-brightgreen.svg)](tests/test_pipeline.py)
+[![Tests](https://img.shields.io/badge/tests-9%2F9%20passing-brightgreen.svg)](tests/test_pipeline.py)
 [![CI](https://img.shields.io/badge/CI-build%20%26%20test-success.svg)](.github/workflows/ci.yml)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![Reproducible](https://img.shields.io/badge/reproducible-one%20command-success.svg)](run_analysis.py)
@@ -46,7 +46,8 @@ Shared e‑scooter charging demand in Newcastle swings with season, weather and 
 2. **Hourly energy‑balance dispatch** over 8,760 hours: PV → demand → battery (with overnight grid top‑up for peak‑shaving) → capped grid → unmet. JIT‑compiled with Numba (~100× faster).
 3. **Robust optimisation** of every PV (5–25 kWp) × battery (0–50 kWh) × charger (4–20) combination against 9 demand scenarios using **four decision rules**.
 4. **Monte‑Carlo** uncertainty fan (500 correlated samples across 9 uncertain variables).
-5. **Tornado** one‑at‑a‑time sensitivity analysis.
+5. **Sensitivity**: a one‑at‑a‑time **tornado** *and* a variance‑based **global
+   sensitivity** (total‑effect **Sobol** indices via the Saltelli estimator).
 6. **Sustainability**: operational CO₂ savings vs grid‑only charging.
 
 | Demand scenarios | Hourly dispatch & battery profile (Theme 2) |
@@ -56,6 +57,10 @@ Shared e‑scooter charging demand in Newcastle swings with season, weather and 
 | Cost distribution (insurance premium) | Tornado sensitivity |
 |---|---|
 | ![cost](outputs/05_cost_distribution.png) | ![tornado](outputs/06_tornado.png) |
+
+| Global sensitivity — total‑effect Sobol indices | Energy mix & carbon savings |
+|---|---|
+| ![sobol](outputs/09_global_sensitivity.png) | ![mix](outputs/08_energy_sources.png) |
 
 ---
 
@@ -125,7 +130,7 @@ emicromobility-robust-charging/
 │   ├── economics.py           ← CAPEX / OPEX / LCOE / battery replacement
 │   ├── optimization.py        ← naive / stochastic / minimax‑regret / maximin
 │   ├── monte_carlo.py         ← 500‑sample correlated uncertainty fan
-│   ├── sensitivity.py         ← tornado one‑at‑a‑time analysis
+│   ├── sensitivity.py         ← tornado (OAT) + global Sobol sensitivity
 │   ├── emissions.py           ← carbon savings vs grid‑only
 │   └── visualize.py           ← all Plotly figures (one clean theme)
 │
@@ -137,7 +142,7 @@ emicromobility-robust-charging/
 │   └── build_presentation.py      ← anonymised 3‑minute slide deck + timed script
 │
 ├── dashboard/app.py           ← interactive Streamlit dashboard
-├── tests/test_pipeline.py     ← 8 regression tests (physics + economics + pipeline)
+├── tests/test_pipeline.py     ← 9 regression tests (physics + economics + pipeline)
 ├── .github/workflows/ci.yml   ← CI: install, test, run full pipeline on every push
 │
 ├── data/

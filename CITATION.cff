@@ -1,0 +1,24 @@
+cff-version: 1.2.0
+message: "If you use this software or its results, please cite it as below."
+title: "Robust Charging Infrastructure Design under Demand Uncertainty"
+abstract: >-
+  A reproducible techno-economic model that designs a solar-powered charging
+  station for a shared e-micromobility fleet under demand uncertainty. It builds
+  Low/Medium/High demand scenarios from real DfT e-scooter trial data, runs an
+  hourly energy-balance dispatch under a constrained grid connection, and applies
+  robust optimisation (naive, chance-constrained stochastic, minimax-regret and
+  maximin) plus Monte-Carlo and Sobol global sensitivity analysis to recommend a
+  station specification that performs across all plausible demand futures.
+authors:
+  - name: "Newcastle e-Micromobility Team"
+keywords:
+  - robust optimization
+  - solar PV
+  - e-micromobility
+  - charging infrastructure
+  - energy storage
+  - Monte Carlo
+  - Sobol sensitivity
+license: MIT
+version: "1.0.0"
+date-released: "2026-06-10"
