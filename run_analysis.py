@@ -181,7 +181,7 @@ def _collect_results(opt, s_rob, s_nai, tor, sim, emis, recommended, naive) -> d
                 "prob_served_pct": round(info["prob_served"] * 100, 1),
                 "robustly_feasible": info["robustly_feasible"]}
             for r, info in opt["rules"].items()},
-        "value_of_robustness": {k: round(v, 1) if isinstance(v, float) else v
+        "value_of_robustness": {k: (round(v, 3) if isinstance(v, float) else v)
                                 for k, v in opt["value_of_robustness"].items()},
         "monte_carlo": {
             "robust": {k: round(float(v), 1) for k, v in s_rob.items()},

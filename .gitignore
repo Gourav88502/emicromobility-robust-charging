@@ -11,11 +11,13 @@ env/
 .numba_cache/
 __pycache__/
 
-# OS / editor
+# OS / editor / session cruft
 .DS_Store
 Thumbs.db
 .vscode/
 .idea/
+.Rhistory
+*.log
 
 # Streamlit
 .streamlit/secrets.toml

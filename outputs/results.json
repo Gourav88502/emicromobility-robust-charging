@@ -69,14 +69,14 @@
     }
   },
   "value_of_robustness": {
-    "naive_worst_cost": 52618.9,
-    "robust_worst_cost": 21044.9,
-    "worst_cost_reduction": 31574.0,
-    "worst_cost_reduction_pct": 60.0,
-    "naive_min_service": 0.9,
-    "robust_min_service": 1.0,
-    "naive_max_regret": 31574.0,
-    "robust_max_regret": 6550.5
+    "naive_worst_cost": 52618.908,
+    "robust_worst_cost": 21044.927,
+    "worst_cost_reduction": 31573.981,
+    "worst_cost_reduction_pct": 60.005,
+    "naive_min_service": 0.87,
+    "robust_min_service": 0.989,
+    "naive_max_regret": 31573.981,
+    "robust_max_regret": 6550.546
   },
   "monte_carlo": {
     "robust": {
