@@ -174,19 +174,20 @@ def build():
         "seven percent. The Pareto frontier makes the trade-off explicit: a small expected-cost "
         "premium buys large protection against the demand tail."))
 
-    # ---- Slide 5: Recommended design + dispatch (light) -------------------
+    # ---- Slide 5: Recommended design + smart charging (Theme 2) -----------
     s = prs.slides.add_slide(blank); bg(s, WHITE)
-    text(s, 0.7, 0.5, 12, 0.8, [[("Recommended robust station — Theme 2 in action", {"size": 32, "bold": True, "color": NAVY, "font": HEAD})]])
-    chip(s, 0.7, 1.5, 3.3, f"{rec['pv_kwp']:g} kWp solar PV", GOLD)
-    chip(s, 4.2, 1.5, 3.3, f"{rec['battery_kwh']:g} kWh battery", BLUE)
-    chip(s, 7.7, 1.5, 3.0, f"{rec['n_chargers']:g} charge points", GREEN)
-    pic_fit(s, OUT / "07_energy_balance.png", 0.8, 2.2, 11.7, 4.4)
-    text(s, 0.8, 6.55, 11.7, 0.5, [[("Battery charges overnight and at midday, then discharges through the evening peak the capped grid cannot meet.", {"size": 12, "italic": True, "color": GREY})]], align=PP_ALIGN.CENTER)
-    SCRIPT.append((5, "The recommended robust station is twenty-five kilowatt-peak of solar, fifty "
-        "kilowatt-hours of storage and eight charge bays. The dispatch profile shows how it "
-        "works: the battery charges overnight and from midday sun, then discharges through the "
-        "evening collection peak, shaving demand the constrained grid cannot meet. This directly "
-        "delivers Theme two — modelling charge and discharge profiles under demand scenarios."))
+    text(s, 0.7, 0.5, 12, 0.8, [[("Smart charging & the recommended design (Theme 2)", {"size": 30, "bold": True, "color": NAVY, "font": HEAD})]])
+    chip(s, 0.7, 1.45, 3.3, f"{rec['pv_kwp']:g} kWp solar PV", GOLD)
+    chip(s, 4.2, 1.45, 3.6, f"{rec['n_chargers']:g} charge bays, smart-managed", GREEN)
+    chip(s, 8.1, 1.45, 4.0, f"battery only if grid < ~10 kW", BLUE)
+    pic_fit(s, OUT / "07_energy_balance.png", 0.8, 2.15, 11.7, 4.4)
+    text(s, 0.8, 6.5, 11.7, 0.6, [[("Smart control schedules flexible charging into sunny / off-peak hours and flattens the overnight load below the connection limit — no battery needed at a connected depot.", {"size": 11.5, "italic": True, "color": GREY})]], align=PP_ALIGN.CENTER)
+    SCRIPT.append((5, "Here is the key insight. Because depot charging is flexible, a smart "
+        "controller schedules it into sunny, cheap off-peak hours and flattens the overnight load "
+        "below the connection limit. The consequence is striking: at a grid-connected depot a "
+        "battery does not pay — the cost-optimal robust design is solar plus enough smart-managed "
+        "bays. Storage becomes essential only as the connection weakens toward off-grid. Managing "
+        "the charge profile is the cheapest robustness lever of all — that is Theme two."))
 
     # ---- Slide 6: Feasibility + sustainability (light) --------------------
     s = prs.slides.add_slide(blank); bg(s, WHITE)

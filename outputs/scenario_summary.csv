@@ -1,4 +1,4 @@
 scenario,trips_per_scooter_day,fleet_utilisation,demand_growth,annual_kwh_year0,annual_kwh_final
-Low,0.5,0.4,0.0,1480.0,1480.0
-Medium,1.5,0.65,0.08,7217.0,21198.0
-High,3.5,0.9,0.15,23317.0,164984.0
+Low,0.5,0.4,0.0,2665.0,2665.0
+Medium,1.5,0.65,0.08,12991.0,38157.0
+High,3.5,0.9,0.15,41971.0,296971.0

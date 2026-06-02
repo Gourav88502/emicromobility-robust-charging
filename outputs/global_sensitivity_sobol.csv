@@ -1,10 +1,10 @@
 variable,name,first_order,total_order,pct_variance,pct_total
-Demand intensity (trips/scooter/day),demand_intensity,0.444619218265674,0.4335657838122231,44.5,43.4
-Equipment cost multiplier,equipment_cost,0.22901622618586662,0.25438699004314563,22.9,25.4
-Trip energy use,trip_energy,0.046428678011943954,0.1329353712863089,4.6,13.3
-Demand growth (YoY),demand_growth,0.1630480009510041,0.11666840031701689,16.3,11.7
-Daily fleet utilisation,fleet_utilisation,0.19513567732559625,0.1152220195392438,19.5,11.5
-Electricity tariff,electricity_price,0.00041913392183649253,0.005420470751456105,0.0,0.5
-PV performance ratio,pv_output,0.0,0.0008059423731302078,0.0,0.1
-Battery round-trip eff.,battery_eff,0.0023609058526924925,0.000292954108169787,0.2,0.0
+Demand intensity (trips/scooter/day),demand_intensity,0.5359127120307469,0.5207851953586741,53.6,52.1
+Demand growth (YoY),demand_growth,0.19863642367851586,0.2899344685190846,19.9,29.0
+Daily fleet utilisation,fleet_utilisation,0.21920786629918942,0.17015134184985833,21.9,17.0
+Trip energy use,trip_energy,0.09890600758870738,0.16686202923983748,9.9,16.7
+Equipment cost multiplier,equipment_cost,0.023186901279845296,0.027357957132336064,2.3,2.7
+Electricity tariff,electricity_price,0.009253991852786789,0.013281883965905832,0.9,1.3
+PV performance ratio,pv_output,0.0,0.0005239586502079192,0.0,0.1
 Charger availability,charger_avail,0.0,0.0,0.0,0.0
+Battery round-trip eff.,battery_eff,0.0,0.0,0.0,0.0

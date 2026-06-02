@@ -91,6 +91,45 @@ _HOURS = pd.date_range("2023-01-01", periods=config.HOURS_PER_YEAR, freq="h")
 _MONTH_IDX = _HOURS.month.values - 1
 _HOUR_IDX = _HOURS.hour.values
 _DEFAULT_SHAPE = normalised_hourly_shape()
+_SMART_WEIGHT_CACHE: np.ndarray | None = None
+
+
+def _smart_charging_weights() -> np.ndarray:
+    """
+    8,760-hour SMART-charging allocation weights, normalised so each DAY sums to 1.
+
+    The smart controller schedules each day's flexible charging energy across the
+    depot dwell window, favouring hours that (a) have vehicles present, (b) have
+    on-site PV available, and (c) sit in cheap off-peak tariff periods. This
+    flattens the load and shifts it overnight / into sun — the realistic outcome
+    of managed depot charging (Theme 2).
+    """
+    global _SMART_WEIGHT_CACHE
+    if _SMART_WEIGHT_CACHE is not None:
+        return _SMART_WEIGHT_CACHE
+
+    avail = np.asarray(config.VEHICLE_AVAILABILITY, float)[_HOUR_IDX]
+
+    # Off-peak desirability from the ToU tariff (cheapest hour -> 1, dearest -> 0).
+    tou = np.asarray(config.TOU_TARIFF, float)
+    offpeak24 = (tou.max() - tou) / (tou.max() - tou.min() + 1e-9)
+    offpeak = offpeak24[_HOUR_IDX]
+
+    # PV-availability shape (0-1), from the real solar series if present.
+    try:
+        from . import pv_model
+        pv = pv_model.specific_yield_per_kwp()
+        pv_norm = pv / (pv.max() + 1e-9)
+    except Exception:
+        pv_norm = np.zeros(config.HOURS_PER_YEAR)
+
+    weight = avail * (1.0 + config.SMART_PV_WEIGHT * pv_norm
+                      + config.SMART_OFFPEAK_WEIGHT * offpeak)
+    # normalise within each day so a day's weights sum to 1
+    daily_sum = weight.reshape(-1, 24).sum(axis=1)
+    weight = weight / np.repeat(daily_sum, 24)
+    _SMART_WEIGHT_CACHE = weight
+    return weight
 
 
 def hourly_demand_series(params: DemandParams,
@@ -99,16 +138,19 @@ def hourly_demand_series(params: DemandParams,
     if df is None:
         df = load_dft()
     annual_kwh = annual_demand_kwh(params, df)
-
     month_w = seasonal_monthly_weights(df)
-    hour_shape = _DEFAULT_SHAPE if params.hourly_shape is None \
-        else normalised_hourly_shape(params.hourly_shape)
-
-    # Distribute annual energy: by month (seasonal weight) then within day (shape).
     base_daily = annual_kwh / 365.0
     daily_by_month = base_daily * month_w[_MONTH_IDX]
-    hourly = daily_by_month * hour_shape[_HOUR_IDX]
-    return hourly.astype(float)
+
+    if config.SMART_CHARGING and params.hourly_shape is None:
+        # `daily_by_month` is the day's total energy (constant within a day); the
+        # smart weights sum to 1 per day, so this distributes each day's flexible
+        # energy across the dwell window following PV + off-peak tariff.
+        return (daily_by_month * _smart_charging_weights()).astype(float)
+
+    hour_shape = _DEFAULT_SHAPE if params.hourly_shape is None \
+        else normalised_hourly_shape(params.hourly_shape)
+    return (daily_by_month * hour_shape[_HOUR_IDX]).astype(float)
 
 
 def monthly_demand_series(params: DemandParams, df: pd.DataFrame | None = None) -> np.ndarray:

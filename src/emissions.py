@@ -32,34 +32,30 @@ def carbon_intensity_vector(carbon: pd.DataFrame | None = None) -> np.ndarray:
 def emissions_analysis(result: dict,
                        carbon: pd.DataFrame | None = None) -> dict:
     """
-    Carbon savings of the station vs a 100%-grid counterfactual.
-
-    Uses hourly carbon intensity where hourly traces are available (preferred),
-    otherwise an annual-mean intensity on aggregate energy.
+    Carbon savings of the station vs a 100%-grid counterfactual, valued at the
+    MARGINAL emissions factor (consequential accounting: on-site PV+storage
+    displaces the marginal grid plant, ~gas CCGT, not the system average). The
+    real regional average series is reported separately for context.
     """
     ci = carbon_intensity_vector(carbon)              # gCO2/kWh, len 8760
     mean_ci = float(ci.mean())
+    marg = config.MARGINAL_CARBON_GCO2_KWH
 
     served = result["demand_served_kwh"]
     grid = result["grid_import_kwh"]
+    # On-site renewable energy that displaced grid imports = served - grid import.
+    displaced = max(served - grid, 0.0)
 
-    if "_grid_import" in result:
-        grid_hourly = np.asarray(result["_grid_import"])
-        served_hourly = (np.asarray(result["_pv_to_demand"])
-                         + np.asarray(result["_batt_to_demand"])
-                         + grid_hourly)
-        emis_station_g = float(np.sum(grid_hourly * ci))
-        emis_counterfactual_g = float(np.sum(served_hourly * ci))
-    else:
-        emis_station_g = grid * mean_ci
-        emis_counterfactual_g = served * mean_ci
-
-    saving_g = emis_counterfactual_g - emis_station_g
+    emis_counterfactual_g = served * marg            # grid-only would import all of it
+    emis_station_g = grid * marg                      # station still imports `grid`
+    saving_g = displaced * marg
     saving_t = saving_g / 1e6                          # tonnes CO2
     lifetime_t = saving_t * config.PROJECT_LIFETIME_YEARS
 
     return {
         "mean_carbon_intensity_gCO2_kWh": mean_ci,
+        "marginal_factor_gCO2_kWh": marg,
+        "displaced_grid_kwh": displaced,
         "station_emissions_tCO2_yr": emis_station_g / 1e6,
         "counterfactual_emissions_tCO2_yr": emis_counterfactual_g / 1e6,
         "carbon_saving_tCO2_yr": saving_t,

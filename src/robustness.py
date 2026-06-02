@@ -27,7 +27,7 @@ def _run_once(designs, scenarios_cache, df, solar, horizon) -> dict:
 
 def sweep(df=None, solar=None,
           penalties=(2, 5, 10, 20, 40),
-          grids=(10, 12, 14, 16, 18, 20, 22),
+          grids=(6, 9, 12, 15, 18, 21, 24),
           horizons=(3, 4, 5, 6, 7)) -> dict:
     if df is None:
         df = demand_model.load_dft()

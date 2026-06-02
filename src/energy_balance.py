@@ -52,16 +52,18 @@ _OFFPEAK_START, _OFFPEAK_END = 0, 6      # 00:00-05:59
 
 
 @njit(cache=True, fastmath=True)
-def _dispatch(demand, pv, offpeak, usable_cap, p_batt_max, deliver_cap,
+def _dispatch(demand, pv, tou, usable_cap, p_batt_max, deliver_cap,
               grid_cap, eff_one_way, want_traces):
     n = demand.shape[0]
     soc = usable_cap * 0.5
 
-    s_grid_demand = 0.0      # grid -> demand
-    s_grid_batt = 0.0        # grid -> battery (off-peak top-up)
+    s_grid = 0.0             # grid -> demand (kWh)
+    s_grid_cost = 0.0        # grid energy cost at time-of-use tariff (GBP)
+    s_peak_grid = 0.0        # peak grid import (kW) -> demand charge
     s_pv_d = 0.0             # PV -> demand
     s_pv_b = 0.0             # PV -> battery
-    s_pv_x = 0.0             # PV -> export
+    s_pv_x = 0.0             # PV -> export (capped by connection)
+    s_curtail = 0.0          # PV curtailed (surplus beyond export cap)
     s_bat_d = 0.0            # battery -> demand
     s_unmet = 0.0
     s_through = 0.0          # battery throughput (for cycle counting)
@@ -77,8 +79,8 @@ def _dispatch(demand, pv, offpeak, usable_cap, p_batt_max, deliver_cap,
     for t in range(n):
         d = demand[t]
         g = pv[t]
-        charge_room_pwr = p_batt_max      # remaining charge throughput this hour
-        discharge_room_pwr = p_batt_max   # remaining discharge throughput this hour
+        charge_room_pwr = p_batt_max
+        discharge_room_pwr = p_batt_max
 
         # Charger hardware cap on hourly delivery.
         servable = d if d < deliver_cap else deliver_cap
@@ -90,7 +92,8 @@ def _dispatch(demand, pv, offpeak, usable_cap, p_batt_max, deliver_cap,
         residual = servable - pv_d
         surplus = g - pv_d
 
-        # 2. surplus PV -> battery
+        # 2. surplus PV -> battery (the battery's role under smart charging is to
+        #    time-shift daytime PV onto the overnight load -> self-consumption)
         if surplus > 0.0 and usable_cap > 0.0 and charge_room_pwr > 0.0:
             room_in = (usable_cap - soc) / eff_one_way
             charge_in = surplus
@@ -107,9 +110,12 @@ def _dispatch(demand, pv, offpeak, usable_cap, p_batt_max, deliver_cap,
             s_through += stored
             surplus -= charge_in
 
-        # 3. remaining surplus PV -> export
-        pv_x = surplus if surplus > 0.0 else 0.0
-        s_pv_x += pv_x
+        # 3. remaining surplus PV -> export, capped by the grid connection
+        export_t = 0.0
+        if surplus > 0.0:
+            export_t = surplus if surplus < grid_cap else grid_cap
+            s_pv_x += export_t
+            s_curtail += surplus - export_t
 
         # 4. deficit -> battery discharge, then capped grid
         bat_d = 0.0
@@ -130,27 +136,13 @@ def _dispatch(demand, pv, offpeak, usable_cap, p_batt_max, deliver_cap,
                 residual -= discharge
             if residual > 0.0:
                 grid_used = residual if residual < grid_cap else grid_cap
-                s_grid_demand += grid_used
+                s_grid += grid_used
+                s_grid_cost += grid_used * tou[t]
+                if grid_used > s_peak_grid:
+                    s_peak_grid = grid_used
                 residual -= grid_used
                 if residual > 0.0:
                     unmet += residual        # capped grid + empty battery
-
-        # 5. off-peak: top up battery from spare grid capacity (peak-shaving)
-        if offpeak[t] > 0.5 and usable_cap > 0.0 and charge_room_pwr > 0.0:
-            spare_grid = grid_cap - grid_used
-            if spare_grid > 0.0:
-                room_in = (usable_cap - soc) / eff_one_way
-                charge_g = spare_grid
-                if charge_g > charge_room_pwr:
-                    charge_g = charge_room_pwr
-                if charge_g > room_in:
-                    charge_g = room_in
-                if charge_g < 0.0:
-                    charge_g = 0.0
-                stored = charge_g * eff_one_way
-                soc += stored
-                s_grid_batt += charge_g
-                s_through += stored
 
         s_unmet += unmet
 
@@ -158,12 +150,12 @@ def _dispatch(demand, pv, offpeak, usable_cap, p_batt_max, deliver_cap,
             tr_grid[t] = grid_used
             tr_pv_d[t] = pv_d
             tr_bat_d[t] = bat_d
-            tr_pv_x[t] = pv_x
+            tr_pv_x[t] = export_t
             tr_soc[t] = soc
             tr_unmet[t] = unmet
 
-    return (s_grid_demand, s_grid_batt, s_pv_d, s_pv_b, s_pv_x, s_bat_d,
-            s_unmet, s_through,
+    return (s_grid, s_grid_cost, s_peak_grid, s_pv_d, s_pv_b, s_pv_x, s_curtail,
+            s_bat_d, s_unmet, s_through,
             tr_grid, tr_pv_d, tr_bat_d, tr_pv_x, tr_soc, tr_unmet)
 
 
@@ -173,6 +165,7 @@ def _offpeak_mask() -> np.ndarray:
 
 
 _OFFPEAK = _offpeak_mask()
+_TOU = np.asarray(config.TOU_TARIFF, float)[np.arange(config.HOURS_PER_YEAR) % 24]
 
 
 def _run(design: Design, demand_kwh, pv_kwh, battery_rt_eff, charger_power_kw,
@@ -189,30 +182,27 @@ def _run(design: Design, demand_kwh, pv_kwh, battery_rt_eff, charger_power_kw,
 
     demand_kwh = np.ascontiguousarray(demand_kwh, dtype=np.float64)
     pv_kwh = np.ascontiguousarray(pv_kwh, dtype=np.float64)
-    offpeak = _OFFPEAK if len(demand_kwh) == config.HOURS_PER_YEAR else \
-        ((np.arange(len(demand_kwh)) % 24 >= _OFFPEAK_START) &
-         (np.arange(len(demand_kwh)) % 24 < _OFFPEAK_END)).astype(np.float64)
+    tou = _TOU if len(demand_kwh) == config.HOURS_PER_YEAR else \
+        np.asarray(config.TOU_TARIFF, float)[np.arange(len(demand_kwh)) % 24]
 
-    return _dispatch(demand_kwh, pv_kwh, offpeak, usable_cap, p_batt_max,
+    return _dispatch(demand_kwh, pv_kwh, tou, usable_cap, p_batt_max,
                      deliver_cap, float(grid_cap), eff_one_way, want_traces)
 
 
 def _assemble(design, demand_kwh, out, want_traces) -> dict:
-    (s_grid_demand, s_grid_batt, s_pv_d, s_pv_b, s_pv_x, s_bat_d,
-     s_unmet, s_through,
+    (s_grid, s_grid_cost, s_peak_grid, s_pv_d, s_pv_b, s_pv_x, s_curtail,
+     s_bat_d, s_unmet, s_through,
      tr_grid, tr_pv_d, tr_bat_d, tr_pv_x, tr_soc, tr_unmet) = out
 
     demand_total = float(np.sum(demand_kwh))
     served_total = demand_total - s_unmet
     service_level = served_total / demand_total if demand_total > 0 else 1.0
-    grid_import = s_grid_demand + s_grid_batt
-    pv_total = s_pv_d + s_pv_b + s_pv_x
+    grid_import = s_grid                          # all grid import serves demand
+    pv_total = s_pv_d + s_pv_b + s_pv_x + s_curtail
 
-    # Honest solar fraction: battery discharge credited to solar in proportion
-    # to the PV share of what charged the battery.
-    charged = s_pv_b + s_grid_batt
-    solar_share_batt = (s_pv_b / charged) if charged > 0 else 0.0
-    renewable_served = s_pv_d + s_bat_d * solar_share_batt
+    # Solar fraction: PV directly used + PV stored then discharged (battery only
+    # stores PV under smart charging, so battery discharge is 100% solar-sourced).
+    renewable_served = s_pv_d + s_bat_d
     solar_fraction = renewable_served / served_total if served_total > 0 else 0.0
 
     result = {
@@ -222,11 +212,14 @@ def _assemble(design, demand_kwh, out, want_traces) -> dict:
         "unmet_demand_kwh": s_unmet,
         "service_level": service_level,
         "grid_import_kwh": grid_import,
-        "grid_to_demand_kwh": s_grid_demand,
-        "grid_to_battery_kwh": s_grid_batt,
+        "grid_to_demand_kwh": s_grid,
+        "grid_to_battery_kwh": 0.0,
+        "grid_cost_baseline_gbp": s_grid_cost,    # at baseline ToU tariff
+        "peak_grid_kw": s_peak_grid,              # for demand/capacity charge
         "pv_to_demand_kwh": s_pv_d,
         "pv_to_battery_kwh": s_pv_b,
         "pv_export_kwh": s_pv_x,
+        "pv_curtailed_kwh": s_curtail,
         "battery_to_demand_kwh": s_bat_d,
         "battery_throughput_kwh": s_through,
         "pv_generation_kwh": pv_total,

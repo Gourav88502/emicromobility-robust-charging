@@ -1,6 +1,6 @@
 # 3-Minute Presentation Script (anonymised)
 
-*Total ~458 words ≈ 3.1 min at a calm 150 wpm. No personal or organisation details — safe for blind Level-1 review.*
+*Total ~477 words ≈ 3.2 min at a calm 150 wpm. No personal or organisation details — safe for blind Level-1 review.*
 
 ## Slide 1 — Title & hook  (~25s)
 
@@ -20,7 +20,7 @@ Here is the headline. The naive, average-demand design is cheapest on a normal d
 
 ## Slide 5 — Recommended design  (~25s)
 
-The recommended robust station is twenty-five kilowatt-peak of solar, fifty kilowatt-hours of storage and eight charge bays. The dispatch profile shows how it works: the battery charges overnight and from midday sun, then discharges through the evening collection peak, shaving demand the constrained grid cannot meet. This directly delivers Theme two — modelling charge and discharge profiles under demand scenarios.
+Here is the key insight. Because depot charging is flexible, a smart controller schedules it into sunny, cheap off-peak hours and flattens the overnight load below the connection limit. The consequence is striking: at a grid-connected depot a battery does not pay — the cost-optimal robust design is solar plus enough smart-managed bays. Storage becomes essential only as the connection weakens toward off-grid. Managing the charge profile is the cheapest robustness lever of all — that is Theme two.
 
 ## Slide 6 — Feasibility & sustainability  (~25s)
 

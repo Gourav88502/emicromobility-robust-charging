@@ -80,18 +80,39 @@ SCOOTER_BATTERY_WH = 500.0              # ~0.5 kWh typical shared e-scooter pack
 # demand in the range where PV (5-25 kWp), storage (0-50 kWh) AND charge-point
 # count (4-20) are all binding decisions. The conclusion is shown to hold across
 # 0.35-0.6 coverage in the robustness-of-robustness analysis.
-STATION_DEMAND_SHARE = 0.5
+STATION_DEMAND_SHARE = 0.9
 
-# Hourly demand shape: fraction of daily charging energy drawn each hour.
-# Shared e-scooter operators collect depleted units and charge them in a
-# concentrated evening window (18:00-22:00), with a smaller overnight depot
-# top-up. This peakiness is what makes battery storage valuable under a capped
-# grid connection. 24 weights, normalised to sum to 1.0 in the demand model.
+# SMART (deferrable) charging. A depot's charging load is highly flexible: a
+# vehicle that returns in the evening only needs to be ready by morning. A smart
+# controller therefore SCHEDULES charging across the depot dwell window to follow
+# on-site PV and the cheapest/cleanest off-peak hours, rather than charging on a
+# fixed evening peak. The realised hourly load is built in demand_model from:
+#   (a) VEHICLE_AVAILABILITY  — fraction of the fleet at the depot each hour, and
+#   (b) a desirability weight that favours hours with PV and off-peak tariff.
+# This flattens the load (the honest baseline); storage/PV still earn their place
+# by (i) covering the residual overnight peak when even the flattened load exceeds
+# the connection, and (ii) time-shifting daytime PV to the overnight load.
+SMART_CHARGING = True
+
+# Fraction of the fleet physically at the depot (able to charge) each hour. Out
+# on the street through the day, back overnight — a shared-fleet duty cycle.
+VEHICLE_AVAILABILITY = [
+    0.95, 0.95, 0.95, 0.95, 0.95, 0.92,   # 00-05  overnight: nearly all present
+    0.85, 0.65, 0.45, 0.30, 0.25, 0.25,   # 06-11  deploying out
+    0.25, 0.25, 0.30, 0.40, 0.55, 0.70,   # 12-17  starting to return
+    0.82, 0.90, 0.93, 0.95, 0.95, 0.95,   # 18-23  back at the depot
+]
+# How strongly the smart controller shifts charging towards PV and off-peak hours.
+SMART_PV_WEIGHT = 1.6
+SMART_OFFPEAK_WEIGHT = 1.0
+
+# UNMANAGED (dumb) charging shape — used only when SMART_CHARGING is False, as the
+# pessimistic counterfactual: vehicles all plugged in on return for an evening peak.
 HOURLY_DEMAND_SHAPE = [
-    0.015, 0.010, 0.008, 0.008, 0.010, 0.015,   # 00-05  overnight depot top-up
+    0.015, 0.010, 0.008, 0.008, 0.010, 0.015,   # 00-05
     0.020, 0.025, 0.030, 0.025, 0.020, 0.020,   # 06-11
     0.022, 0.022, 0.022, 0.028, 0.045, 0.080,   # 12-17
-    0.120, 0.135, 0.115, 0.085, 0.050, 0.030,   # 18-23  evening collection peak
+    0.120, 0.135, 0.115, 0.085, 0.050, 0.030,   # 18-23  evening plug-in peak
 ]
 DEMAND_SHAPE_UNCERTAINTY = 0.25
 
@@ -132,9 +153,28 @@ BATTERY_CAPEX_PER_KWH = {"baseline": 350.0, "low": 250.0, "high": 450.0} # GBP/k
 CHARGER_CAPEX_PER_UNIT = {"baseline": 1000.0, "low": 500.0, "high": 2000.0}  # low-power AC bay
 INSTALL_FRACTION = {"baseline": 0.20, "low": 0.15, "high": 0.25}     # of equip CAPEX
 OPEX_FRACTION = {"baseline": 0.02, "low": 0.015, "high": 0.03}       # of CAPEX / yr
-ELECTRICITY_TARIFF = {"baseline": 0.26, "low": 0.22, "high": 0.30}   # GBP/kWh
+ELECTRICITY_TARIFF = {"baseline": 0.26, "low": 0.22, "high": 0.30}   # GBP/kWh (mean)
 ELECTRICITY_TARIFF_UNCERTAINTY = 0.15
 FEED_IN_TARIFF = 0.05                    # GBP/kWh export credit (SEG, conservative)
+
+# Time-of-use commercial tariff (GBP/kWh) by hour (UK Power Networks ToU shape):
+# cheap overnight, standard daytime, expensive 16:00-19:00 peak. Mean ~ baseline.
+TOU_TARIFF = [
+    0.16, 0.16, 0.16, 0.16, 0.16, 0.16,   # 00-05  off-peak (night)
+    0.22, 0.26, 0.26, 0.26, 0.26, 0.26,   # 06-11  day
+    0.26, 0.26, 0.26, 0.26, 0.38, 0.38,   # 12-17  -> peak from 16:00
+    0.38, 0.28, 0.24, 0.22, 0.18, 0.16,   # 18-23  peak then easing to off-peak
+]
+# Marginal grid emissions factor (gCO2/kWh): displaced grid energy avoids the
+# MARGINAL plant (UK ~ gas CCGT), not the system average. Used for carbon savings
+# (consequential accounting); the average regional series is kept for context.
+MARGINAL_CARBON_GCO2_KWH = 360.0
+# PV export to the grid is limited by the SAME physical connection as import.
+EXPORT_LIMITED_BY_CONNECTION = True
+# Commercial peak-demand / capacity charge (GBP per kW of annual peak grid import
+# per year) — DUoS availability + red-band charges. This rewards peak shaving even
+# when energy service is met, giving storage/PV a demand-charge value.
+DEMAND_CHARGE_PER_KW_YEAR = 80.0
 
 DISCOUNT_RATE = 0.06                     # social/commercial discount rate
 PROJECT_LIFETIME_YEARS = 15
@@ -163,7 +203,7 @@ CHARGER_COUNTS = list(range(4, 21, 4))        # 4,8,12,16,20
 # storage is attractive. The conclusion is shown to hold across 10-22 kW in the
 # robustness-of-robustness analysis (src/robustness.py) — NOT an artefact of this
 # single value.
-GRID_CONNECTION_KW = 14.0
+GRID_CONNECTION_KW = 15.0
 
 # Service-level target: a design is "robustly feasible" if it serves at least this
 # share of annual charging demand in EVERY scenario (the rest defers to off-peak /

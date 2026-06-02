@@ -117,12 +117,22 @@ def annual_costs(design: Design,
     fixed_om = cap["total"] * opex_frac
     battery_repl = annual_battery_replacement_cost(
         design, energy.get("battery_throughput_kwh", 0.0), battery_cost, cycle_life)
-    grid_cost = energy.get("grid_import_kwh", 0.0) * tariff
+
+    # Grid energy cost at the time-of-use tariff. The dispatch accumulates cost at
+    # the baseline ToU shape; scale it so its mean equals the (sampled) tariff.
+    _tou_mean = sum(config.TOU_TARIFF) / len(config.TOU_TARIFF)
+    if "grid_cost_baseline_gbp" in energy:
+        grid_cost = energy["grid_cost_baseline_gbp"] * tariff / _tou_mean
+    else:
+        grid_cost = energy.get("grid_import_kwh", 0.0) * tariff
+    # Peak-demand / capacity charge on the annual peak grid import.
+    demand_charge = energy.get("peak_grid_kw", 0.0) * config.DEMAND_CHARGE_PER_KW_YEAR
     export_credit = energy.get("pv_export_kwh", 0.0) * config.FEED_IN_TARIFF
     unmet_penalty = energy.get("unmet_demand_kwh", 0.0) * config.UNMET_DEMAND_PENALTY
 
     total_annual = (annualised_capex + fixed_om + battery_repl
-                    + grid_cost - export_credit + unmet_penalty - pv_residual_credit)
+                    + grid_cost + demand_charge - export_credit
+                    + unmet_penalty - pv_residual_credit)
     return {
         "capex_total": cap["total"],
         "annualised_capex": annualised_capex,
@@ -130,6 +140,7 @@ def annual_costs(design: Design,
         "fixed_om": fixed_om,
         "battery_replacement": battery_repl,
         "grid_cost": grid_cost,
+        "demand_charge": demand_charge,
         "export_credit": export_credit,
         "unmet_penalty": unmet_penalty,
         "total_annual_cost": total_annual,

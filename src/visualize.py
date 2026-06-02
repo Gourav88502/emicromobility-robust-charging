@@ -279,7 +279,7 @@ def fig_energy_balance(sim_result: dict, start_hour: int = 4320, hours: int = 16
     fig.update_yaxes(title_text="Power delivered (kWh/h)", secondary_y=False)
     fig.update_yaxes(title_text="Battery state of charge (%)", range=[0, 105],
                      secondary_y=True)
-    return _layout(fig, "Hourly energy-balance dispatch & battery profile (Theme 2)",
+    return _layout(fig, "Hourly smart-charging dispatch — PV / battery / grid (Theme 2)",
                    height=480)
 
 

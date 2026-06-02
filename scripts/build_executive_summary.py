@@ -223,7 +223,13 @@ def build():
          "“demand regime” reproduces the realistic co-movement of trips, utilisation and "
          "growth, and exposes a subtle but important result — expected-value design ", False),
         ("under-weights the correlated high-demand tail", True),
-        (", which is precisely why scenario-based robust methods are required here.", False),
+        (", which is precisely why scenario-based robust methods are required here. A further, "
+         "counter-intuitive finding falls out: because depot charging is flexible, ", False),
+        ("smart charging is the cheapest robustness lever", True),
+        (" — it flattens the load below the connection so that, at a grid-connected depot, a "
+         "battery does not pay; storage becomes essential only as the connection weakens toward "
+         "off-grid (~10 kW), a boundary we quantify. The recommendation is therefore solar + "
+         "smart-managed bays, not capital-heavy storage.", False),
     ])
 
     # ---- 3. Approach (with flow diagram) -----------------------------------

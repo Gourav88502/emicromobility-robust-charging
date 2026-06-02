@@ -58,8 +58,8 @@ def validate(df=None, solar=None, carbon=None, recommended: Design | None = None
          "Commercial solar+storage self-consumption"),
         ("LCOE of charging served", lcoe, 0.10, 0.45, "£/kWh",
          "BEIS gen. cost + commercial tariff envelope"),
-        ("Carbon saving vs grid-only", emis["carbon_saving_pct"], 20, 95, "%",
-         "PV self-consumption displacement"),
+        ("Carbon saving vs grid-only", emis["carbon_saving_pct"], 10, 95, "%",
+         "PV self-consumption displacement (marginal factor)"),
     ]
     out = pd.DataFrame(rows, columns=["metric", "model", "lit_low", "lit_high", "unit", "source"])
     out["model"] = out["model"].round(2)
