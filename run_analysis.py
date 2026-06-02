@@ -156,6 +156,20 @@ def main():
     mc_robust.to_csv(OUT / "monte_carlo_robust.csv", index=False)
     mc_naive.to_csv(OUT / "monte_carlo_naive.csv", index=False)
 
+    # ---- 7. Methodology flow diagram + anonymised executive summary -------- #
+    print("\n[7] Building methodology flow diagram and executive summary ...")
+    sys.path.insert(0, str(ROOT / "scripts"))
+    try:
+        import make_flow_diagram
+        make_flow_diagram.main()
+    except Exception as e:
+        print(f"   (flow diagram skipped: {e})")
+    try:
+        import build_executive_summary
+        build_executive_summary.build()
+    except Exception as e:
+        print(f"   (executive summary skipped — needs python-docx: {e})")
+
     print(f"\nDONE in {time.time()-t0:.1f}s. All outputs in: {OUT}")
     print(f"Open the report: {OUT / 'index.html'}")
 

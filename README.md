@@ -4,6 +4,7 @@
 
 [![Python](https://img.shields.io/badge/Python-3.10%2B-blue.svg)](https://www.python.org/)
 [![Tests](https://img.shields.io/badge/tests-8%2F8%20passing-brightgreen.svg)](tests/test_pipeline.py)
+[![CI](https://img.shields.io/badge/CI-build%20%26%20test-success.svg)](.github/workflows/ci.yml)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![Reproducible](https://img.shields.io/badge/reproducible-one%20command-success.svg)](run_analysis.py)
 
@@ -39,17 +40,7 @@ Shared e‑scooter charging demand in Newcastle swings with season, weather and 
 
 ## 3. What the model does (pipeline)
 
-```
- Real DfT Newcastle data ─┐
- PVGIS solar (calibrated) ─┼─►  Hourly energy balance  ─►  Robust optimisation  ─►  Recommended design
- Carbon intensity (NE)   ─┘     (8,760 h, grid‑capped)     150 designs × 9 scen.      + value of robustness
-                                        │                   • naive deterministic
-                                        │                   • stochastic (chance‑constrained)
-                                        ▼                   • minimax regret
-                                Monte‑Carlo fan (500)        • maximin (robust)
-                                Tornado sensitivity          + Pareto frontier
-                                Emissions / carbon
-```
+![Methodology flow](outputs/methodology_flow.png)
 
 1. **Demand scenarios (Low/Medium/High)** built from the **real** DfT Newcastle/Neuron e‑scooter monitoring data (Jan 2022 – May 2024).
 2. **Hourly energy‑balance dispatch** over 8,760 hours: PV → demand → battery (with overnight grid top‑up for peak‑shaving) → capped grid → unmet. JIT‑compiled with Numba (~100× faster).
@@ -83,10 +74,14 @@ python run_analysis.py
 
 That single command **prepares the datasets, runs every model, and writes all figures and a combined report** to `outputs/`. It is deterministic (fixed seed) and self‑healing (it regenerates any missing data), so it works on a fresh clone in ~25 seconds.
 
+That command also rebuilds the **methodology flow diagram** and the **2‑page anonymised
+Executive Summary** (`outputs/Executive_Summary.docx`) used for the blind‑judged Level‑1 round.
+
 **Then open the interactive report:**
 
 ```
-outputs/index.html      ← open in any browser (no server needed)
+outputs/index.html               ← interactive results, open in any browser
+outputs/Executive_Summary.docx   ← 2-page anonymised summary (Level-1 submission)
 ```
 
 ### Interactive dashboard (stakeholder demo)
@@ -132,11 +127,14 @@ emicromobility-robust-charging/
 │   └── visualize.py           ← all Plotly figures (one clean theme)
 │
 ├── scripts/
-│   ├── prepare_data.py        ← builds analysis‑ready datasets (real DfT + solar + carbon)
-│   └── fetch_real_data.py     ← optional live PVGIS / Carbon API pull
+│   ├── prepare_data.py            ← builds analysis‑ready datasets (real DfT + solar + carbon)
+│   ├── fetch_real_data.py         ← optional live PVGIS / Carbon API pull
+│   ├── make_flow_diagram.py       ← methodology flow diagram (the "Approach" figure)
+│   └── build_executive_summary.py ← anonymised 2‑page Executive Summary (.docx)
 │
 ├── dashboard/app.py           ← interactive Streamlit dashboard
 ├── tests/test_pipeline.py     ← 8 regression tests (physics + economics + pipeline)
+├── .github/workflows/ci.yml   ← CI: install, test, run full pipeline on every push
 │
 ├── data/
 │   ├── raw/…dft…trials….ods   ← official DfT spreadsheet (real public data)

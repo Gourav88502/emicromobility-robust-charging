@@ -1,0 +1,53 @@
+name: CI — build & test
+
+# Proves the project runs error-free on a clean machine: installs dependencies,
+# runs the regression tests, and executes the full analysis pipeline end-to-end
+# (which regenerates all datasets, figures, the report and the executive summary).
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.10", "3.11", "3.12"]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: pip
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Run regression tests
+        run: python -m pytest -q tests/
+
+      - name: Run full analysis pipeline (end-to-end)
+        run: python run_analysis.py
+
+      - name: Upload generated outputs
+        if: ${{ matrix.python-version == '3.12' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: analysis-outputs
+          path: |
+            outputs/*.png
+            outputs/*.html
+            outputs/results.json
+            outputs/Executive_Summary.docx
+          if-no-files-found: warn
