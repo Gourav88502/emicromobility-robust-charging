@@ -74,14 +74,17 @@ python run_analysis.py
 
 That single command **prepares the datasets, runs every model, and writes all figures and a combined report** to `outputs/`. It is deterministic (fixed seed) and self‑healing (it regenerates any missing data), so it works on a fresh clone in ~25 seconds.
 
-That command also rebuilds the **methodology flow diagram** and the **2‑page anonymised
-Executive Summary** (`outputs/Executive_Summary.docx`) used for the blind‑judged Level‑1 round.
+That command also rebuilds the **methodology flow diagram**, the **2‑page anonymised
+Executive Summary**, and the **anonymised 3‑minute presentation deck + script** — the full
+blind‑judged Level‑1 package.
 
-**Then open the interactive report:**
+**Then open the interactive report and deliverables:**
 
 ```
 outputs/index.html               ← interactive results, open in any browser
 outputs/Executive_Summary.docx   ← 2-page anonymised summary (Level-1 submission)
+outputs/Presentation.pptx        ← anonymised 3-minute slide deck (speaker notes = script)
+outputs/presentation_script.md   ← timed 3-minute narration (~434 words, ~2.9 min)
 ```
 
 ### Interactive dashboard (stakeholder demo)
@@ -130,7 +133,8 @@ emicromobility-robust-charging/
 │   ├── prepare_data.py            ← builds analysis‑ready datasets (real DfT + solar + carbon)
 │   ├── fetch_real_data.py         ← optional live PVGIS / Carbon API pull
 │   ├── make_flow_diagram.py       ← methodology flow diagram (the "Approach" figure)
-│   └── build_executive_summary.py ← anonymised 2‑page Executive Summary (.docx)
+│   ├── build_executive_summary.py ← anonymised 2‑page Executive Summary (.docx)
+│   └── build_presentation.py      ← anonymised 3‑minute slide deck + timed script
 │
 ├── dashboard/app.py           ← interactive Streamlit dashboard
 ├── tests/test_pipeline.py     ← 8 regression tests (physics + economics + pipeline)

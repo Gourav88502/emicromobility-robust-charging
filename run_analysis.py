@@ -169,6 +169,11 @@ def main():
         build_executive_summary.build()
     except Exception as e:
         print(f"   (executive summary skipped — needs python-docx: {e})")
+    try:
+        import build_presentation
+        build_presentation.build()
+    except Exception as e:
+        print(f"   (presentation skipped — needs python-pptx: {e})")
 
     print(f"\nDONE in {time.time()-t0:.1f}s. All outputs in: {OUT}")
     print(f"Open the report: {OUT / 'index.html'}")

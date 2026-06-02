@@ -28,6 +28,7 @@ data/*.csv
 # Large / regenerable outputs we don't track (interactive HTML, raw MC samples).
 outputs/*.html
 outputs/monte_carlo_*.csv
+outputs/_slides/
 
 # We DO commit the showcase PNGs and small result artifacts so judges can browse
 # the repo on GitHub without running anything:
