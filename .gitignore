@@ -11,6 +11,14 @@ env/
 .numba_cache/
 __pycache__/
 
+# MATLAB / Simulink build artifacts (keep the .slx model, drop the caches)
+slprj/
+**/slprj/
+*.slxc
+*.asv
+*.autosave
+matlab/*.mat
+
 # OS / editor / session cruft
 .DS_Store
 Thumbs.db

@@ -1,0 +1,16 @@
+MATLAB/SIMULINK STUDY SUMMARY
+=============================
+
+Option 1 - fleet-size charging load (depot 60 kW):
+   50 vehicles: peak 3.8 kW, energy 25.0 kWh/day, completion 100.0%
+  100 vehicles: peak 7.7 kW, energy 50.0 kWh/day, completion 100.0%
+  500 vehicles: peak 38.5 kW, energy 250.0 kWh/day, completion 100.0%
+
+Option 2 - LP smart charging (200 vehicles):
+  peak 15.4 -> 10.0 kW (-35%); cost GBP29.31 -> GBP17.40 (-41%)
+
+Option 3 - solar+battery EMS (25 kWp, 30 kWh):
+  solar fraction 41%, grid import 59.1 kWh/day
+
+Option 4 - Simulink digital twin validation:
+  max SoC error vs MATLAB EMS: 0.000 kWh (0.00%); grid error 0.00%

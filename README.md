@@ -70,6 +70,24 @@ A shared‑micromobility **depot hub** (e‑scooters, e‑bikes and e‑cargo bi
 
 ---
 
+## 3½. MATLAB / Simulink operational layer (`matlab/`)
+
+Python decides **what to build** (robust sizing); a **MATLAB + Simulink** study
+shows **how to operate it** and validates it — a full *model → optimise →
+validate* arc on the same real data. Run it with one click (`RUN_MATLAB.bat`) or
+`matlab -batch "cd('matlab'); run_matlab_study"`.
+
+1. **Fleet‑load simulation** — charging load, peak (kW) & energy for 50/100/500 vehicles.
+2. **Smart‑charging optimisation (LP, Optimization Toolbox)** — `linprog` time‑of‑use schedule that **cuts peak ≈ 35 % and electricity cost ≈ 41 %** vs unmanaged charging (this is also the *optimal* benchmark for the Python smart‑charging assumption).
+3. **Solar + battery energy management** — PV/battery/grid dispatch, ~40 % solar self‑consumption, battery state‑of‑charge.
+4. **Simulink digital twin** — an auto‑generated Simulink model of the hub, validated against the MATLAB EMS to **0.00 % error**.
+
+| LP smart charging (peak −35 %, cost −41 %) | Simulink digital twin (validated) |
+|---|---|
+| ![lp](outputs/matlab/matlab_opt2_smart_charging.png) | ![twin](outputs/matlab/matlab_opt4_digital_twin.png) |
+
+---
+
 ## 4. Quick start (3 commands)
 
 ```bash
@@ -149,8 +167,16 @@ emicromobility-robust-charging/
 │   ├── build_executive_summary.py ← anonymised 2‑page Executive Summary (.docx)
 │   └── build_presentation.py      ← anonymised 3‑minute slide deck + timed script
 │
+├── matlab/                    ← MATLAB + Simulink operational layer
+│   ├── run_matlab_study.m         ← master: runs all 4 parts, saves figures
+│   ├── opt1_fleet_load.m          ← fleet-size charging-load simulation
+│   ├── opt2_smart_charging_lp.m   ← LP smart-charging optimisation (linprog)
+│   ├── opt3_solar_battery_ems.m   ← solar + battery energy management
+│   ├── opt4_simulink_twin.m       ← auto-built Simulink digital twin + validation
+│   └── README.md                  ← how to run + CV statements
 ├── dashboard/app.py           ← interactive Streamlit dashboard
 ├── tests/test_pipeline.py     ← 11 regression tests (physics + economics + robustness)
+├── RUN_ME.bat · RUN_MATLAB.bat ← one-click launchers (Python / MATLAB)
 ├── .github/workflows/ci.yml   ← CI: install, test, run full pipeline on every push
 │
 ├── data/
