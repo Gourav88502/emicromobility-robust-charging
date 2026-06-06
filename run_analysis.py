@@ -178,6 +178,25 @@ def main():
     figs["08_energy_sources"] = _save_fig(
         visualize.fig_energy_sources(sim, emis), "08_energy_sources")
 
+    # ---- 5b. Battery sustainability / safety / circularity (Theme focus) ---- #
+    print("\n[5b] Battery sustainability, safety & circularity (storage variant) ...")
+    batt_report = ""
+    try:
+        from src import battery_sustainability as bsus
+        from src.energy_balance import simulate_fast as _sf
+        # Weak-grid storage variant (10 kW) where a battery IS deployed.
+        storage_design = economics.Design(recommended.pv_kwp, 30, recommended.n_chargers)
+        sim_st = _sf(storage_design, demand_hi, pv_model.pv_generation(
+            storage_design.pv_kwp, solar=solar), grid_kw=10.0)
+        blife = bsus.analyse(storage_design.battery_kwh,
+                             sim_st["battery_throughput_kwh"], chemistry="LFP")
+        batt_report = bsus.report(blife)
+        print("    " + batt_report.replace("\n", "\n    "))
+        (OUT / "battery_sustainability.json").write_text(
+            json.dumps(bsus.to_dict(blife), indent=2), encoding="utf-8")
+    except Exception as e:
+        print(f"    (battery sustainability skipped: {e})")
+
     # ---- 6. Persist results ------------------------------------------------ #
     print("\n[6] Writing results.json, executive summary and combined report ...")
     results = _collect_results(opt, s_rob, s_nai, tor, sob, sim, emis, recommended, naive,

@@ -52,6 +52,18 @@ All quantitative assumptions in [`src/config.py`](src/config.py) trace to the so
 27. Ben‑Tal, A. & Nemirovski, A. (2009). *Robust Optimization.* Princeton University Press. ISBN 978‑0‑691‑14368‑1. *(minimax‑regret / maximin foundation)*
 28. Birge, J.R. & Louveaux, F. (2011). *Introduction to Stochastic Programming* (2nd ed.). Springer. DOI: 10.1007/978‑1‑4614‑0237‑4. *(chance‑constrained stochastic program)*
 29. Saltelli, A. et al. (2008). *Global Sensitivity Analysis: The Primer.* Wiley. ISBN 978‑0‑470‑05997‑5. *(tornado / OAT sensitivity)*
+30. Saltelli, A. et al. (2010). *Variance based sensitivity analysis of model output: design and estimator for the total sensitivity index.* Computer Physics Communications, 181(2), 259–270. DOI: 10.1016/j.cpc.2009.09.018. *(Sobol first-/total-order estimator in `sensitivity.py`)*
+31. Rockafellar, R.T. & Uryasev, S. (2000). *Optimization of conditional value-at-risk.* Journal of Risk, 2, 21–42. *(CVaR objective in `optimization.py`)*
+32. Savage, L.J. (1951). *The theory of statistical decision.* JASA, 46(253), 55–67. *(minimax-regret criterion)*
+
+## Methodology — LP dispatch, uncertainty quantification, circularity
+
+33. Morales‑España, G., Latorre, J.M. & Ramos, A. (2014). *Tight and compact MILP formulation of start‑up and shut‑down ramping in unit commitment.* IEEE Trans. Power Systems, 29(3), 1288–1296. DOI: 10.1109/TPWRS.2013.2251373. *(LP dispatch formulation, `lp_dispatch.py`)*
+34. Silvente, J. et al. (2018). *A rolling horizon optimization framework for the simultaneous energy supply and demand planning in microgrids.* Applied Energy, 226, 1192–1209. DOI: 10.1016/j.apenergy.2018.05.022. *(rolling‑horizon dispatch coupled into sizing)*
+35. Efron, B. & Hastie, T. (2016). *Computer Age Statistical Inference.* Cambridge University Press, Ch. 10. ISBN 978‑1‑107‑14989‑2. *(bootstrap confidence intervals on MC/Sobol)*
+36. Archer, G.E.B., Saltelli, A. & Sobol, I.M. (1997). *Sensitivity measures, ANOVA‑like techniques and the use of bootstrap.* J. Statistical Computation and Simulation, 58(2), 99–120. *(bootstrap CIs on Sobol indices)*
+37. Harper, G. et al. (2019). *Recycling lithium‑ion batteries from electric vehicles.* Nature, 575, 75–86. DOI: 10.1038/s41586‑019‑1682‑5. *(battery circularity / material recovery)*
+38. Bass, F.M. (1969). *A new product growth model for consumer durables.* Management Science, 15(5), 215–227. *(S‑curve demand‑growth saturation)*
 
 ---
 *Crown copyright data reused under the Open Government Licence v3.0. All other sources are cited for the assumptions they inform; no third‑party text or code is reproduced in this repository.*

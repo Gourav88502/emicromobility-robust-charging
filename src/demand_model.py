@@ -96,7 +96,9 @@ def annual_demand_kwh(params: DemandParams, df: pd.DataFrame | None = None) -> f
                    * params.fleet_utilisation * config.STATION_DEMAND_SHARE)
     energy_per_trip_kwh = trip_dist_km * params.trip_energy_wh_per_km / 1000.0
     daily_kwh = daily_trips * energy_per_trip_kwh
-    growth = (1 + params.demand_growth) ** params.year_index
+    # Logistic-style saturation cap: adoption is an S-curve, not pure exponential.
+    growth = min((1 + params.demand_growth) ** params.year_index,
+                 config.DEMAND_GROWTH_SATURATION)
     return daily_kwh * 365.0 * growth
 
 

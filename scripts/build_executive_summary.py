@@ -268,22 +268,23 @@ def build():
     criterion_heading(doc, 4, "Feasibility of the Proposed Approach")
     body(doc, [
         ("Technical:", True),
-        (" the design uses only commercially available components — monocrystalline PV, a "
-         "Li-ion battery (0–50 kWh) and standard AC charge points — sized within ranges "
-         "supported by manufacturer datasheets and industry benchmarks. ", False),
+        (" only commercially available components — monocrystalline PV, Li-ion storage and "
+         "standard AC charge points, sized within datasheet-supported ranges. ", False),
         ("Economic:", True),
-        (f" the recommended robust station has a ≈£{capex:,.0f} capital cost and a "
-         "bounded annual cost even in the worst demand scenario; the model reports CAPEX, OPEX, "
-         "battery-replacement and grid costs. ", False),
+        (f" ≈£{capex:,.0f} capital cost with bounded annual cost even in the worst demand "
+         "scenario; the model reports CAPEX, OPEX, replacement and grid costs. ", False),
         ("Operational:", True),
-        (" it yields one deployable specification plus the confidence interval around it. ", False),
+        (" one deployable specification plus the confidence interval around it. ", False),
         ("Validated:", True),
-        (" seven key outputs (PV yield, carbon intensity, round-trip efficiency, solar fraction, "
-         "LCOE, carbon saving, trip distance) all fall within published ranges. ", False),
+        (" all seven key outputs fall within published benchmark ranges. ", False),
+        ("Battery sustainability & safety:", True),
+        (" where the weak-grid case requires storage we specify a cobalt/nickel-free LFP pack "
+         "(thermal-runaway onset ~270°C vs ~150°C for NMC, charged at a conservative 0.5C); the "
+         "modelled duty cycle gives ~12-yr life, ~45% end-of-life material recovery and a "
+         "second-life stationary phase before recycling. ", False),
         ("Computational:", True),
-        (" the model is open-source Python, deterministic, regenerates all data and figures from "
-         "one command, and passes an automated test suite — any reviewer can reproduce every "
-         "number.", False),
+        (" open-source Python, deterministic, one-command rebuild, passing test suite — any "
+         "reviewer can reproduce every number.", False),
     ])
 
     # ---- 5. Originality & Authenticity -------------------------------------

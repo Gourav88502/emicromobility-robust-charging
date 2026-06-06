@@ -1,0 +1,24 @@
+{
+  "battery_kwh": 30,
+  "annual_throughput_kwh": 9633.0,
+  "equivalent_full_cycles_yr": 178.4,
+  "cycle_limited_life_yr": 22.4,
+  "calendar_limited_life_yr": 12.0,
+  "effective_life_yr": 12.0,
+  "replacements_over_project": 0.25,
+  "soh_at_design_horizon": 0.917,
+  "second_life_years": 4.0,
+  "recoverable_material_kg": {
+    "Lithium": 3.9,
+    "Iron+Phos": 45.6,
+    "Graphite": 26.9,
+    "Copper": 18.2,
+    "Aluminium": 13.7
+  },
+  "recovered_fraction": 0.451,
+  "embodied_co2_t": 2.25,
+  "charge_c_rate": 0.5,
+  "safety_margin_c": 0.5,
+  "thermal_runaway_onset_C": 270.0,
+  "chemistry": "LFP"
+}

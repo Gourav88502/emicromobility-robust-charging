@@ -72,6 +72,15 @@ FLEET_UTILISATION_UNCERTAINTY = 0.25
 # Year-on-year demand growth (Data Inventory: 0 / 8 / 15 % per year).
 DEMAND_GROWTH = {"low": 0.0, "medium": 0.08, "high": 0.15}
 
+# Demand-growth saturation. Shared-micromobility adoption follows an S-curve
+# (Bass diffusion / logistic), NOT unbounded exponential — a city saturates as
+# the addressable population and kerb space fill up. We therefore cap cumulative
+# growth at this multiple of year-0 demand, so long-horizon projections stay
+# physically plausible (unbounded 15 %/yr for 15 yr would imply an absurd 8x).
+# At the 5-year design horizon the cap does not bind (1.15^5 = 2.0 < 3.0), so
+# the headline result is unchanged; it only tames the long-horizon reporting.
+DEMAND_GROWTH_SATURATION = 3.0
+
 # Battery capacity of one e-scooter (Wh) — used to convert energy to "charges".
 SCOOTER_BATTERY_WH = 500.0              # ~0.5 kWh typical shared e-scooter pack
 
