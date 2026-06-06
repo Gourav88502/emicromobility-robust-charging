@@ -9,6 +9,7 @@
     "n_chargers": 8
   },
   "recommended_capex_gbp": 36000.0,
+  "recommended_lcoe_gbp_per_kwh": 0.25,
   "naive_design": {
     "pv_kwp": 5,
     "battery_kwh": 0,

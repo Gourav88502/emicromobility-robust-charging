@@ -133,6 +133,7 @@ def build():
     emis = RESULTS["emissions"]
     rules = RESULTS["decision_rules"]
     capex = RESULTS["recommended_capex_gbp"]
+    lcoe = RESULTS.get("recommended_lcoe_gbp_per_kwh", 0.0)
 
     doc = Document()
     normal = doc.styles["Normal"]
@@ -275,8 +276,9 @@ def build():
         (" only commercially available components — monocrystalline PV, Li-ion storage and "
          "standard AC charge points, sized within datasheet-supported ranges. ", False),
         ("Economic:", True),
-        (f" ≈£{capex:,.0f} capital cost with bounded annual cost even in the worst demand "
-         "scenario; the model reports CAPEX, OPEX, replacement and grid costs. ", False),
+        (f" ≈£{capex:,.0f} capital cost, a levelised cost of energy of £{lcoe:.2f}/kWh and a "
+         "bounded annual cost even in the worst demand scenario; the model reports CAPEX, OPEX, "
+         "battery replacement, time-of-use grid and demand charges. ", False),
         ("Operational:", True),
         (" one deployable specification plus the confidence interval around it. ", False),
         ("Validated:", True),
@@ -287,8 +289,12 @@ def build():
          "modelled duty cycle gives ~12-yr life, ~45% end-of-life material recovery and a "
          "second-life stationary phase before recycling. ", False),
         ("Computational:", True),
-        (" open-source Python, deterministic, one-command rebuild, passing test suite — any "
-         "reviewer can reproduce every number.", False),
+        (" open-source Python, deterministic, one-command rebuild, passing test suite. ", False),
+        ("Scalability & policy:", True),
+        (" the framework is site-agnostic — re-point it at any depot's data to size a hub — and "
+         "its central finding (smart charging is the cheapest robustness lever) supports policy on "
+         "depot smart-charging and targeted grid-connection reform as a low-cost route to fleet "
+         "electrification.", False),
     ])
 
     # ---- 5. Originality & Authenticity -------------------------------------

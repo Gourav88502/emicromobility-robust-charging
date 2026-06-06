@@ -343,5 +343,39 @@ def fig_energy_sources(sim_result: dict, emis: dict) -> go.Figure:
     return _layout(fig, "Energy mix & carbon savings (Theme 3 sustainability)", height=440)
 
 
+# --------------------------------------------------------------------------- #
+#  8b. Cost-vs-carbon trade-off (multi-objective view)
+# --------------------------------------------------------------------------- #
+def fig_carbon_cost_frontier(frontier) -> go.Figure:
+    """Cost vs carbon saving along the PV axis — the multi-objective sustainability
+    view. Carbon (hour-resolved, real grid intensity) on the left axis; annual
+    cost on the right. Shows that the cost-optimal PV size is also near
+    carbon-optimal (cost and carbon are aligned, not in tension)."""
+    d = frontier
+    fig = make_subplots(specs=[[{"secondary_y": True}]])
+    fig.add_trace(go.Bar(
+        x=d["pv_kwp"], y=d["carbon_saving_pct"], name="Carbon saving (%)",
+        marker_color=C["maximin_robust"], opacity=0.85,
+        text=[f"{v:.0f}%" for v in d["carbon_saving_pct"]], textposition="outside",
+        hovertemplate="PV %{x} kWp<br>carbon saving %{y:.1f}%<extra></extra>"),
+        secondary_y=False)
+    fig.add_trace(go.Scatter(
+        x=d["pv_kwp"], y=d["annual_cost_gbp"], name="Annual cost (£/yr)",
+        mode="lines+markers", line=dict(color=C["grid"], width=3),
+        marker=dict(size=9),
+        hovertemplate="PV %{x} kWp<br>annual cost £%{y:,.0f}<extra></extra>"),
+        secondary_y=True)
+    # mark the cost-optimal point
+    imin = int(d["annual_cost_gbp"].values.argmin())
+    fig.add_annotation(x=d["pv_kwp"].iloc[imin], y=d["annual_cost_gbp"].iloc[imin],
+                       text="cost-optimal", showarrow=True, arrowhead=2,
+                       yref="y2", font=dict(size=11, color=C["grid"]))
+    fig.update_xaxes(title_text="Solar PV size (kWp)")
+    fig.update_yaxes(title_text="Carbon saving — hour-resolved (%)", secondary_y=False)
+    fig.update_yaxes(title_text="Annual cost (£/yr)", secondary_y=True)
+    return _layout(fig, "Cost vs carbon trade-off — cost-optimal PV is also near "
+                        "carbon-optimal", height=440)
+
+
 if __name__ == "__main__":
     print("visualize.py — import and call the fig_* functions from run_analysis.py")

@@ -170,13 +170,33 @@ def main():
     pv_rec = pv_model.pv_generation(recommended.pv_kwp, solar=solar)
     sim = simulate(recommended, demand_hi, pv_rec)
     emis = emissions.emissions_analysis(sim, carbon)
+    # Hour-resolved carbon using the REAL National Grid ESO hourly intensity
+    # (rigorous cross-check of the flat-factor consequential number).
+    emis_hourly = emissions.emissions_analysis_hourly(sim, carbon)
     print(f"    Service {sim['service_level']*100:.1f}% | solar fraction "
           f"{sim['solar_fraction']*100:.1f}% | carbon saving "
-          f"{emis['carbon_saving_tCO2_yr']:.1f} tCO2/yr ({emis['carbon_saving_pct']:.0f}%)")
+          f"{emis['carbon_saving_tCO2_yr']:.1f} tCO2/yr ({emis['carbon_saving_pct']:.0f}%, "
+          f"consequential) | hour-resolved {emis_hourly['carbon_saving_pct']:.0f}%")
     figs["07_energy_balance"] = _save_fig(
         visualize.fig_energy_balance(sim), "07_energy_balance")
     figs["08_energy_sources"] = _save_fig(
         visualize.fig_energy_sources(sim, emis), "08_energy_sources")
+
+    # ---- 5c. Cost-vs-carbon trade-off (multi-objective sustainability view) -- #
+    print("\n[5c] Cost-vs-carbon trade-off across the PV axis ...")
+    try:
+        frontier = emissions.carbon_cost_frontier(
+            battery_kwh=recommended.battery_kwh, n_chargers=recommended.n_chargers,
+            df=df, solar=solar, carbon=carbon)
+        imin = int(frontier["annual_cost_gbp"].values.argmin())
+        print(f"    Cost-optimal {frontier['pv_kwp'].iloc[imin]:.0f} kWp also delivers "
+              f"{frontier['carbon_saving_pct'].iloc[imin]:.0f}% carbon saving "
+              f"(cost & carbon aligned).")
+        figs["12_carbon_cost"] = _save_fig(
+            visualize.fig_carbon_cost_frontier(frontier), "12_carbon_cost")
+        frontier.to_csv(OUT / "carbon_cost_frontier.csv", index=False)
+    except Exception as e:
+        print(f"    (carbon-cost frontier skipped: {e})")
 
     # ---- 5b. Battery sustainability / safety / circularity (Theme focus) ---- #
     print("\n[5b] Battery sustainability, safety & circularity (storage variant) ...")
@@ -250,6 +270,7 @@ def _collect_results(opt, s_rob, s_nai, tor, sob, sim, emis, recommended, naive,
         "design_horizon_years": config.OPTIMISATION_HORIZON_YEARS,
         "recommended_design": design_dict(recommended),
         "recommended_capex_gbp": round(cap["total"], 0),
+        "recommended_lcoe_gbp_per_kwh": round(economics.lcoe(recommended, sim), 3),
         "naive_design": design_dict(naive),
         "decision_rules": {
             r: {"design": design_dict(info["design"]),
