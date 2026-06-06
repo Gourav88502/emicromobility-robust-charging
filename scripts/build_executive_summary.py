@@ -240,9 +240,9 @@ def build():
         (" build Low/Medium/High demand scenarios from the real trial data, scaled across a "
          "year-on-year growth range into nine probability-weighted scenarios; ", False),
         ("(ii)", True),
-        (" simulate an 8,760-hour energy balance for any design under the capped grid, "
-         "dispatching PV → battery (with off-peak grid pre-charging for peak-shaving) "
-         "→ capped grid → unmet demand; ", False),
+        (" simulate an 8,760-hour energy balance for any design under the capped grid "
+         "(PV → battery → capped grid → unmet demand), with every reported design re-optimised "
+         "under an LP-optimal rolling-horizon dispatch; ", False),
         ("(iii)", True),
         (" evaluate all 150 designs (PV 5–25 kWp × battery 0–50 kWh × "
          "4–20 chargers) against the nine scenarios, pricing unmet demand as lost service, "
@@ -252,12 +252,16 @@ def build():
          "CVaR (risk-averse), minimax-regret and maximin — and map the cost-vs-robustness Pareto "
          "frontier; ", False),
         ("(v)", True),
-        (" propagate uncertainty through a 500-sample correlated Monte-Carlo fan and rank drivers "
-         "with a tornado and variance-based global (Sobol) sensitivity; ", False),
+        (" propagate uncertainty through a 500-sample correlated Monte-Carlo fan (with bootstrap "
+         "95% confidence intervals) and rank drivers with a tornado and global Sobol sensitivity; ", False),
         ("(vi)", True),
-        (" confirm the conclusion is not an artefact via a robustness-of-robustness sweep (it "
-         "holds across every penalty x grid combination) and validate seven outputs against "
-         "published benchmarks. The full study runs in under a minute.", False),
+        (" confirm the conclusion via a robustness-of-robustness sweep (it holds across every "
+         "penalty x grid combination) and validate seven outputs against published benchmarks. ", False),
+        ("Output / GUI:", True),
+        (" results are delivered as an interactive multi-tab dashboard — a Station Designer with "
+         "live PV/battery/charger/grid sliders showing energy balance, service, cost and carbon in "
+         "real time, plus Robust-Optimiser, Uncertainty and Sensitivity tabs — and a one-command "
+         "HTML report. The full study runs in under a minute.", False),
     ])
     doc.add_picture(str(OUT / "methodology_flow.png"), width=Inches(6.1))
     doc.paragraphs[-1].alignment = WD_ALIGN_PARAGRAPH.CENTER
