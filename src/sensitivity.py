@@ -143,13 +143,39 @@ def global_sensitivity(design: Design, df=None, solar=None,
     for v in vars_:
         ABi = dict(A); ABi[v.name] = B[v.name]
         yABi = _evaluate_matrix(design, df, solar, base_yield, ABi, names, year_index, output)
-        Si = float(np.mean(yB * (yABi - yA)) / varY)            # Saltelli 2010 first-order
-        STi = float(np.mean((yA - yABi) ** 2) / (2 * varY))     # Jansen 1999 total-order
-        rows.append({"variable": v.label, "name": v.name,
-                     "first_order": max(Si, 0.0), "total_order": max(STi, 0.0)})
+
+        # Point estimates (Saltelli 2010 / Jansen 1999)
+        Si  = float(np.mean(yB * (yABi - yA)) / varY)
+        STi = float(np.mean((yA - yABi) ** 2) / (2 * varY))
+
+        # Bootstrap 95 % CI on each Sobol index (Archer et al. 1997;
+        # Saltelli et al. 2010 recommend 500–2000 resamples for n >= 512).
+        n_boot = 1000
+        rng_b = np.random.default_rng(seed + 1)
+        Si_boot, STi_boot = [], []
+        for _ in range(n_boot):
+            idx = rng_b.integers(0, n, size=n)
+            _yA = yA[idx]; _yB = yB[idx]; _yABi = yABi[idx]
+            _var = max(np.var(np.concatenate([_yA, _yB]), ddof=1), 1e-12)
+            Si_boot.append(np.mean(_yB * (_yABi - _yA)) / _var)
+            STi_boot.append(np.mean((_yA - _yABi) ** 2) / (2 * _var))
+
+        si_lo,  si_hi  = float(np.percentile(Si_boot, 2.5)),  float(np.percentile(Si_boot, 97.5))
+        sti_lo, sti_hi = float(np.percentile(STi_boot, 2.5)), float(np.percentile(STi_boot, 97.5))
+
+        rows.append({
+            "variable": v.label, "name": v.name,
+            "first_order":  max(Si, 0.0),
+            "total_order":  max(STi, 0.0),
+            "si_ci_lo":     max(si_lo, 0.0),
+            "si_ci_hi":     max(si_hi, 0.0),
+            "sti_ci_lo":    max(sti_lo, 0.0),
+            "sti_ci_hi":    max(sti_hi, 0.0),
+        })
+
     out = pd.DataFrame(rows).sort_values("total_order", ascending=False).reset_index(drop=True)
     out["pct_variance"] = (out["first_order"] * 100).round(1)
-    out["pct_total"] = (out["total_order"] * 100).round(1)
+    out["pct_total"]    = (out["total_order"] * 100).round(1)
     return out
 
 

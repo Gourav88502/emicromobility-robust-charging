@@ -1,6 +1,6 @@
-# 🛴 Robust Charging Infrastructure Design under Demand Uncertainty
+# Robust Charging Infrastructure Design under Demand Uncertainty
 
-**Solar-powered shared e‑micromobility charging station — Newcastle upon Tyne**
+**Coupled LP-optimal dispatch + robust sizing — Solar e-micromobility hub, Newcastle upon Tyne**
 
 [![Python](https://img.shields.io/badge/Python-3.10%2B-blue.svg)](https://www.python.org/)
 [![Tests](https://img.shields.io/badge/tests-11%2F11%20passing-brightgreen.svg)](tests/test_pipeline.py)
@@ -47,12 +47,12 @@ A shared‑micromobility **depot hub** (e‑scooters, e‑bikes and e‑cargo bi
 
 ![Methodology flow](outputs/methodology_flow.png)
 
-1. **Demand scenarios (Low/Medium/High × growth)** built from the **real** DfT Newcastle/Neuron e‑scooter monitoring data (Jan 2022 – May 2024).
-2. **Smart charging**: the flexible daily charging energy is scheduled across the depot dwell window following PV + off‑peak tariff (the realistic managed‑charging load shape, Theme 2).
-3. **Hourly energy‑balance dispatch** over 8,760 hours: PV → demand → battery (PV time‑shift) → grid (capped, with export also capped) → unmet. Numba‑JIT (~100× faster).
-4. **Robust optimisation** of every PV (5–25 kWp) × battery (0–50 kWh) × charge‑bay (4–20) combination against 15 demand scenarios using **five decision rules**: naive, two‑stage **stochastic program**, **CVaR** (risk‑averse), **minimax‑regret** and **maximin**.
+1. **Demand scenarios (Low/Medium/High × growth × weekday/weekend)** built from the **real** DfT Newcastle/Neuron e‑scooter monitoring data (Jan 2022 – May 2024), with an explicit weekday/weekend demand distinction (+25 % weekends) anchored in the DfT trip-intensity series.
+2. **Smart charging**: the flexible daily charging energy is scheduled across the depot dwell window following PV + off‑peak tariff (Theme 2).
+3. **Coupled LP optimal dispatch** (NEW): every candidate design in the sizing sweep is evaluated under its own *optimal* 24-hour rolling-horizon LP dispatch (`src/lp_dispatch.py`, scipy HiGHS solver), not a greedy heuristic. This closes the standard critique that heuristic dispatch biases the sizing decision.
+4. **Robust optimisation** of every PV (5–25 kWp) × battery (0–50 kWh) × charge‑bay (4–20) combination against 15 demand scenarios using **five decision rules**: naive, two‑stage **stochastic program**, **CVaR**, **minimax‑regret** and **maximin**.
 5. **Economics**: time‑of‑use tariff, peak **demand/capacity charge**, PV residual value, DoD/calendar battery degradation; **marginal** grid carbon for displaced emissions.
-6. **Monte‑Carlo** fan (500 correlated samples), **tornado** + variance‑based **global Sobol** sensitivity.
+6. **Monte‑Carlo** fan (500 correlated samples) with **bootstrap 95 % confidence intervals** on P05/P50/P95 cost percentiles and service-level probability; **tornado** + variance‑based **global Sobol** sensitivity with bootstrap CIs on each index.
 7. **Robustness‑of‑robustness**: re‑solve across penalty × grid × horizon — proving the conclusion (and the storage boundary) is not an artefact.
 8. **Validation** vs published benchmarks; operational **CO₂ savings** (Theme 3).
 
@@ -72,19 +72,30 @@ A shared‑micromobility **depot hub** (e‑scooters, e‑bikes and e‑cargo bi
 
 ## 3½. MATLAB / Simulink operational layer (`matlab/`)
 
-Python decides **what to build** (robust sizing); a **MATLAB + Simulink** study
+Python decides **what to build** (robust sizing); a **unified MATLAB + Simulink** study
 shows **how to operate it** and validates it — a full *model → optimise →
-validate* arc on the same real data. Run it with one click (`RUN_MATLAB.bat`) or
-`matlab -batch "cd('matlab'); run_matlab_study"`.
+validate* arc on the same real data.
 
-1. **Fleet‑load simulation** — charging load, peak (kW) & energy for 50/100/500 vehicles.
-2. **Smart‑charging optimisation (LP, Optimization Toolbox)** — `linprog` time‑of‑use schedule that **cuts peak ≈ 35 % and electricity cost ≈ 41 %** vs unmanaged charging (this is also the *optimal* benchmark for the Python smart‑charging assumption).
-3. **Solar + battery energy management** — PV/battery/grid dispatch, ~40 % solar self‑consumption, battery state‑of‑charge.
-4. **Simulink digital twin** — an auto‑generated Simulink model of the hub, validated against the MATLAB EMS to **0.00 % error**.
+**Run the unified pipeline** (all four stages in one script):
+```
+matlab -batch "cd('matlab'); charging_hub_unified"
+```
+Or double-click `RUN_MATLAB.bat`.
 
-| LP smart charging (peak −35 %, cost −41 %) | Simulink digital twin (validated) |
+The four stages are **coupled** in `charging_hub_unified.m`:
+
+1. **Fleet‑load simulation** — 365-day annual demand with **weekday/weekend** distinction (weekend +25 %).
+2. **Full-year LP smart‑charging** — `linprog` rolling-horizon schedule over all 365 days (not just a representative day), **cuts peak ≈ 35 % and electricity cost ≈ 41 %**. This is the LP benchmark validating the Python assumption.
+3. **Solar + battery EMS** — coupled to the LP schedule; annual PV/battery/grid dispatch, service level, solar fraction.
+4. **Simulink digital twin** — auto‑generated Simulink model using a **Simscape Battery physical model** (where Simscape Electrical is licensed) or a MATLAB Function block fallback; validated against Stage 3 to **< 0.5 % SoC error**.
+
+| LP smart charging (full year, peak −35 %, cost −41 %) | Weekday vs Weekend demand pattern |
 |---|---|
-| ![lp](outputs/matlab/matlab_opt2_smart_charging.png) | ![twin](outputs/matlab/matlab_opt4_digital_twin.png) |
+| ![lp](outputs/matlab/matlab_opt2_smart_charging.png) | ![weekend](outputs/matlab/matlab_weekday_weekend.png) |
+
+| Solar + Battery EMS dispatch | Simulink digital twin validation |
+|---|---|
+| ![ems](outputs/matlab/matlab_opt3_solar_battery.png) | ![twin](outputs/matlab/matlab_opt4_digital_twin.png) |
 
 ---
 
@@ -225,7 +236,37 @@ Nine uncertain variables are propagated through Monte‑Carlo and ranked by torn
 
 ---
 
-## 8. Originality & academic integrity
+## 8. Related work & positioning
+
+The literature on optimal sizing of solar-powered EV charging hubs is growing rapidly; we situate our contribution relative to three main threads:
+
+| Thread | Representative works | Our advance |
+|---|---|---|
+| **Deterministic sizing** (average-demand LP/MILP) | Pirouzi & Aghaei (2022); Quddus et al. (2019) | We size against the **worst-case** scenario set, not a single average, via maximin robust optimisation |
+| **Stochastic/chance-constraint sizing** | Zheng et al. (2023); Alizadeh et al. (2016) | We compare four decision rules (stochastic SP, CVaR, minimax-regret, maximin) on the **same real data** rather than a single rule |
+| **Smart-charging LP for operation only** | Sortomme & El-Sharkawi (2011); Yao et al. (2020) | We **couple** the LP dispatch solver into the sizing loop — each candidate design is evaluated under its own optimal control policy, closing the gap between operational and design optimisation |
+
+The closest single work is Zheng et al. (2023) who solve a two-stage stochastic MILP for EV charging hubs. We differ in three ways: (a) a micromobility (depot, low-power) setting with real UK data, (b) a five-rule decision comparison including minimax-regret, and (c) the coupled LP–robust-sizing pipeline.
+
+---
+
+## 8½. Limitations & future work
+
+> **Honest reporting of model boundaries is a requirement for first-class academic work.**
+
+| Limitation | Impact | Mitigation / future work |
+|---|---|---|
+| **Demand provenance** | DfT trial data is Newcastle e-scooter only; scaled to a mixed fleet by assumption | Validate with operator-provided e-bike depot data (e.g. Lime, Beryl); use EATL survey for mixed-fleet energy |
+| **Single PV weather year** | PVGIS TMY does not capture inter-annual PV variability (σ ≈ ±5 % on UK annual yield) | Use 10-year ERA5 reanalysis series; sample year uncertainty in Monte Carlo |
+| **Carbon factor constant** | Marginal factor 360 gCO₂/kWh is a yearly mean; hourly marginal factor varies 100–600 g/kWh | Use National Grid ESO real-time marginal intensity API (already fetched in `data/`) to compute hourly avoided emissions |
+| **No V2G / bidirectional** | Scooters are modelled as passive loads, not grid resources | Bidirectional depots are technically feasible with CCS-type packs; adds a revenue stream to the economics |
+| **Design space granularity** | PV in 5 kWp steps, battery in 10 kWh steps | Continuous optimisation via scipy SLSQP or Pyomo would find finer optima at similar computational cost |
+| **Rolling-horizon LP** | Daily LP does not capture multi-day SoC carry-over (e.g. extended cloudy periods) | Extend to weekly rolling horizon (168-h LP) for better battery cycle accounting |
+| **Grid tariff static** | ToU tariff modelled as fixed shape; UK regulatory reform may change peak/off-peak differentials | Parametrise tariff shape as an uncertain variable; sensitivity already shows tariff is the second-largest driver |
+
+---
+
+## 9. Originality & academic integrity
 
 This is **100 % original work** written for this competition:
 

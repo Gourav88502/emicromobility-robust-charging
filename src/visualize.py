@@ -192,14 +192,31 @@ def fig_global_sensitivity(sobol_df: pd.DataFrame) -> go.Figure:
     d = sobol_df.sort_values("total_order")          # ascending -> largest on top
     colors = [C["accent"] if v >= d["pct_total"].max() - 1e-9 else C["battery"]
               for v in d["pct_total"]]
+
+    # Bootstrap 95 % CI error bars if available
+    has_ci = ("sti_ci_lo" in d.columns and "sti_ci_hi" in d.columns)
+    if has_ci:
+        ci_lo = (d["total_order"] - d["sti_ci_lo"].clip(0)).values * 100
+        ci_hi = (d["sti_ci_hi"] - d["total_order"]).values * 100
+        error_x = dict(type="data", symmetric=False,
+                       array=ci_hi.clip(0).tolist(),
+                       arrayminus=ci_lo.clip(0).tolist(),
+                       thickness=2, width=5, color="#888")
+        ci_note = " ± 95% bootstrap CI"
+    else:
+        error_x = None
+        ci_note = ""
+
     fig = go.Figure(go.Bar(
         y=d["variable"], x=d["pct_total"], orientation="h",
-        marker_color=colors, text=[f"{v:.0f}%" for v in d["pct_total"]],
+        marker_color=colors,
+        error_x=error_x,
+        text=[f"{v:.0f}%" for v in d["pct_total"]],
         textposition="outside",
         hovertemplate="%{y}<br>total-effect: %{x:.1f}% of cost variance<extra></extra>"))
     fig.update_layout(xaxis_title="Total-effect Sobol index — share of annual-cost variance (%)",
-                      yaxis_title="", xaxis_range=[0, max(50, d['pct_total'].max() * 1.18)])
-    return _layout(fig, "Global sensitivity — total-effect Sobol indices (incl. interactions)")
+                      yaxis_title="", xaxis_range=[0, max(55, d['pct_total'].max() * 1.25)])
+    return _layout(fig, f"Global sensitivity — total-effect Sobol indices{ci_note}")
 
 
 # --------------------------------------------------------------------------- #

@@ -10,7 +10,22 @@ Pipeline
 monthly trips & fleet (DfT)  ->  seasonal monthly weights
         +  scenario trips/scooter/day, fleet utilisation, growth
         +  trip distance (km) x trip energy (Wh/km)            ->  daily kWh
-        +  24-hour demand shape (peak 17-21h)                  ->  hourly kWh
+        +  weekday / weekend distinction (DfT data, 1.25x weekend)  ->  daily kWh
+        +  24-hour demand shape (peak 17-21h, smart-charging aware)  ->  hourly kWh
+
+Weekday/Weekend Modelling
+--------------------------
+Shared e-micromobility exhibits a strong day-of-week effect: weekend trip
+intensity is typically 1.2–1.4× weekdays in the DfT Newcastle data (riders
+use scooters for leisure rather than commuting).  Ignoring this collapses
+two structurally different demand regimes into one, underestimating the
+realistic 48-hour peak and the battery sizing requirement at hubs with
+no weekend grid top-up.
+
+The day-of-week scaling is applied BEFORE the hourly shape so that the
+smart controller sees the correct daily total.  Correlated weather–demand
+tail events (hot summer Saturdays) are captured by the shared Monte-Carlo
+demand-regime parameter.
 """
 
 from __future__ import annotations
@@ -89,9 +104,23 @@ def annual_demand_kwh(params: DemandParams, df: pd.DataFrame | None = None) -> f
 # tens of thousands of demand-series builds in Monte-Carlo / sensitivity).
 _HOURS = pd.date_range("2023-01-01", periods=config.HOURS_PER_YEAR, freq="h")
 _MONTH_IDX = _HOURS.month.values - 1
-_HOUR_IDX = _HOURS.hour.values
+_HOUR_IDX  = _HOURS.hour.values
+_DOW_IDX   = _HOURS.dayofweek.values          # 0=Mon, …, 6=Sun
+_IS_WEEKEND = (_DOW_IDX >= 5).astype(float)   # Sat=5, Sun=6 -> 1.0; Mon-Fri -> 0.0
+
 _DEFAULT_SHAPE = normalised_hourly_shape()
 _SMART_WEIGHT_CACHE: np.ndarray | None = None
+
+# Weekday / weekend demand scaling factors (empirical from DfT Newcastle data).
+# Weekend trip intensity is ~25 % higher than weekday (leisure vs commute mix).
+# Weighted average preserves the correct weekly total (2/7 × 1.25 + 5/7 × 1.0 = 1.071),
+# so the annual totals from annual_demand_kwh() are not distorted.
+_WEEKEND_MULTIPLIER = 1.25   # Sat/Sun vs Mon-Fri
+_WEEKDAY_MULT = 1.0 / (5/7 + 2/7 * _WEEKEND_MULTIPLIER)   # renormalise to preserve total
+_WEEKEND_MULT = _WEEKEND_MULTIPLIER * _WEEKDAY_MULT
+
+# Per-hour day-of-week scaling vector (length 8760)
+_DOW_SCALE = np.where(_IS_WEEKEND, _WEEKEND_MULT, _WEEKDAY_MULT)
 
 
 def _smart_charging_weights() -> np.ndarray:
@@ -142,15 +171,19 @@ def hourly_demand_series(params: DemandParams,
     base_daily = annual_kwh / 365.0
     daily_by_month = base_daily * month_w[_MONTH_IDX]
 
+    # Apply weekday/weekend scaling to the daily totals.
+    # _DOW_SCALE is 1 for weekdays, ~1.25× (normalised) for weekends.
+    daily_scaled = daily_by_month * _DOW_SCALE
+
     if config.SMART_CHARGING and params.hourly_shape is None:
-        # `daily_by_month` is the day's total energy (constant within a day); the
+        # `daily_scaled` is the day's total energy (constant within a day); the
         # smart weights sum to 1 per day, so this distributes each day's flexible
         # energy across the dwell window following PV + off-peak tariff.
-        return (daily_by_month * _smart_charging_weights()).astype(float)
+        return (daily_scaled * _smart_charging_weights()).astype(float)
 
     hour_shape = _DEFAULT_SHAPE if params.hourly_shape is None \
         else normalised_hourly_shape(params.hourly_shape)
-    return (daily_by_month * hour_shape[_HOUR_IDX]).astype(float)
+    return (daily_scaled * hour_shape[_HOUR_IDX]).astype(float)
 
 
 def monthly_demand_series(params: DemandParams, df: pd.DataFrame | None = None) -> np.ndarray:

@@ -9,12 +9,15 @@ deliverables to outputs/:
 Steps
 -----
   0. Prepare datasets (real DfT + calibrated solar/carbon) if missing.
-  1. Build Low/Medium/High demand scenarios.
-  2. Robust optimisation: 150 designs x 9 scenarios -> 4 decision rules,
-     Pareto frontier, value of robustness.
-  3. Monte-Carlo uncertainty fan (500 samples) for the naive and robust designs.
-  4. Tornado sensitivity analysis for the recommended design.
-  5. Hourly energy-balance dispatch + emissions for the recommended design.
+  1. Build Low/Medium/High demand scenarios (with weekday/weekend distinction).
+  2. Robust optimisation: 150 designs x 9 scenarios -> 5 decision rules,
+     Pareto frontier, value of robustness. Each design evaluated under
+     OPTIMAL LP dispatch (rolling-horizon, scipy HiGHS) — the coupled
+     LP+sizing pipeline (Silvente et al. 2018; Morales-España et al. 2014).
+  3. Monte-Carlo uncertainty fan (500 correlated samples) with bootstrap 95%
+     confidence intervals on P05/P50/P95 cost and service-level probability.
+  4. Tornado OAT + global Sobol sensitivity with bootstrap CIs on each index.
+  5. Hourly LP-optimal dispatch + emissions for the recommended design.
   6. Generate all interactive figures (HTML + PNG) and a single combined report.
   7. Save machine-readable results.json and a plain-text executive summary.
 
@@ -82,8 +85,9 @@ def main():
         visualize.fig_scenario_demand(scen_summary), "01_scenario_demand")
 
     # ---- 2. Robust optimisation ------------------------------------------- #
-    print("\n[2] Robust optimisation (150 designs x 9 scenarios) ...")
+    print("\n[2] Robust optimisation (150 designs x 9 scenarios, LP optimal dispatch) ...")
     opt = optimization.run_full_optimisation(df, solar)
+    print(f"    Dispatch method: {opt.get('dispatch_method', 'unknown')}")
     print(f"    Robustly feasible designs: {opt['robust_feasible_count']}/{opt['n_designs']}")
     for rule, info in opt["rules"].items():
         flag = "robust" if info["robustly_feasible"] else "FAILS high demand"
@@ -107,9 +111,13 @@ def main():
     mc_naive = monte_carlo.evaluate_design(naive, samples, df, solar)
     s_rob = monte_carlo.summarise(mc_robust)
     s_nai = monte_carlo.summarise(mc_naive)
-    print(f"    Robust  : E[cost] GBP{s_rob['cost_mean']:,.0f} | P95 GBP{s_rob['cost_p95']:,.0f} "
+    ci_r = s_rob.get('ci_cost_p95', (0, 0))
+    ci_n = s_nai.get('ci_cost_p95', (0, 0))
+    print(f"    Robust  : E[cost] GBP{s_rob['cost_mean']:,.0f} | "
+          f"P95 GBP{s_rob['cost_p95']:,.0f} [95%CI: {ci_r[0]:,.0f}-{ci_r[1]:,.0f}] "
           f"| P(meet target) {s_rob['prob_meets_target']*100:.0f}%")
-    print(f"    Naive   : E[cost] GBP{s_nai['cost_mean']:,.0f} | P95 GBP{s_nai['cost_p95']:,.0f} "
+    print(f"    Naive   : E[cost] GBP{s_nai['cost_mean']:,.0f} | "
+          f"P95 GBP{s_nai['cost_p95']:,.0f} [95%CI: {ci_n[0]:,.0f}-{ci_n[1]:,.0f}] "
           f"| P(meet target) {s_nai['prob_meets_target']*100:.0f}%")
 
     monthly = np.array([

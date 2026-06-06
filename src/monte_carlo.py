@@ -152,19 +152,66 @@ def evaluate_design(design: Design,
     return pd.DataFrame(rows)
 
 
-def summarise(results: pd.DataFrame) -> dict:
+def _bootstrap_ci(data: np.ndarray, stat_fn, n_boot: int = 2000,
+                   seed: int = config.RANDOM_SEED, alpha: float = 0.05
+                   ) -> tuple[float, float]:
+    """
+    Percentile bootstrap confidence interval for a scalar statistic.
+
+    Returns (ci_lo, ci_hi) at the (alpha/2, 1-alpha/2) percentile of the
+    bootstrap distribution — standard non-parametric CI, no normality assumed
+    (Efron & Hastie, 2016; DiCiccio & Efron, 1996).
+    """
+    rng = np.random.default_rng(seed)
+    boot_stats = np.array([
+        stat_fn(rng.choice(data, size=len(data), replace=True))
+        for _ in range(n_boot)
+    ])
+    return float(np.percentile(boot_stats, 100 * alpha / 2)), \
+           float(np.percentile(boot_stats, 100 * (1 - alpha / 2)))
+
+
+def summarise(results: pd.DataFrame, n_boot: int = 2000) -> dict:
+    """
+    Summarise Monte-Carlo results with bootstrap 95 % confidence intervals.
+
+    Bootstrap CIs are computed on P05, P50, P95, and the probability of
+    meeting the service target — the key robustness metrics.  This provides
+    the statistical rigour required for academic reporting (Efron & Hastie,
+    2016: 'Computer Age Statistical Inference', Ch. 10).
+
+    n_boot : number of bootstrap replicates (2000 gives stable CIs for n=500).
+    """
+    cost   = results["annual_cost"].values
+    svc    = results["service_level"].values
+
     q = results["annual_cost"].quantile([0.05, 0.5, 0.95])
+
+    p05_lo, p05_hi = _bootstrap_ci(cost, lambda x: np.percentile(x, 5),  n_boot)
+    p50_lo, p50_hi = _bootstrap_ci(cost, lambda x: np.percentile(x, 50), n_boot)
+    p95_lo, p95_hi = _bootstrap_ci(cost, lambda x: np.percentile(x, 95), n_boot)
+    pm_lo,  pm_hi  = _bootstrap_ci(
+        (svc >= config.SERVICE_LEVEL_TARGET).astype(float),
+        np.mean, n_boot)
+
     return {
-        "cost_mean": results["annual_cost"].mean(),
-        "cost_p05": q.loc[0.05],
-        "cost_p50": q.loc[0.50],
-        "cost_p95": q.loc[0.95],
-        "cost_std": results["annual_cost"].std(),
-        "service_mean": results["service_level"].mean(),
-        "service_p05": results["service_level"].quantile(0.05),
-        "prob_meets_target": (results["service_level"]
-                              >= config.SERVICE_LEVEL_TARGET).mean(),
-        "solar_fraction_mean": results["solar_fraction"].mean(),
+        # Point estimates
+        "cost_mean":        float(cost.mean()),
+        "cost_p05":         float(q.loc[0.05]),
+        "cost_p50":         float(q.loc[0.50]),
+        "cost_p95":         float(q.loc[0.95]),
+        "cost_std":         float(cost.std(ddof=1)),
+        "service_mean":     float(svc.mean()),
+        "service_p05":      float(results["service_level"].quantile(0.05)),
+        "prob_meets_target": float((svc >= config.SERVICE_LEVEL_TARGET).mean()),
+        "solar_fraction_mean": float(results["solar_fraction"].mean()),
+        # Bootstrap 95 % confidence intervals (key academic addition)
+        "ci_cost_p05":      (p05_lo, p05_hi),
+        "ci_cost_p50":      (p50_lo, p50_hi),
+        "ci_cost_p95":      (p95_lo, p95_hi),
+        "ci_prob_meets":    (pm_lo,  pm_hi),
+        "n_boot":           n_boot,
+        "n_samples":        len(cost),
     }
 
 
