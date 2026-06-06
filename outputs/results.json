@@ -21,10 +21,10 @@
         "battery_kwh": 0,
         "n_chargers": 4
       },
-      "expected_cost": 13445.0,
-      "worst_cost": 139891.0,
-      "max_regret": 91499.0,
-      "min_service_pct": 85.6,
+      "expected_cost": 14304.0,
+      "worst_cost": 142423.0,
+      "max_regret": 87422.0,
+      "min_service_pct": 85.3,
       "prob_served_pct": 92.5,
       "robustly_feasible": false
     },
@@ -34,10 +34,10 @@
         "battery_kwh": 0,
         "n_chargers": 8
       },
-      "expected_cost": 8328.0,
-      "worst_cost": 49201.0,
-      "max_regret": 809.0,
-      "min_service_pct": 96.6,
+      "expected_cost": 8840.0,
+      "worst_cost": 55878.0,
+      "max_regret": 877.0,
+      "min_service_pct": 95.8,
       "prob_served_pct": 100.0,
       "robustly_feasible": true
     },
@@ -47,10 +47,10 @@
         "battery_kwh": 0,
         "n_chargers": 8
       },
-      "expected_cost": 8840.0,
-      "worst_cost": 48414.0,
+      "expected_cost": 9349.0,
+      "worst_cost": 55027.0,
       "max_regret": 1518.0,
-      "min_service_pct": 96.7,
+      "min_service_pct": 95.9,
       "prob_served_pct": 100.0,
       "robustly_feasible": true
     },
@@ -60,10 +60,10 @@
         "battery_kwh": 0,
         "n_chargers": 8
       },
-      "expected_cost": 8328.0,
-      "worst_cost": 49201.0,
-      "max_regret": 809.0,
-      "min_service_pct": 96.6,
+      "expected_cost": 8840.0,
+      "worst_cost": 55878.0,
+      "max_regret": 877.0,
+      "min_service_pct": 95.8,
       "prob_served_pct": 100.0,
       "robustly_feasible": true
     },
@@ -73,66 +73,102 @@
         "battery_kwh": 0,
         "n_chargers": 8
       },
-      "expected_cost": 9219.0,
-      "worst_cost": 48392.0,
-      "max_regret": 1995.0,
-      "min_service_pct": 96.7,
+      "expected_cost": 9727.0,
+      "worst_cost": 55002.0,
+      "max_regret": 1994.0,
+      "min_service_pct": 95.9,
       "prob_served_pct": 100.0,
       "robustly_feasible": true
     }
   },
   "value_of_robustness": {
-    "naive_worst_cost": 139891.376,
-    "robust_worst_cost": 48392.042,
-    "worst_cost_reduction": 91499.334,
-    "worst_cost_reduction_pct": 65.407,
-    "naive_min_service": 0.856,
-    "robust_min_service": 0.967,
-    "naive_max_regret": 91499.334,
-    "robust_max_regret": 1994.548
+    "naive_worst_cost": 142423.16,
+    "robust_worst_cost": 55001.567,
+    "worst_cost_reduction": 87421.593,
+    "worst_cost_reduction_pct": 61.382,
+    "naive_min_service": 0.853,
+    "robust_min_service": 0.959,
+    "naive_max_regret": 87421.593,
+    "robust_max_regret": 1994.475
   },
   "monte_carlo": {
     "robust": {
-      "cost_mean": 8269.9,
-      "cost_p05": 5195.9,
-      "cost_p50": 7788.8,
-      "cost_p95": 13107.9,
-      "cost_std": 2481.1,
+      "cost_mean": 8372.8,
+      "cost_p05": 5231.6,
+      "cost_p50": 7875.3,
+      "cost_p95": 13262.8,
+      "cost_std": 2619.0,
       "service_mean": 1.0,
       "service_p05": 1.0,
       "prob_meets_target": 1.0,
-      "solar_fraction_mean": 0.2
+      "solar_fraction_mean": 0.2,
+      "ci_cost_p05": [
+        5067.1,
+        5505.7
+      ],
+      "ci_cost_p50": [
+        7677.9,
+        8125.0
+      ],
+      "ci_cost_p95": [
+        12319.7,
+        13520.0
+      ],
+      "ci_prob_meets": [
+        1.0,
+        1.0
+      ],
+      "n_boot": 2000.0,
+      "n_samples": 500.0
     },
     "naive": {
-      "cost_mean": 7048.5,
-      "cost_p05": 3314.8,
-      "cost_p50": 6224.0,
-      "cost_p95": 12251.1,
-      "cost_std": 5220.8,
+      "cost_mean": 7272.6,
+      "cost_p05": 3350.4,
+      "cost_p50": 6297.2,
+      "cost_p95": 13203.9,
+      "cost_std": 5754.7,
       "service_mean": 1.0,
       "service_p05": 1.0,
       "prob_meets_target": 1.0,
-      "solar_fraction_mean": 0.1
+      "solar_fraction_mean": 0.1,
+      "ci_cost_p05": [
+        3225.9,
+        3557.3
+      ],
+      "ci_cost_p50": [
+        5944.1,
+        6526.1
+      ],
+      "ci_cost_p95": [
+        11187.9,
+        14826.3
+      ],
+      "ci_prob_meets": [
+        1.0,
+        1.0
+      ],
+      "n_boot": 2000.0,
+      "n_samples": 500.0
     }
   },
   "top_sensitivities": [
     {
       "variable": "Demand intensity (trips/scooter/day)",
-      "swing": 7975.567195009613
+      "swing": 8098.993191141968
     },
     {
       "variable": "Trip energy use",
-      "swing": 3719.9346166141695
+      "swing": 3779.4315930958874
     },
     {
       "variable": "Daily fleet utilisation",
-      "swing": 3020.27964659978
+      "swing": 3067.7462773321477
     }
   ],
   "global_sensitivity_sobol_total": [
     {
       "variable": "Demand intensity (trips/scooter/day)",
-      "pct_total": 52.1
+      "pct_total": 49.9
     },
     {
       "variable": "Demand growth (YoY)",
@@ -140,7 +176,7 @@
     },
     {
       "variable": "Daily fleet utilisation",
-      "pct_total": 17.0
+      "pct_total": 19.1
     }
   ],
   "robustness_of_robustness": {
@@ -155,19 +191,19 @@
     "all_pass": true
   },
   "recommended_performance_high_scenario": {
-    "service_level_pct": 96.7,
-    "solar_fraction_pct": 15.7,
-    "grid_import_kwh": 68794.0
+    "service_level_pct": 95.9,
+    "solar_fraction_pct": 15.8,
+    "grid_import_kwh": 68168.0
   },
   "emissions": {
     "mean_carbon_intensity_gCO2_kWh": 151.76,
     "marginal_factor_gCO2_kWh": 360.0,
-    "displaced_grid_kwh": 12845.89,
-    "station_emissions_tCO2_yr": 24.77,
-    "counterfactual_emissions_tCO2_yr": 29.39,
-    "carbon_saving_tCO2_yr": 4.62,
-    "carbon_saving_tCO2_lifetime": 69.37,
-    "carbon_saving_pct": 15.73,
-    "carbon_value_gbp_yr": 369.96
+    "displaced_grid_kwh": 12800.75,
+    "station_emissions_tCO2_yr": 24.54,
+    "counterfactual_emissions_tCO2_yr": 29.15,
+    "carbon_saving_tCO2_yr": 4.61,
+    "carbon_saving_tCO2_lifetime": 69.12,
+    "carbon_saving_pct": 15.81,
+    "carbon_value_gbp_yr": 368.66
   }
 }

@@ -72,7 +72,8 @@ from .economics import Design
 def _build_day_lp(pv_h: np.ndarray, demand_h: np.ndarray, tariff_h: np.ndarray,
                    soc_max: float, soc_init: float, grid_cap: float,
                    p_batt_max: float, eta_c: float, eta_d: float,
-                   export_price: float, unmet_penalty: float):
+                   export_price: float, unmet_penalty: float,
+                   charger_cap: float = np.inf):
     """
     Build and solve the LP for one 24-hour dispatch window.
 
@@ -144,6 +145,14 @@ def _build_day_lp(pv_h: np.ndarray, demand_h: np.ndarray, tariff_h: np.ndarray,
     ub[O_u:O_u + n]   = np.maximum(demand_h, 0.0)   # can't unmet > demand
     ub[O_cu:O_cu + n] = np.maximum(pv_h, 0.0)       # can't curtail > PV
     ub[O_s:O_s + n]   = soc_max
+
+    # Charger hardware cap: served demand (D - u) cannot exceed the charger
+    # delivery limit per hour, so any demand above charger_cap is FORCED unmet.
+    #   served = D - u <= charger_cap   =>   u >= D - charger_cap
+    # This is the fix for the bug where pre-capping demand made the clipped
+    # portion vanish (service then read ~100% for every design).
+    if np.isfinite(charger_cap):
+        lb[O_u:O_u + n] = np.maximum(demand_h - charger_cap, 0.0)
 
     bounds = list(zip(lb, ub))
 
@@ -237,7 +246,7 @@ def simulate_lp(design: Design, demand_kwh: np.ndarray, pv_kwh: np.ndarray, *,
     for day in range(n_days):
         h0 = day * 24
         pv_day    = pv_h[h0:h0 + 24]
-        dem_day   = np.minimum(demand_h[h0:h0 + 24], charger_cap)  # apply charger cap
+        dem_day   = demand_h[h0:h0 + 24]               # RAW demand (charger cap is a constraint)
         tou_day   = _TOU[np.arange(24)]
 
         if soc_max > 0.0:
@@ -249,16 +258,19 @@ def simulate_lp(design: Design, demand_kwh: np.ndarray, pv_kwh: np.ndarray, *,
                 eta_c=eta_c, eta_d=eta_d,
                 export_price=export_price,
                 unmet_penalty=unmet_penalty,
+                charger_cap=charger_cap,
             )
         else:
-            day_res = None  # no battery — skip LP, use greedy
+            day_res = None  # no battery — skip LP, use greedy (exact, no LP needed)
 
         if day_res is None:
-            # Greedy fallback (battery=0 or LP infeasible)
+            # Greedy fallback (battery=0 or LP infeasible). simulate_fast applies
+            # the charger deliver_cap itself, so pass RAW demand here.
             from .energy_balance import simulate_fast
             d_design = Design(design.pv_kwp, design.battery_kwh, design.n_chargers)
             gr = simulate_fast(d_design, dem_day, pv_day,
-                               battery_rt_eff=rt, grid_kw=grid_kw)
+                               battery_rt_eff=rt, charger_power_kw=p_ch_kw,
+                               charger_availability=avail, grid_kw=grid_kw)
             tot_grid      += gr['grid_import_kwh']
             tot_grid_cost += gr['grid_cost_baseline_gbp']
             tot_export    += gr['pv_export_kwh']

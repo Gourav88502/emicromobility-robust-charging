@@ -3,6 +3,6 @@ metric,model,lit_low,lit_high,unit,source,within_range
 Grid carbon intensity (NE England),151.76,120.0,280.0,gCO2/kWh,"National Grid ESO regional, 2021-23",True
 Battery round-trip efficiency,92.0,86.0,95.0,%,IRENA 2017 / Mongird 2020 (Li-ion BESS),True
 E-scooter mean trip distance,1.64,1.0,3.5,km,DfT trials (real); Gossling 2020,True
-Solar fraction (recommended design),15.73,15.0,75.0,%,Commercial solar+storage self-consumption,True
+Solar fraction (recommended design),15.81,15.0,75.0,%,Commercial solar+storage self-consumption,True
 LCOE of charging served,0.25,0.1,0.45,£/kWh,BEIS gen. cost + commercial tariff envelope,True
-Carbon saving vs grid-only,15.73,10.0,95.0,%,PV self-consumption displacement (marginal factor),True
+Carbon saving vs grid-only,15.81,10.0,95.0,%,PV self-consumption displacement (marginal factor),True

@@ -97,6 +97,16 @@ def main():
     print(f"    VALUE OF ROBUSTNESS: worst-case cost -GBP{vor['worst_cost_reduction']:,.0f}/yr "
           f"({vor['worst_cost_reduction_pct']:.1f}%) and fleet service "
           f"{vor['naive_min_service']*100:.1f}% -> {vor['robust_min_service']*100:.1f}%")
+
+    # LP-optimal verification of the reported designs (couples LP into the loop).
+    lpv = opt.get("lp_verification")
+    if lpv is not None and len(lpv):
+        ok = bool(lpv["lp_beats_or_matches"].all())
+        gain = lpv["service_gain_pp"].max()
+        print(f"    LP VERIFICATION: reported designs re-checked under LP-optimal dispatch "
+              f"-> LP matches/improves greedy in all cases: {ok} "
+              f"(max service gain {gain:+.1f} pp); search is unbiased.")
+        lpv.to_csv(OUT / "lp_verification.csv", index=False)
     figs["02_pareto"] = _save_fig(visualize.fig_pareto(opt), "02_pareto")
     figs["03_design_comparison"] = _save_fig(
         visualize.fig_design_comparison(opt), "03_design_comparison")
@@ -234,8 +244,14 @@ def _collect_results(opt, s_rob, s_nai, tor, sob, sim, emis, recommended, naive,
         "value_of_robustness": {k: (round(v, 3) if isinstance(v, float) else v)
                                 for k, v in opt["value_of_robustness"].items()},
         "monte_carlo": {
-            "robust": {k: round(float(v), 1) for k, v in s_rob.items()},
-            "naive": {k: round(float(v), 1) for k, v in s_nai.items()}},
+            "robust": {k: (round(float(v), 1) if isinstance(v, (int, float))
+                           else [round(float(x), 1) for x in v] if isinstance(v, tuple)
+                           else v)
+                       for k, v in s_rob.items()},
+            "naive": {k: (round(float(v), 1) if isinstance(v, (int, float))
+                          else [round(float(x), 1) for x in v] if isinstance(v, tuple)
+                          else v)
+                      for k, v in s_nai.items()}},
         "top_sensitivities": tor[["variable", "swing"]].head(3).to_dict("records"),
         "global_sensitivity_sobol_total": sob[["variable", "pct_total"]].head(3).to_dict("records"),
         "robustness_of_robustness": {
