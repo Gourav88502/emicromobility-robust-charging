@@ -18,7 +18,6 @@
 %  Run: matlab -batch "charging_hub_unified"  or press Run in the IDE.
 %
 %  Reference: Morales-España et al. (2014), Silvente et al. (2018).
-%  Newcastle University — Sustainable e-Micromobility Futures, 2025-26.
 
 clear; clc; close all;
 rng(42);

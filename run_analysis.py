@@ -68,7 +68,7 @@ def main():
     t0 = time.time()
     print("=" * 72)
     print(" ROBUST CHARGING INFRASTRUCTURE DESIGN UNDER DEMAND UNCERTAINTY")
-    print(" Newcastle University | Sustainable e-Micromobility Competition")
+    print(" National Competition for Sustainable e-Micromobility 2025-26")
     print("=" * 72)
     _ensure_data()
 
@@ -392,7 +392,7 @@ def _write_report(figs: dict, r: dict):
  <h1>Robust Charging Infrastructure Design Under Demand Uncertainty</h1>
  <p>Solar-powered shared e-micromobility charging station &middot; {r['site']}</p>
  <p><span class="badge">Theme 3 primary</span><span class="badge">Theme 2 secondary</span>
-    Newcastle University &middot; Sustainable e-Micromobility Competition 2025-26</p>
+    National Competition for Sustainable e-Micromobility 2025-26</p>
 </header>
 <div class="wrap">
  <div class="kpis">

@@ -12,7 +12,7 @@
 > National Competition for Sustainable e‑Micromobility 2025‑26 · University of Warwick / British Council Going Global Partnerships
 > **Theme 3 (primary)** — design of a solar‑PV charging station for a shared e‑bike/e‑scooter fleet
 > **Theme 2 (secondary)** — modelling charge/discharge profiles under different demand scenarios
-> **Institution:** Newcastle University
+> **Submission:** Anonymous — Level 1 blind review
 
 ---
 
@@ -280,13 +280,7 @@ This is **100 % original work** written for this competition:
 
 ## 9. Team
 
-| Member | Role |
-|---|---|
-| **Gourav Singh** | Solar PV & Charging Infrastructure Specialist |
-| **Neelesh Raj** | Robust Optimisation & Simulation Developer |
-| **Priti Burud** | Demand Uncertainty Analyst & Sustainability Evaluator |
-
-*Newcastle University — Sustainable e‑Micromobility Futures.*
+*Details withheld for blind review.*
 
 ## 10. License
 

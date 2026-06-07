@@ -6,7 +6,6 @@ band used in the project. Values are drawn directly from the approved
 *Data Inventory Table* and the Expression of Interest (EoI).
 
 Project : Robust Charging Infrastructure Design Under Demand Uncertainty
-Team    : Gourav Singh, Neelesh Raj, Priti Burud (Newcastle University)
 Comp.   : National Competition for Sustainable e-Micromobility 2025-26
 Themes  : 3 (primary, solar-PV charging station) + 2 (secondary, charge profiles)
 

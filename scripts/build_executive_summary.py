@@ -150,7 +150,7 @@ def build():
     para(doc, "Robust Charging Infrastructure Design under Demand Uncertainty",
          size=16, bold=True, color=NAVY, after=1,
          align=WD_ALIGN_PARAGRAPH.CENTER)
-    para(doc, "A solar-powered charging station for a shared e-micromobility fleet — Executive Summary",
+    para(doc, "A grid-tied solar-assisted charging station for a shared e-micromobility fleet — Executive Summary",
          size=10.5, color=GREY, after=1, align=WD_ALIGN_PARAGRAPH.CENTER, italic=True)
     pt = para(doc, "Competition Themes — 3 (primary): solar-PV charging-station design  ·  "
               "2 (secondary): charge/discharge profiles under demand scenarios",
@@ -218,9 +218,11 @@ def build():
          "at a 15 kW grid cap. Every optimiser run returned ", False),
         ("zero battery", True),
         (". Flexible smart charging — spreading vehicle charging overnight rather than stacking "
-         "it at arrival — keeps the load below the cap entirely. Storage only pays near 10 kW "
-         "connections, a boundary we then mapped. A correlated Monte-Carlo also showed that "
-         "expected-value methods ", False),
+         "it at arrival — keeps the load below the cap entirely without storage. Battery is "
+         "not absent from the analysis: our model specifies storage wherever the grid connection "
+         "weakens below ~10 kW, and we quantify that threshold explicitly. At 15 kW the "
+         "cheapest robust lever is smart-managed bays, not capital-heavy storage. A correlated "
+         "Monte-Carlo also showed that expected-value methods ", False),
         ("systematically under-weight the high-demand tail", True),
         (" — precisely when the naive design fails worst, making scenario-based robust methods "
          "necessary.", False),
@@ -257,24 +259,24 @@ def build():
     # ---- 4. Feasibility -----------------------------------------------------
     criterion_heading(doc, 4, "Feasibility of the Proposed Approach")
     body(doc, [
-        ("All components are off-the-shelf: 20 kWp monocrystalline PV, eight standard AC charge "
-         "points. Capital cost roughly ", False),
+        ("Off-the-shelf kit: 20 kWp monocrystalline PV, eight AC charge points. Capital cost "
+         "roughly ", False),
         (f"£{capex:,.0f}", True),
-        (f"; levelised cost of energy £{lcoe:.2f}/kWh, well under UK retail. Economics modelled "
-         "in full: annualised CAPEX, O&M, ToU grid bills, peak demand charges, export revenue, "
-         "battery replacement. Worst-case annual cost under the robust design is ", False),
+        (f"; add 10% contingency + G99 DNO notification (~£500–2,000) for a live project "
+         f"(realistic total ~£40,000). The ", False),
+        ("hub delivery cost", True),
+        (f" — full annualised CAPEX, O&M, ToU grid and peak charges — is £{lcoe:.2f}/kWh. "
+         f"An operator billing at the UK commercial rate (~28p/kWh) earns a margin over this, "
+         f"implying simple payback under 8 years. Worst-case annual cost: robust design ", False),
         (f"£{vor['robust_worst_cost']:,.0f}", True),
-        (f" versus £{vor['naive_worst_cost']:,.0f} for the naive design — a "
-         f"£{vor['worst_cost_reduction']:,.0f}/yr saving. Where storage is needed (weak-grid "
-         "cases) we specify ", False),
-        ("LFP rather than NMC", True),
-        (": cobalt- and nickel-free, thermal-runaway onset ~270°C vs ~150°C for NMC, ~12-yr "
-         "modelled life at 0.5C, ~45% end-of-life material recovery, second-life stationary "
-         "use before recycling. The codebase is open-source Python, one-command reproducible, "
-         "passing tests. The framework is site-agnostic — re-point it at any depot's data. "
-         "The central finding (smart charging is the cheapest robustness lever) supports "
-         "policy: targeted mandates and incremental grid-connection reform beat assuming every "
-         "depot needs DNO reinforcement.", False),
+        (f" vs £{vor['naive_worst_cost']:,.0f} naive — saving £{vor['worst_cost_reduction']:,.0f}/yr "
+         f"in the hardest scenario. Where storage is needed (weak-grid sites) we specify ", False),
+        ("LFP", True),
+        (": cobalt-free, thermal onset ~270°C vs ~150°C for NMC, ~12-yr modelled life, "
+         "~45% end-of-life recovery, second-life use before recycling. Code is open-source "
+         "Python, one-command reproducible. The finding — smart charging beats storage at a "
+         "15 kW cap — has direct policy relevance: targeted smart-charging mandates and "
+         "incremental connection upgrades are cheaper than blanket DNO reinforcement.", False),
     ])
 
     # ---- 5. Originality & Authenticity -------------------------------------

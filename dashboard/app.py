@@ -79,7 +79,7 @@ vor = opt["value_of_robustness"]
 # --------------------------------------------------------------------------- #
 st.title("🛴 Robust Charging Infrastructure Design under Demand Uncertainty")
 st.caption(f"Solar-powered shared e-micromobility charging station · {config.SITE_NAME} "
-           f"· Newcastle University · Sustainable e-Micromobility Competition 2025-26")
+           f"· National Competition for Sustainable e-Micromobility 2025-26")
 
 tab_over, tab_design, tab_opt, tab_unc, tab_sens, tab_data = st.tabs(
     ["📌 Overview", "🎛️ Station designer", "🛡️ Robust optimiser",
