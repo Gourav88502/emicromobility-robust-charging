@@ -176,7 +176,7 @@ def build():
     text(s, 0.7, 0.5, 12, 0.8, [[("Smart charging & the recommended design (Theme 2)", {"size": 30, "bold": True, "color": NAVY, "font": HEAD})]])
     chip(s, 0.7, 1.45, 3.3, f"{rec['pv_kwp']:g} kWp solar PV", GOLD)
     chip(s, 4.2, 1.45, 3.6, f"{rec['n_chargers']:g} charge bays, smart-managed", GREEN)
-    chip(s, 8.1, 1.45, 4.0, f"battery only if grid < ~10 kW", BLUE)
+    chip(s, 8.1, 1.45, 4.0, f"battery only if grid <= 11 kW", BLUE)
     pic_fit(s, OUT / "07_energy_balance.png", 0.8, 2.15, 11.7, 4.4)
     text(s, 0.8, 6.5, 11.7, 0.6, [[("Smart control schedules flexible charging into sunny / off-peak hours and flattens the overnight load below the connection limit — no battery needed at a connected depot.", {"size": 11.5, "italic": True, "color": GREY})]], align=PP_ALIGN.CENTER)
     SCRIPT.append((5, "Here is the key insight. Because depot charging is flexible, a smart "

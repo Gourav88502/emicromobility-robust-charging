@@ -219,9 +219,10 @@ def build():
         ("zero battery", True),
         (". Flexible smart charging — spreading vehicle charging overnight rather than stacking "
          "it at arrival — keeps the load below the cap entirely without storage. Battery is "
-         "not absent from the analysis: our model specifies storage wherever the grid connection "
-         "weakens below ~10 kW, and we quantify that threshold explicitly. At 15 kW the "
-         "cheapest robust lever is smart-managed bays, not capital-heavy storage. A correlated "
+         "not absent from the analysis: a grid-cap sweep shows storage enters the optimal "
+         "design at 11 kW and below (zero at 12 kW and above), so we quantify the threshold "
+         "explicitly. At 15 kW the cheapest robust lever is smart-managed bays, not "
+         "capital-heavy storage. A correlated "
          "Monte-Carlo also showed that expected-value methods ", False),
         ("systematically under-weight the high-demand tail", True),
         (" — precisely when the naive design fails worst, making scenario-based robust methods "
@@ -293,7 +294,8 @@ def build():
         (" All 38 references are in REFERENCES.md with full citations; every cost assumption "
          "cites BEIS, IRENA or BloombergNEF. The commit history shows incremental development "
          "— dead-ends included. The LP solver started as the primary engine; we switched it to "
-         "a verification role after it proved 38x slower with identical results. That kind of "
+         "a verification role after the full LP search proved impractically slow (identical "
+         "results to the heuristic, which finishes in under a second). That kind of "
          "documented revision is what real engineering looks like. Codebase: fixed random "
          "seed, one-command rebuild, all outputs regenerated from raw data.", False),
     ])

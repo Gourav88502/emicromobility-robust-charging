@@ -206,5 +206,22 @@
     "carbon_saving_tCO2_lifetime": 69.12,
     "carbon_saving_pct": 15.81,
     "carbon_value_gbp_yr": 368.66
+  },
+  "grid_battery_threshold": {
+    "grid_caps_tested_kW": [
+      4,
+      6,
+      8,
+      10,
+      11,
+      12,
+      14,
+      15,
+      18,
+      20
+    ],
+    "battery_recommended_at_or_below_kW": 11,
+    "battery_dropped_at_or_above_kW": 12,
+    "note": "Robust (maximin) design includes battery storage at grid connections of 11 kW and below; storage drops to zero at 12 kW and above. Confirms the zero-battery recommendation is specific to the 15 kW connection."
   }
 }

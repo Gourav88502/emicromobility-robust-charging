@@ -400,8 +400,9 @@ def build():
         "the 15 kW grid limit. Every single run of the optimiser chose <i>zero battery</i>. "
         "Why? Because flexible smart charging — spreading vehicle charging across the night "
         "rather than all at once — flattens the load profile below the grid cap entirely. "
-        "A battery only becomes necessary when the grid connection weakens toward 10 kW "
-        "(near off-grid). That boundary was then quantified."
+        "A battery only enters the optimal design when the grid connection drops to "
+        "11 kW or below (zero battery at 12 kW and above) — a boundary we located with "
+        "a grid-cap sweep."
     ))
     story.append(p("<b>Finding 2 — Cost and carbon are aligned, not in tension.</b>"))
     story.append(p(

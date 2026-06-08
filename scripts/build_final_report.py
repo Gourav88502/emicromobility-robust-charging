@@ -593,9 +593,11 @@ def build():
         "mostly just do expensive arbitrage."
     ))
     story.append(B(
-        "<b>Battery IS specified when the grid is weaker.</b> Our robustness sweep tested "
-        "grid caps from 4 kW to 20 kW. Below ~10 kW, the optimiser consistently recommends "
-        "a battery. The zero-battery result is specific to the 15 kW connection at this site."
+        "<b>Battery IS specified when the grid is weaker.</b> We swept the grid cap from "
+        "4 kW to 20 kW, re-running the full optimisation at each step (see "
+        "grid_battery_threshold.csv). Storage enters the optimal design at <b>11 kW and "
+        "below</b> and drops to zero at 12 kW and above — so the zero-battery result is "
+        "specific to this site's 15 kW connection, not a universal claim."
     ))
     story.append(sp(2))
 
@@ -924,7 +926,7 @@ def build():
 
     story.append(P("LFP Battery — Why We Specified This Chemistry", "h3"))
     story.append(P(
-        "For scenarios where a battery is needed (grid connections weaker than ~10 kW), "
+        "For scenarios where a battery is needed (grid connections of 11 kW and below), "
         "we specified LFP (lithium iron phosphate) rather than the more common NMC "
         "(nickel-manganese-cobalt). Here is why:"
     ))
