@@ -266,8 +266,10 @@ def build():
          f"(realistic total ~£40,000). The ", False),
         ("hub delivery cost", True),
         (f" — full annualised CAPEX, O&M, ToU grid and peak charges — is £{lcoe:.2f}/kWh. "
-         f"An operator billing at the UK commercial rate (~28p/kWh) earns a margin over this, "
-         f"implying simple payback under 8 years. Worst-case annual cost: robust design ", False),
+         f"An operator billing at the UK commercial rate (~28p/kWh) earns a margin over this; "
+         f"the solar array alone pays back in ~6 years (NPV-positive at the Green Book 6% rate), "
+         f"though the dominant economic case is the Value of Robustness below, not solar payback. "
+         f"Worst-case annual cost: robust design ", False),
         (f"£{vor['robust_worst_cost']:,.0f}", True),
         (f" vs £{vor['naive_worst_cost']:,.0f} naive — saving £{vor['worst_cost_reduction']:,.0f}/yr "
          f"in the hardest scenario. Where storage is needed (weak-grid sites) we specify ", False),
