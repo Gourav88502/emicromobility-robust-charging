@@ -50,8 +50,8 @@ INK = colors.HexColor("#222233")
 PW, PH = A4
 
 # ── styles ──────────────────────────────────────────────────────────────────
-BODY = ParagraphStyle("body", fontName="Helvetica", fontSize=8.7, leading=11.2,
-                      alignment=TA_JUSTIFY, textColor=INK, spaceAfter=1.5*mm)
+BODY = ParagraphStyle("body", fontName="Helvetica", fontSize=8.8, leading=11.8,
+                      alignment=TA_JUSTIFY, textColor=INK, spaceAfter=2.2*mm)
 TITLE = ParagraphStyle("title", fontName="Helvetica-Bold", fontSize=15,
                        leading=17, alignment=TA_CENTER, textColor=NAVY,
                        spaceAfter=1*mm)
@@ -89,7 +89,7 @@ class Heading(Flowable):
 
     def wrap(self, aw, ah):
         self.width = aw
-        return aw, self.height + 1.0*mm
+        return aw, self.height + 2.0*mm
 
     def draw(self):
         c = self.canv
@@ -174,8 +174,8 @@ def kpi_strip(pairs):
         ("BACKGROUND", (0, 0), (-1, -1), LGREY),
         ("INNERGRID", (0, 0), (-1, -1), 0.4, WHITE),
         ("BOX", (0, 0), (-1, -1), 0.4, MGREY),
-        ("TOPPADDING", (0, 0), (-1, -1), 3),
-        ("BOTTOMPADDING", (0, 0), (-1, -1), 3),
+        ("TOPPADDING", (0, 0), (-1, -1), 4),
+        ("BOTTOMPADDING", (0, 0), (-1, -1), 4),
         ("LEFTPADDING", (0, 0), (-1, -1), 2),
         ("RIGHTPADDING", (0, 0), (-1, -1), 2),
         ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
@@ -203,8 +203,8 @@ def table(header, rows, widths, header_bg=NAVY, small=False):
         ("ROWBACKGROUNDS", (0, 1), (-1, -1), [colors.HexColor("#EEF3F8"), WHITE]),
         ("GRID", (0, 0), (-1, -1), 0.3, MGREY),
         ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
-        ("TOPPADDING", (0, 0), (-1, -1), 2.2),
-        ("BOTTOMPADDING", (0, 0), (-1, -1), 2.2),
+        ("TOPPADDING", (0, 0), (-1, -1), 2.8),
+        ("BOTTOMPADDING", (0, 0), (-1, -1), 2.8),
         ("LEFTPADDING", (0, 0), (-1, -1), 3),
         ("RIGHTPADDING", (0, 0), (-1, -1), 3),
     ]))

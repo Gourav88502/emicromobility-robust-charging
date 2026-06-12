@@ -115,14 +115,16 @@ python run_analysis.py
 That single command **prepares the datasets, runs every model, and writes all figures and a combined report** to `outputs/`. It is deterministic (fixed seed) and self‑healing (it regenerates any missing data), so it works on a fresh clone in ~25 seconds.
 
 That command also rebuilds the **methodology flow diagram**, the **2‑page anonymised
-Executive Summary**, and the **anonymised 3‑minute presentation deck + script** — the full
-blind‑judged Level‑1 package.
+summary** (`Two_Page_Summary.pdf`), the **full project report**
+(`Final_Project_Report.pdf`), and the **anonymised 3‑minute presentation deck + script**
+— the full blind‑judged Level‑1 package.
 
 **Then open the interactive report and deliverables:**
 
 ```
 outputs/index.html               ← interactive results, open in any browser
-outputs/Executive_Summary.docx   ← 2-page anonymised summary (Level-1 submission)
+outputs/Two_Page_Summary.pdf     ← 2-page anonymised summary (Level-1 submission)
+outputs/Final_Project_Report.pdf ← full start-to-end project report (detailed annex)
 outputs/Presentation.pptx        ← anonymised 3-minute slide deck (speaker notes = script)
 outputs/presentation_script.md   ← timed 3-minute narration (~434 words, ~2.9 min)
 ```
@@ -175,7 +177,9 @@ emicromobility-robust-charging/
 │   ├── prepare_data.py            ← builds analysis‑ready datasets (real DfT + solar + carbon)
 │   ├── fetch_real_data.py         ← optional live PVGIS / Carbon API pull
 │   ├── make_flow_diagram.py       ← methodology flow diagram (the "Approach" figure)
-│   ├── build_executive_summary.py ← anonymised 2‑page Executive Summary (.docx)
+│   ├── build_two_pager.py         ← anonymised 2-page summary PDF (Level-1 submission)
+│   ├── build_final_report.py      ← full start-to-end project report PDF
+│   ├── grid_threshold_sweep.py    ← battery-vs-grid-cap threshold evidence (11/12 kW)
 │   └── build_presentation.py      ← anonymised 3‑minute slide deck + timed script
 │
 ├── matlab/                    ← MATLAB + Simulink operational layer

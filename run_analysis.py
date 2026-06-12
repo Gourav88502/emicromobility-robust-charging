@@ -221,6 +221,25 @@ def main():
     print("\n[6] Writing results.json, executive summary and combined report ...")
     results = _collect_results(opt, s_rob, s_nai, tor, sob, sim, emis, recommended, naive,
                                rob, val)
+    # fold in the battery-vs-grid-cap threshold evidence if the sweep has been run
+    # (scripts/grid_threshold_sweep.py writes the CSV; keep the JSON in sync with it)
+    thr_csv = OUT / "grid_battery_threshold.csv"
+    if thr_csv.exists():
+        import csv as _csv
+        with open(thr_csv, newline="", encoding="utf-8") as f:
+            rows = list(_csv.DictReader(f))
+        with_b = [int(float(r["grid_kW"])) for r in rows if float(r["battery_kwh"]) > 0]
+        without_b = [int(float(r["grid_kW"])) for r in rows if float(r["battery_kwh"]) == 0]
+        if with_b and without_b:
+            results["grid_battery_threshold"] = {
+                "grid_caps_tested_kW": sorted(int(float(r["grid_kW"])) for r in rows),
+                "battery_recommended_at_or_below_kW": max(with_b),
+                "battery_dropped_at_or_above_kW": min(without_b),
+                "note": (f"Robust (maximin) design includes battery storage at grid "
+                         f"connections of {max(with_b)} kW and below; storage drops to zero "
+                         f"at {min(without_b)} kW and above. Confirms the zero-battery "
+                         f"recommendation is specific to the 15 kW connection."),
+            }
     (OUT / "results.json").write_text(json.dumps(results, indent=2), encoding="utf-8")
     _write_summary(results)
     _write_report(figs, results)
@@ -235,8 +254,8 @@ def main():
     mc_robust.to_csv(OUT / "monte_carlo_robust.csv", index=False)
     mc_naive.to_csv(OUT / "monte_carlo_naive.csv", index=False)
 
-    # ---- 7. Methodology flow diagram + anonymised executive summary -------- #
-    print("\n[7] Building methodology flow diagram and executive summary ...")
+    # ---- 7. Methodology flow diagram + final summary documents ------------- #
+    print("\n[7] Building methodology flow diagram and final reports ...")
     sys.path.insert(0, str(ROOT / "scripts"))
     try:
         import make_flow_diagram
@@ -244,10 +263,15 @@ def main():
     except Exception as e:
         print(f"   (flow diagram skipped: {e})")
     try:
-        import build_executive_summary
-        build_executive_summary.build()
+        import build_two_pager
+        build_two_pager.build()
     except Exception as e:
-        print(f"   (executive summary skipped — needs python-docx: {e})")
+        print(f"   (two-page summary skipped: {e})")
+    try:
+        import build_final_report
+        build_final_report.build()
+    except Exception as e:
+        print(f"   (full report skipped: {e})")
     try:
         import build_presentation
         build_presentation.build()
