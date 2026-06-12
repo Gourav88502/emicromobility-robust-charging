@@ -126,31 +126,31 @@ class FlowDiagram(Flowable):
     def __init__(self, width=180*mm):
         super().__init__()
         self.width = width
-        self.height = 16*mm
+        self.height = 21*mm
 
     def wrap(self, aw, ah):
         self.width = aw
-        return aw, self.height + 1.5*mm
+        return aw, self.height + 2.0*mm
 
     def draw(self):
         c = self.canv
         n = len(self.STAGES)
         gap = 4.2*mm
         bw = (self.width - gap * (n - 1)) / n
-        bh = 12*mm
-        y = 1.5*mm
+        bh = 17*mm
+        y = 2.0*mm
         for i, (t1, t2) in enumerate(self.STAGES):
             x = i * (bw + gap)
             col = self.COLORS[i]
             c.setFillColor(col)
             c.roundRect(x, y, bw, bh, 1.6, fill=1, stroke=0)
             c.setFillColor(colors.Color(1, 1, 1, 0.16))
-            c.roundRect(x, y + bh - 4*mm, bw, 4*mm, 1.6, fill=1, stroke=0)
+            c.roundRect(x, y + bh - 5.4*mm, bw, 5.4*mm, 1.6, fill=1, stroke=0)
             c.setFillColor(WHITE)
-            c.setFont("Helvetica-Bold", 6.6)
-            c.drawCentredString(x + bw/2, y + bh - 3.1*mm, t1)
-            c.setFont("Helvetica", 5.7)
-            c.drawCentredString(x + bw/2, y + 3.4*mm, t2)
+            c.setFont("Helvetica-Bold", 7.4)
+            c.drawCentredString(x + bw/2, y + bh - 4.0*mm, t1)
+            c.setFont("Helvetica", 6.3)
+            c.drawCentredString(x + bw/2, y + 5.0*mm, t2)
             if i < n - 1:
                 ax = x + bw + 0.7*mm
                 ay = y + bh/2
@@ -179,6 +179,25 @@ def kpi_strip(pairs):
         ("LEFTPADDING", (0, 0), (-1, -1), 2),
         ("RIGHTPADDING", (0, 0), (-1, -1), 2),
         ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
+    ]))
+    return t
+
+
+# ── plain-English callout box ────────────────────────────────────────────────
+PBOX = ParagraphStyle("pbox", fontName="Helvetica", fontSize=8.6, leading=11.6,
+                      alignment=TA_JUSTIFY, textColor=INK)
+
+def callout(text, accent=BLUE, bg="#E8F4FD"):
+    p = Paragraph(text, PBOX)
+    t = Table([[p]], colWidths=[PW - 26*mm])
+    t.setStyle(TableStyle([
+        ("BACKGROUND", (0, 0), (-1, -1), colors.HexColor(bg)),
+        ("BOX", (0, 0), (-1, -1), 0.6, accent),
+        ("LINEBEFORE", (0, 0), (0, -1), 2.2, accent),
+        ("TOPPADDING", (0, 0), (-1, -1), 5),
+        ("BOTTOMPADDING", (0, 0), (-1, -1), 5),
+        ("LEFTPADDING", (0, 0), (-1, -1), 8),
+        ("RIGHTPADDING", (0, 0), (-1, -1), 7),
     ]))
     return t
 
@@ -269,6 +288,19 @@ def build():
         "observed behaviour, not assumptions. <b>Objective:</b> find the PV, battery and "
         "charger configuration that performs well across every plausible future, and quantify "
         "exactly what that robustness costs."))
+    s.append(callout(
+        "<b>The 15 kW limit, in plain terms.</b> A grid connection is like a water pipe into "
+        "the building: this depot's pipe carries at most 15 kW — roughly four electric kettles "
+        "boiling at once. Its width is set by the local Distribution Network Operator "
+        "(Northern Powergrid for Newcastle) under ENA Engineering Recommendation G99 (2022), "
+        "because the street cable and substation can only carry so much before overheating. A "
+        "whole fleet plugging in together at 8pm wants several times more than 15 kW: exceed "
+        "the cap and the main fuse trips — or the operator pays £10,000-£50,000 for a wider "
+        "connection (Energy Saving Trust 2023; even the G99 notification takes 8-12 weeks and "
+        "£500-£2,000). Spreading the same charging across the night pushes the same energy "
+        "through the same pipe at no extra cost — that is the lever this study optimises.",
+        accent=ORANGE, bg="#FEF3E2"))
+    s.append(Spacer(1, 1.5*mm))
 
     # ── 2. Data & Assumptions ────────────────────────────────────────────────
     s.append(section(2, "Data & Assumptions", GREEN))
@@ -285,15 +317,18 @@ def build():
          ["**National Grid ESO Carbon Intensity API",
           "Hourly grid carbon (~152 gCO2/kWh, NE England)",
           "Official system-operator data giving actual marginal carbon per hour — honest time-resolved accounting",
-          "CC BY 4.0"]],
+          "CC BY 4.0"],
+         ["**UK cost &amp; appraisal references",
+          "Every CAPEX line; 6% discounting",
+          "Each cost is traceable to a published UK source, not assumed: Solar Trade Assoc. 2024, OZEV 2024, Indra/Ohme 2024, CIBSE Guide M, HM Treasury Green Book 2022",
+          "Public"]],
         widths=[44*mm, 44*mm, 73*mm, 23*mm], small=True))
     s.append(Spacer(1, 1.2*mm))
     s.append(P(
-        "<b>Key assumptions:</b> 15 kW grid cap; 5-year design horizon; 95% fleet-service "
-        "target; round-trip and PV-system efficiencies at manufacturer norms. Capital costs "
-        "are taken from published UK references — Solar Trade Association 2024, OZEV 2024, "
-        "Indra/Ohme 2024 and CIBSE Guide M — and discounted at the HM Treasury Green Book 6% "
-        "rate. No figure in this study is invented."))
+        "<b>Key assumptions:</b> 15 kW hard grid cap; 5-year design horizon; 95% fleet-service "
+        "target; round-trip and PV-system efficiencies at manufacturer norms; HM Treasury Green "
+        "Book 6% discount rate for appraisal. No figure in this study is invented — every number "
+        "traces to one of the sources above or to a model run archived in results.json."))
 
     # ── 3. Optimisation Formulation ──────────────────────────────────────────
     s.append(section(3, "Optimisation Formulation", BLUE))
@@ -311,6 +346,13 @@ def build():
         "level, the most defensible choice under deep uncertainty. Every reported design is "
         "independently re-checked with an LP-optimal rolling-horizon scheduler "
         "(scipy/HiGHS; Silvente et al. 2015, Huangfu &amp; Hall 2018)."))
+    s.append(callout(
+        "<b>The decision rule in one line:</b>&nbsp;&nbsp; design* &nbsp;=&nbsp; argmax over "
+        "150 designs &nbsp;of&nbsp; [ minimum over 9 scenarios of worst-case service ], subject "
+        "to grid import &#8804; 15 kW in every one of the 8,760 hours — i.e. pick the station "
+        "whose <b>worst</b> year is the best available, never the one that merely wins on average.",
+        accent=BLUE, bg="#E8F4FD"))
+    s.append(Spacer(1, 1.5*mm))
 
     # ── 4. Methodology flow diagram ──────────────────────────────────────────
     s.append(section(4, "Methodology — Flow", PURPLE))
@@ -394,8 +436,9 @@ def build():
         "Uncertainty (Monte-Carlo fan); Sensitivity (tornado); and Data &amp; Method. A single "
         "command (<b>python run_analysis.py</b>) regenerates every figure and a static HTML "
         "report. Four <b>MATLAB</b> functions (opt1-opt4: fleet load, smart-charging LP, "
-        "solar-battery EMS, Simulink / pure-MATLAB twin) mirror the core analysis for fleet-tool "
-        "integration. All outputs are reproducible from raw data with a fixed random seed."))
+        "solar-battery EMS, Simulink / pure-MATLAB twin; MathWorks R2024a) mirror the core "
+        "analysis for fleet-tool integration. All outputs are reproducible from raw data with "
+        "a fixed random seed."))
 
     # ── 9. Recommendations & Originality ─────────────────────────────────────
     s.append(section(9, "Recommendations & Originality Statement", NAVY))

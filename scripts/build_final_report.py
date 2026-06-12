@@ -434,7 +434,7 @@ def build():
     story.append(P("The 15 kW Grid Connection Constraint", "h3"))
     story.append(callout(
         "The depot has a hard limit of 15 kW on its grid connection, set by the local "
-        "Distribution Network Operator — SSEN for Newcastle<super>[1,2]</super>. Exceed it and "
+        "Distribution Network Operator — Northern Powergrid for Newcastle<super>[1,2]</super>. Exceed it and "
         "you trigger a network upgrade costing £10,000–£50,000<super>[3]</super>. Even a "
         "compliant connection requires a G99 notification taking 8–12 weeks at "
         "£500–£2,000<super>[3]</super>. So the evening charging rush cannot simply be met by "
@@ -1233,8 +1233,8 @@ def build():
     references = [
         "Energy Networks Association — Engineering Recommendation G99, Issue 1 (2022): "
         "connection standard for generation and storage on UK distribution networks.",
-        "Scottish &amp; Southern Electricity Networks (SSEN) — Distribution Network Operator "
-        "for North East England, including Newcastle upon Tyne.",
+        "Northern Powergrid — Distribution Network Operator for North East England, "
+        "including Newcastle upon Tyne.",
         "Energy Saving Trust — EV Infrastructure Cost Report (2023): grid connection upgrade "
         "cost range £10,000–£50,000; G99 notification typically 8–12 weeks at £500–£2,000.",
         "HM Treasury — The Green Book (2022): 6% social discount rate for project appraisal "
