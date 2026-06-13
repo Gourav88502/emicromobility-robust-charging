@@ -242,8 +242,9 @@ def on_page(canvas, doc):
     canvas.setFont("Helvetica", 6.6)
     canvas.drawString(13*mm, 2.4*mm,
                       "Data: DfT (OGL v3.0)  ·  PVGIS (CC BY 4.0)  ·  National Grid ESO (CC BY 4.0)")
+    pnum = ("Page %d/2" % doc.page) if doc.page <= 2 else "References"
     canvas.drawRightString(w - 13*mm, 2.4*mm,
-                           "National Competition for Sustainable e-Micromobility 2025-26  ·  Anonymous submission  ·  Page %d/2" % doc.page)
+                           "National Competition for Sustainable e-Micromobility 2025-26  ·  Anonymous submission  ·  " + pnum)
     canvas.restoreState()
 
 
@@ -455,6 +456,70 @@ def build():
         "after the full LP search proved impractically slow (the heuristic sweep finishes in under "
         "a second, the equivalent LP sweep does not). The work is fixed-seed reproducible and is "
         "submitted anonymously for blind review."))
+
+    # ── Page 3 — References & Data Sources ────────────────────────────────────
+    s.append(PageBreak())
+    s.append(P("Robust Charging Infrastructure Design under Demand Uncertainty", TITLE))
+    s.append(P("References &amp; Data Sources", SUBT))
+    s.append(HRFlowable(width="100%", thickness=1.1, color=BLUE,
+                        spaceBefore=1*mm, spaceAfter=2.5*mm))
+    s.append(P(
+        "Every quantitative claim in this summary is traceable to a published source listed "
+        "below or to an archived model run. Datasets are shown with their open licences; cost "
+        "lines, the grid-connection standard and the analytical methods follow. In-text "
+        "citations use author/organisation and year; full details are given here.", BODY))
+    s.append(Spacer(1, 2*mm))
+
+    refs = [
+        "CIBSE (Chartered Institution of Building Services Engineers). <i>Guide M: Maintenance "
+        "Engineering and Management.</i> Cabling and civil-works cost allowances.",
+        "Department for Transport (DfT). <i>Shared e-scooter trial monitoring data</i> "
+        "(Newcastle / Neuron, Jan 2022 - May 2024). Open Government Licence v3.0.",
+        "Energy Networks Association (ENA). <i>Engineering Recommendation G99, Issue 1</i> "
+        "(2022). Connection standard for generation and storage on UK distribution networks.",
+        "Energy Saving Trust (2023). <i>EV Infrastructure Cost Report.</i> Grid-connection "
+        "upgrade range £10,000-£50,000; G99 notification 8-12 weeks, £500-£2,000.",
+        "Feng, X., Ouyang, M., Liu, X., et al. (2018). Thermal runaway mechanism of lithium-ion "
+        "batteries. <i>Energy Storage Materials,</i> 10, 246-267.",
+        "Harper, G., Sommerville, R., Kendrick, E., et al. (2019). Recycling lithium-ion "
+        "batteries from electric vehicles. <i>Nature,</i> 575, 75-86.",
+        "HM Treasury (2022). <i>The Green Book: Central Government Guidance on Appraisal and "
+        "Evaluation.</i> 6% social discount rate.",
+        "Huangfu, Q. &amp; Hall, J. A. J. (2018). Parallelizing the dual revised simplex method "
+        "(HiGHS). <i>Mathematical Programming Computation,</i> 10, 119-142.",
+        "Indra / Ohme (2024). Smart charge-controller and scheduling-software pricing.",
+        "MathWorks (2024). <i>Simulink R2024a Documentation.</i>",
+        "National Grid ESO. <i>Carbon Intensity API</i> (regional). Hour-by-hour grid carbon "
+        "intensity, North East England. CC BY 4.0.",
+        "Northern Powergrid. Distribution Network Operator for North East England "
+        "(Newcastle upon Tyne).",
+        "Office for Zero Emission Vehicles (OZEV) (2024). <i>EV Infrastructure Grant data.</i> "
+        "AC charge-point unit costs.",
+        "PVGIS - Photovoltaic Geographical Information System, EU Joint Research Centre. "
+        "Newcastle hourly solar yield ~979 kWh/kWp/yr. CC BY 4.0.",
+        "Rockafellar, R. T. &amp; Uryasev, S. (2000). Optimization of Conditional Value-at-Risk. "
+        "<i>Journal of Risk,</i> 2(3), 21-41.",
+        "Saltelli, A., Annoni, P., Azzini, I., et al. (2010). Variance-based sensitivity analysis "
+        "(Sobol estimator). <i>Computer Physics Communications,</i> 181, 259-270.",
+        "Silvente, J., Kopanos, G. M., Pistikopoulos, E. N. &amp; Espuna, A. (2015). A "
+        "rolling-horizon optimization framework for microgrid energy management. "
+        "<i>Applied Energy,</i> 155, 485-501.",
+        "Solar Energy UK (2023). Regional solar-yield comparison, northern vs southern England.",
+        "Solar Trade Association UK (2024). Commercial rooftop PV system pricing.",
+    ]
+    REF = ParagraphStyle("ref", fontName="Helvetica", fontSize=8.6, leading=11.6,
+                         alignment=TA_LEFT, textColor=INK, spaceAfter=2.0*mm,
+                         leftIndent=6*mm, firstLineIndent=-6*mm)
+    for i, r in enumerate(refs, 1):
+        s.append(Paragraph(f"<b>{i}.</b>&nbsp;&nbsp;{r}", REF))
+
+    s.append(Spacer(1, 2.5*mm))
+    s.append(callout(
+        "<b>Reproducibility.</b> All results regenerate from raw data with a single command "
+        "(<b>python run_analysis.py</b>, fixed random seed). The model outputs behind every "
+        "figure and headline number are archived in <b>results.json</b>; the battery-vs-grid "
+        "threshold is evidenced in <b>grid_battery_threshold.csv</b>. Submitted anonymously "
+        "for blind review.", accent=GREEN, bg="#E8F6EE"))
 
     doc.build(s)
     print(f"Two-page summary saved: {out}")
