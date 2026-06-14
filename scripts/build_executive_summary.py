@@ -229,7 +229,7 @@ def render_docx(c: dict, path: Path):
         for a in ("w:ascii", "w:hAnsi", "w:cs"):
             rf.set(qn(a), FONT)
 
-    def p(before=0, after=4, align=None, line=1.04):
+    def p(before=0, after=3, align=None, line=1.0):
         par = doc.add_paragraph()
         par.paragraph_format.space_before = Pt(before)
         par.paragraph_format.space_after = Pt(after)
@@ -239,7 +239,7 @@ def render_docx(c: dict, path: Path):
         return par
 
     def heading(text):
-        par = p(before=6, after=2)
+        par = p(before=4, after=1)
         _set_font(par.add_run(text), size=13, bold=True, color=NAVY)
         # thin rule under the heading
         ppr = par._p.get_or_add_pPr()
@@ -249,7 +249,7 @@ def render_docx(c: dict, path: Path):
         pbdr.append(bottom); ppr.append(pbdr)
 
     def body(runs):
-        par = p(after=4, align=WD_ALIGN_PARAGRAPH.JUSTIFY)
+        par = p(after=2, align=WD_ALIGN_PARAGRAPH.JUSTIFY)
         for text, bold in runs:
             _set_font(par.add_run(text), size=11, bold=bold)
 
@@ -258,16 +258,16 @@ def render_docx(c: dict, path: Path):
     _set_font(tp.add_run(f"Team Name: {TEAM_NAME}"), size=11, bold=True, color=GREY)
     ttl = p(after=1, align=WD_ALIGN_PARAGRAPH.LEFT)
     _set_font(ttl.add_run(TITLE), size=15, bold=True, color=NAVY)
-    sub = p(after=6, align=WD_ALIGN_PARAGRAPH.LEFT)
+    sub = p(after=4, align=WD_ALIGN_PARAGRAPH.LEFT)
     _set_font(sub.add_run(SUBTITLE), size=9.5, italic=True, color=BLUE)
 
     # --- Approach ------------------------------------------------------------
     heading(f"Approach  ({_wordcount(c['approach'])} words)")
     for runs in c["approach"]:
         body(runs)
-    doc.add_picture(str(OUT / "methodology_flow.png"), width=Inches(5.2))
+    doc.add_picture(str(OUT / "methodology_flow.png"), width=Inches(4.0))
     doc.paragraphs[-1].alignment = WD_ALIGN_PARAGRAPH.CENTER
-    cap = p(after=6, align=WD_ALIGN_PARAGRAPH.CENTER)
+    cap = p(after=3, align=WD_ALIGN_PARAGRAPH.CENTER)
     _set_font(cap.add_run("Figure 1 — End-to-end methodology / algorithm flow."),
               size=8.5, italic=True, color=GREY)
 
@@ -276,13 +276,7 @@ def render_docx(c: dict, path: Path):
     for runs in c["outcomes"]:
         body(runs)
 
-    # figure 2 (pareto), then 2-up figures 3 & 4
-    doc.add_picture(str(OUT / "02_pareto.png"), width=Inches(4.4))
-    doc.paragraphs[-1].alignment = WD_ALIGN_PARAGRAPH.CENTER
-    cap = p(after=4, align=WD_ALIGN_PARAGRAPH.CENTER)
-    _set_font(cap.add_run("Figure 2 — Cost-vs-robustness Pareto frontier (five decision rules)."),
-              size=8.5, italic=True, color=GREY)
-
+    # results: compact 2-up (Pareto frontier + robustness-of-robustness)
     t = doc.add_table(rows=1, cols=2)
     t.alignment = WD_TABLE_ALIGNMENT.CENTER
     tbl = t._tbl
@@ -290,13 +284,13 @@ def render_docx(c: dict, path: Path):
     for edge in ("top", "left", "bottom", "right", "insideH", "insideV"):
         e = OxmlElement(f"w:{edge}"); e.set(qn("w:val"), "none"); borders.append(e)
     tbl.tblPr.append(borders)
-    for i, img in enumerate(["10_robustness.png", "11_validation.png"]):
-        cell = t.rows[0].cells[i]; cell.width = Mm(72)
+    for i, img in enumerate(["02_pareto.png", "10_robustness.png"]):
+        cell = t.rows[0].cells[i]; cell.width = Mm(80)
         cell.paragraphs[0].alignment = WD_ALIGN_PARAGRAPH.CENTER
-        cell.paragraphs[0].add_run().add_picture(str(OUT / img), width=Inches(2.5))
-    cap = p(after=6, align=WD_ALIGN_PARAGRAPH.CENTER)
-    _set_font(cap.add_run("Figure 3 — Robust beats naive across every penalty × grid case.   "
-                          "Figure 4 — Validation vs published benchmarks."),
+        cell.paragraphs[0].add_run().add_picture(str(OUT / img), width=Inches(2.75))
+    cap = p(after=3, align=WD_ALIGN_PARAGRAPH.CENTER)
+    _set_font(cap.add_run("Figure 2 — Cost-vs-robustness Pareto frontier (five rules).   "
+                          "Figure 3 — Robust beats naive across every penalty × grid case (7/7 benchmarks validated)."),
               size=8.5, italic=True, color=GREY)
 
     # --- GitHub --------------------------------------------------------------
@@ -307,8 +301,8 @@ def render_docx(c: dict, path: Path):
     # --- References ----------------------------------------------------------
     heading("References  (not counted in the word limit)")
     for i, ref in enumerate(c["references"], 1):
-        par = p(after=2, line=1.0)
-        _set_font(par.add_run(f"[{i}] {ref}"), size=8.5, color=GREY)
+        par = p(after=1, line=1.0)
+        _set_font(par.add_run(f"[{i}] {ref}"), size=7.6, color=GREY)
 
     doc.save(str(path))
 
@@ -349,19 +343,19 @@ def render_pdf(c: dict, path: Path):
             out += f"<b>{t}</b>" if b else t
         return out
 
-    body_st = ParagraphStyle("body", fontName=base, fontSize=11, leading=13.0,
-                             alignment=4, spaceAfter=4, textColor=colors.HexColor("#1a1a1a"))
+    body_st = ParagraphStyle("body", fontName=base, fontSize=11, leading=12.2,
+                             alignment=4, spaceAfter=2, textColor=colors.HexColor("#1a1a1a"))
     h_st = ParagraphStyle("h", fontName=bold, fontSize=13, leading=15, textColor=NAVY,
-                          spaceBefore=7, spaceAfter=3)
+                          spaceBefore=4, spaceAfter=2)
     team_st = ParagraphStyle("team", fontName=bold, fontSize=11, textColor=GREY, spaceAfter=2)
     title_st = ParagraphStyle("title", fontName=bold, fontSize=15, leading=18,
                               textColor=NAVY, spaceAfter=2)
     sub_st = ParagraphStyle("sub", fontName=base, fontSize=9.5, leading=12,
-                            textColor=BLUE, spaceAfter=6)
+                            textColor=BLUE, spaceAfter=4)
     cap_st = ParagraphStyle("cap", fontName=base, fontSize=8.5, leading=10,
-                            textColor=GREY, alignment=1, spaceAfter=6)
-    ref_st = ParagraphStyle("ref", fontName=base, fontSize=8.5, leading=10.5,
-                            textColor=GREY, spaceAfter=2)
+                            textColor=GREY, alignment=1, spaceAfter=3)
+    ref_st = ParagraphStyle("ref", fontName=base, fontSize=7.6, leading=9,
+                            textColor=GREY, spaceAfter=1)
     body_left = ParagraphStyle("bl", parent=body_st, alignment=0)
 
     def img_scaled(p, max_w):
@@ -378,22 +372,20 @@ def render_pdf(c: dict, path: Path):
     ]
     for runs in c["approach"]:
         story.append(Paragraph(to_markup(runs), body_st))
-    story += [img_scaled(OUT / "methodology_flow.png", avail * 0.82),
+    story += [img_scaled(OUT / "methodology_flow.png", avail * 0.62),
               Paragraph("Figure 1 — End-to-end methodology / algorithm flow.", cap_st),
               Paragraph(f"Outcomes&nbsp;&nbsp;({_wordcount(c['outcomes'])} words)", h_st)]
     for runs in c["outcomes"]:
         story.append(Paragraph(to_markup(runs), body_st))
-    story += [img_scaled(OUT / "02_pareto.png", avail * 0.70),
-              Paragraph("Figure 2 — Cost-vs-robustness Pareto frontier (five decision rules).", cap_st)]
-    half = avail * 0.43
-    row = [[img_scaled(OUT / "10_robustness.png", half),
-            img_scaled(OUT / "11_validation.png", half)]]
+    half = avail * 0.49
+    row = [[img_scaled(OUT / "02_pareto.png", half * 0.90),
+            img_scaled(OUT / "10_robustness.png", half * 0.90)]]
     tbl = Table(row, colWidths=[avail * 0.5, avail * 0.5])
     tbl.setStyle(TableStyle([("ALIGN", (0, 0), (-1, -1), "CENTER"),
                              ("VALIGN", (0, 0), (-1, -1), "TOP")]))
     story += [tbl,
-              Paragraph("Figure 3 — Robust beats naive across every penalty × grid case.   "
-                        "Figure 4 — Validation vs published benchmarks.", cap_st),
+              Paragraph("Figure 2 — Cost-vs-robustness Pareto frontier (five rules).   "
+                        "Figure 3 — Robust beats naive across every penalty × grid case (7/7 benchmarks validated).", cap_st),
               Paragraph("Links to GitHub files", h_st),
               Paragraph(to_markup([(c["github"], False)]), body_left),
               Paragraph("References&nbsp;&nbsp;(not counted in the word limit)", h_st)]
