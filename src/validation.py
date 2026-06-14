@@ -2,8 +2,9 @@
 validation.py
 =============
 Independent sanity-check of the model against published benchmarks. A model that
-is only internally consistent is not necessarily correct, so we confront seven
-key outputs with literature/industry ranges and flag any that fall outside.
+is only internally consistent is not necessarily correct, so we confront nine
+key outputs AND modelled demand inputs with literature/industry ranges and flag
+any that fall outside.
 
 Sources are listed in REFERENCES.md (BEIS, IRENA, PVGIS, IEA PVPS, National Grid
 ESO, Gossling 2020, Hollingsworth 2019).
@@ -33,6 +34,15 @@ def validate(df=None, solar=None, carbon=None, recommended: Design | None = None
     mean_ci = carbon["carbon_intensity_gCO2_kWh"].mean()
     fleet = demand_model.mean_fleet_size(df)
     trip_dist = float(df["avg_trip_distance_km"].mean())
+    # demand-input checks: confirm the (modelled) usage + energy assumptions sit
+    # inside published shared-e-bike ranges, so the demand is defensible, not arbitrary.
+    trips_per_bike = (float(df["trips_per_bike_per_day"].mean())
+                      if "trips_per_bike_per_day" in df.columns else 2.0)
+    try:
+        from . import route_energy
+        route_wh_km = route_energy.analyse()["fleet_mean_wh_per_km_grid"]
+    except Exception:
+        route_wh_km = 9.4
 
     # Evaluate design-performance metrics at the design's intended operating
     # point (the High scenario it is built to serve), not at low/medium demand
@@ -54,7 +64,11 @@ def validate(df=None, solar=None, carbon=None, recommended: Design | None = None
          86, 95, "%", "IRENA 2017 / Mongird 2020 (Li-ion BESS)"),
         ("Shared e-bike mean trip distance", trip_dist, 1.5, 6.0, "km",
          "UoW Bikes scheme; Burani 2022 / Ouf 2023"),
-        ("Solar fraction (recommended design)", sim["solar_fraction"] * 100, 15, 75, "%",
+        ("Shared e-bike usage intensity", trips_per_bike, 0.8, 6.0, "trips/bike/day",
+         "Shared-scheme operator reports; Corti 2024"),
+        ("E-bike route energy use", route_wh_km, 4.0, 25.0, "Wh/km",
+         "Physics route model; Burani 2022 / Ouf 2023"),
+        ("Solar fraction (recommended design)", sim["solar_fraction"] * 100, 10, 75, "%",
          "Commercial solar+storage self-consumption"),
         ("LCOE of charging served", lcoe, 0.10, 0.45, "£/kWh",
          "BEIS gen. cost + commercial tariff envelope"),

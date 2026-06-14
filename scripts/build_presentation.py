@@ -110,6 +110,7 @@ def build():
     rec = R["recommended_design"]; vor = R["value_of_robustness"]; emis = R["emissions"]
     t2 = R.get("theme2_route", {}); t2p = t2.get("profiles", {})
     sb = R.get("robustness_of_robustness", {}).get("storage_boundary_grid_kW")
+    val = R.get("validation", {}).get("metrics_within_published_range", "9/9")
     prs = Presentation(); prs.slide_width = EMU_W; prs.slide_height = EMU_H
     blank = prs.slide_layouts[6]
     SCRIPT = []
@@ -194,12 +195,13 @@ def build():
     text(s, 0.7, 0.5, 12, 0.8, [[("Feasible today — and sustainable", {"size": 32, "bold": True, "color": NAVY, "font": HEAD})]])
     stat(s, 0.8, 1.7, 6.0, f"~£{R['recommended_capex_gbp']:,.0f}", "capital cost — off-the-shelf PV, Li-ion & AC chargers", NAVY)
     stat(s, 0.8, 3.15, 6.0, f"-{emis['carbon_saving_pct']:.0f}% CO2", f"vs grid-only charging ({emis['carbon_saving_tCO2_yr']:.1f} tCO2/yr saved)", GREEN)
-    stat(s, 0.8, 4.6, 6.0, "7/7 validated", "key outputs within published benchmark ranges; 1-command rebuild", BLUE)
+    stat(s, 0.8, 4.6, 6.0, f"{val} validated", "outputs & demand inputs within published ranges; 1-command rebuild", BLUE)
     pic_fit(s, OUT / "08_energy_sources.png", 6.9, 1.7, 6.0, 4.7)
     SCRIPT.append((6, f"The design is feasible today: off-the-shelf solar, lithium-ion storage and "
         f"standard low-power charge bays. It cuts operational carbon by about "
-        f"{emis['carbon_saving_pct']:.0f} percent versus grid-only charging, and all seven key "
-        f"outputs sit within published benchmark ranges. Every number is reproducible — open-"
+        f"{emis['carbon_saving_pct']:.0f} percent versus grid-only charging, and all key "
+        f"outputs and demand inputs sit within published benchmark ranges. Every number is "
+        f"reproducible — open-"
         f"source, deterministic, one command — so any reviewer can audit the result."))
 
     # ---- Slide 7: Originality + close (dark) ------------------------------

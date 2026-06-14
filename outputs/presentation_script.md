@@ -1,6 +1,6 @@
 # 3-Minute Presentation Script (anonymised)
 
-*Total ~451 words ≈ 3.0 min at a calm 150 wpm. No personal or organisation details — safe for blind Level-1 review.*
+*Total ~453 words ≈ 3.0 min at a calm 150 wpm. No personal or organisation details — safe for blind Level-1 review.*
 
 ## Slide 1 — Title & hook  (~25s)
 
@@ -24,7 +24,7 @@ Theme two looks at how the batteries are used. A physics model gives the energy 
 
 ## Slide 6 — Feasibility & sustainability  (~25s)
 
-The design is feasible today: off-the-shelf solar, lithium-ion storage and standard low-power charge bays. It cuts operational carbon by about 15 percent versus grid-only charging, and all seven key outputs sit within published benchmark ranges. Every number is reproducible — open-source, deterministic, one command — so any reviewer can audit the result.
+The design is feasible today: off-the-shelf solar, lithium-ion storage and standard low-power charge bays. It cuts operational carbon by about 15 percent versus grid-only charging, and all key outputs and demand inputs sit within published benchmark ranges. Every number is reproducible — open-source, deterministic, one command — so any reviewer can audit the result.
 
 ## Slide 7 — Originality & close  (~15s)
 

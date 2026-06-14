@@ -35,7 +35,7 @@ A shared e‑bike **charging hub** (e‑bikes and e‑cargo bikes) for the **UoW
 
 ### 🔑 Key finding: **smart charging is the cheapest robustness lever.** It flattens the load below the grid limit, so **at a connected hub a battery does not pay** — the robust design is solar + smart‑managed bays. Storage only enters the robust design once the grid connection falls to **≈9 kW or below** (toward off‑grid) — a boundary the robustness sweep locates and emits to `results.json`.
 
-…and the conclusion **holds in 100 % of penalty × grid‑limit combinations** tested (robustness‑of‑robustness), with **7/7 model outputs validated** against published benchmarks.
+…and the conclusion **holds in 100 % of penalty × grid‑limit combinations** tested (robustness‑of‑robustness), with **9/9 model outputs and demand inputs validated** against published benchmarks.
 
 ![Cost vs robustness Pareto frontier](outputs/02_pareto.png)
 

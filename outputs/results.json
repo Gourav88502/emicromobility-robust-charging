@@ -190,7 +190,7 @@
     "n_combinations": 35
   },
   "validation": {
-    "metrics_within_published_range": "7/7",
+    "metrics_within_published_range": "9/9",
     "all_pass": true
   },
   "recommended_performance_high_scenario": {
