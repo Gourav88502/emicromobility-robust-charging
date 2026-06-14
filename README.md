@@ -11,7 +11,7 @@
 
 > National Competition for Sustainable e‑Micromobility 2025‑26 · University of Warwick / British Council Going Global Partnerships
 > **Theme 3 (primary)** — design of a solar‑PV charging station for a shared e‑bike/e‑scooter fleet
-> **Theme 2 (secondary)** — modelling charge/discharge profiles under different demand scenarios
+> **Theme 2 (secondary)** — route-based energy model + personal-vs-shared e‑bike charge/discharge profiles
 > **Example site:** University of Warwick, Coventry (CV4 7AL) — the location named in the competition's Supplementary Data sheet
 
 ---
@@ -54,7 +54,9 @@ A shared e‑bike **charging hub** (e‑bikes and e‑cargo bikes) for the **UoW
 5. **Economics**: time‑of‑use tariff, peak **demand/capacity charge**, PV residual value, DoD/calendar battery degradation; **marginal** grid carbon for displaced emissions.
 6. **Monte‑Carlo** fan (500 correlated samples), **tornado** + variance‑based **global Sobol** sensitivity.
 7. **Robustness‑of‑robustness**: re‑solve across penalty × grid × horizon — proving the conclusion (and the storage boundary) is not an artefact.
-8. **Validation** vs published benchmarks; operational **CO₂ savings** (Theme 3).
+8. **Theme 2 — route energy & profiles** (`src/route_energy.py`): a physics‑based per‑km energy model (Burani 2022; Ouf 2023) and 24‑h personal‑vs‑shared charge/discharge profiles.
+9. **Battery sustainability** (`src/battery_sustainability.py`): LFP degradation, second‑life and circularity for the weak‑grid storage case.
+10. **Validation** vs published benchmarks; operational **CO₂ savings** (Theme 3).
 
 | Demand scenarios | Hourly smart‑charging dispatch (Theme 2) |
 |---|---|
@@ -158,6 +160,8 @@ emicromobility-robust-charging/
 │   ├── robustness.py          ← robustness‑of‑robustness (penalty × grid × horizon)
 │   ├── validation.py          ← model outputs vs published benchmarks
 │   ├── emissions.py           ← carbon savings vs grid‑only
+│   ├── route_energy.py        ← Theme 2: route energy + personal/shared profiles
+│   ├── battery_sustainability.py ← LFP degradation, second‑life, circularity
 │   └── visualize.py           ← all Plotly figures (one clean theme)
 │
 ├── scripts/

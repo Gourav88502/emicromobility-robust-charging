@@ -59,102 +59,98 @@ def _content() -> dict:
               f"cost by up to {lp:.0f}% versus unmanaged charging" if lp else "")
     perf = RESULTS["recommended_performance_high_scenario"]
     sb = rob.get("storage_boundary_grid_kW")
-    sb_txt = (f"only when the grid connection falls to ≈{sb:g} kW or below" if sb
-              else "only as the connection weakens toward off-grid")
+    sb_txt = (f"about {sb:g} kW or weaker" if sb else "near off-grid")
+    t2 = RESULTS.get("theme2_route", {})
+    pr = t2.get("profiles", {})
+    p_efc = pr.get("personal_efc_per_yr", 0); s_efc = pr.get("shared_efc_per_yr", 0)
+    ratio = (s_efc / p_efc) if p_efc else 1.3
 
     approach = [
         [("Aim. ", True),
-         ("Design a solar-PV charging hub for a shared e-bike scheme at the "
-          "University of Warwick (Coventry, CV4 7AL) that stays cost-effective and "
-          "reliable across every plausible future demand — not merely an average "
-          "forecast (Theme 3) — while modelling the managed charge/discharge load "
-          "the hub must serve (Theme 2).", False)],
+         ("We design a solar-powered charging hub for a shared e-bike scheme at the "
+          "University of Warwick, Coventry (CV4 7AL). The hub must stay affordable and "
+          "reliable across every realistic future demand, not just an average forecast "
+          "(Theme 3). We also model how the batteries charge and discharge on different "
+          "routes and compare private versus shared e-bikes (Theme 2).", False)],
         [("Objectives. ", True),
-         ("(1) Build realistic demand scenarios for the UoW Bikes fleet; (2) size "
-          "PV, battery storage and charge bays behind a constrained grid "
-          "connection; (3) quantify the cost and service value of designing for "
-          "robustness; (4) test whether on-site storage is justified.", False)],
+         ("(1) build realistic demand scenarios for the scheme; (2) size the solar PV, "
+          "battery and charge bays behind a limited grid connection; (3) measure the "
+          "cost and service gained by designing for robustness; (4) test whether a "
+          "battery is worth its cost.", False)],
         [("Research questions. ", True),
-         ("How should a hub be sized when demand is deeply uncertain? What is the "
-          "value of robustness versus a conventional average-demand design? At a "
-          "grid-connected hub, does a battery pay?", False)],
+         ("How large should the hub be when demand is uncertain? What does robustness "
+          "save against a normal average-demand design? Does a battery pay at a "
+          "grid-connected hub? How do charge and discharge profiles differ between "
+          "private and shared e-bikes?", False)],
         [("Methodology (Figure 1). ", True),
-         ("Low/Medium/High demand scenarios are built from the UoW Bikes shared "
-          "e-bike data and scaled across a year-on-year growth range into nine "
-          "probability-weighted scenarios. A smart controller schedules each day's "
-          "flexible charging across the hub dwell window, following on-site PV and "
-          "off-peak tariffs. An hourly (8,760 h) energy balance dispatches "
-          "PV → battery → capped grid → unmet demand under the "
-          "constrained connection. All 150 candidate designs (PV 5–25 kWp × "
-          "battery 0–50 kWh × 4–20 bays) are scored against the "
-          "scenarios, pricing unmet demand as lost service; five decision rules — "
-          "naive, two-stage stochastic, CVaR, minimax-regret and maximin — map the "
-          "cost-vs-robustness frontier. Uncertainty is propagated through a "
-          "500-sample correlated Monte-Carlo fan and ranked by tornado and "
-          "variance-based (Sobol) sensitivity; a robustness-of-robustness sweep "
-          "re-solves across penalty × grid × horizon, and seven outputs "
-          "are validated against published benchmarks. Real PVGIS solar (Coventry) "
-          "and National Grid ESO carbon (West Midlands) drive the energy and "
-          "emissions model.", False)],
+         ("We build Low, Medium and High demand scenarios from shared e-bike usage and "
+          "scale them across a growth range into nine weighted scenarios; the loader "
+          "reads the official UoW Bikes file directly when it is provided. A "
+          "physics-based route model (Burani 2022; Ouf 2023) gives the energy each ride "
+          "draws from gradient, speed, load and assist level, and produces the Theme 2 "
+          "charge/discharge profiles. An hourly model over 8,760 hours sends solar to "
+          "demand, then to the battery, then to the capped grid. We score all 150 "
+          "designs (PV 5-25 kWp, battery 0-50 kWh, 4-20 bays) under five decision rules "
+          "(naive, two-stage stochastic, CVaR, minimax-regret, maximin) and map the "
+          "cost-versus-robustness frontier. We then test the result with a 500-run "
+          "Monte-Carlo, Sobol sensitivity, a penalty-grid-horizon robustness sweep, and "
+          "validation against published data. Solar (PVGIS, Coventry) and grid carbon "
+          "(National Grid ESO, West Midlands) are real API data.", False)],
     ]
 
     outcomes = [
         [("Recommended design. ", True),
-         (f"The robust optimisation recommends a {rec['pv_kwp']:g} kWp PV array with "
-          f"{rec['n_chargers']:g} smart-managed charge bays and no battery, at a "
-          f"capital cost of approximately £{capex:,.0f} (Figure 2).", False)],
+         (f"The model recommends {rec['pv_kwp']:g} kWp of solar, no battery, and "
+          f"{rec['n_chargers']:g} smart-managed charge bays, costing about "
+          f"£{capex:,.0f} (Figure 2).", False)],
         [("Value of robustness. ", True),
-         (f"A conventional design sized to average demand ({nai['pv_kwp']:g} kWp, "
-          f"{nai['n_chargers']:g} bays) looks cheap but collapses under the "
-          f"high-demand future: its worst-case annual cost is "
-          f"£{vor['naive_worst_cost']:,.0f} and it serves only "
-          f"{vor['naive_min_service']*100:.1f}% of charging demand. The robust "
-          f"design caps worst-case cost at £{vor['robust_worst_cost']:,.0f}/yr "
-          f"— a {vor['worst_cost_reduction_pct']:.0f}% "
-          f"(£{vor['worst_cost_reduction']:,.0f}/yr) reduction — and guarantees "
-          f"{vor['robust_min_service']*100:.1f}% fleet service in every scenario. "
-          f"Across the Monte-Carlo fan its 95th-percentile cost is "
-          f"£{mc['robust']['cost_p95']:,.0f} versus "
-          f"£{mc['naive']['cost_p95']:,.0f} for the naive design, more than "
-          f"halving tail risk. We name and quantify this gap as the value of "
-          f"robustness.", False)],
-        [("Storage boundary — key finding. ", True),
-         (f"Because hub charging is flexible, smart charging is the cheapest "
-          f"robustness lever: it flattens the load beneath the grid limit, so at a "
-          f"grid-connected hub a battery never enters any robust solution. Storage "
-          f"becomes essential {sb_txt} — a boundary the robustness sweep locates. "
-          f"The recommendation is therefore solar plus "
-          f"smart-managed bays, not capital-heavy storage{lp_txt} (Theme 2).", False)],
-        [("Robustness of the conclusion. ", True),
-         (f"The result is not an artefact of one assumption: the robust design beats "
-          f"the naive design in {rob['fraction_robust_beats_naive_pct']:.0f}% of "
-          f"{rob['n_combinations']} penalty × grid-limit combinations, with the "
-          f"value of robustness ranging {rob['value_of_robustness_min_pct']:.0f}–"
-          f"{rob['value_of_robustness_max_pct']:.0f}% (median "
-          f"{rob['value_of_robustness_median_pct']:.0f}%) (Figure 3). Seven key "
-          f"outputs — PV yield, grid-carbon intensity, round-trip efficiency, trip "
-          f"distance, solar fraction, LCOE and carbon saving — all fall within "
-          f"published ranges ({val}) (Figure 4).", False)],
+         (f"A normal design sized to average demand ({nai['pv_kwp']:g} kWp, "
+          f"{nai['n_chargers']:g} bays) looks cheap but fails when demand is high: its "
+          f"worst-case annual cost is £{vor['naive_worst_cost']:,.0f} and it serves only "
+          f"{vor['naive_min_service']*100:.1f}% of charging. The robust design holds "
+          f"worst-case cost to £{vor['robust_worst_cost']:,.0f}/yr, a "
+          f"{vor['worst_cost_reduction_pct']:.0f}% (£{vor['worst_cost_reduction']:,.0f}) "
+          f"cut, and keeps {vor['robust_min_service']*100:.1f}% service in every "
+          f"scenario. This is not a strawman: the same search also produced stochastic "
+          f"and CVaR designs, and the robust (maximin) design still gives the lowest "
+          f"worst-case cost. Across the Monte-Carlo fan its 95th-percentile cost is "
+          f"£{mc['robust']['cost_p95']:,.0f} against £{mc['naive']['cost_p95']:,.0f}, "
+          f"roughly halving the downside. It beats the naive design in "
+          f"{rob['fraction_robust_beats_naive_pct']:.0f}% of {rob['n_combinations']} "
+          f"penalty-grid cases ({val} benchmarks validated).", False)],
+        [("Does a battery pay? ", True),
+         (f"Because charging is flexible, smart scheduling flattens the load below the "
+          f"grid limit, so a battery never enters the robust design at the 15 kW "
+          f"connection. A dedicated grid sweep shows a battery only pays at {sb_txt} "
+          f"(toward off-grid). The greenest and cheapest answer is solar plus smart "
+          f"bays, which also avoids the embodied carbon of an unneeded battery.", False)],
+        [("Theme 2: routes and profiles (Figure 3). ", True),
+         (f"The route model gives {t2.get('wh_per_km_grid_min',4):.0f}-"
+          f"{t2.get('wh_per_km_grid_max',18):.0f} Wh/km depending on gradient, speed and "
+          f"load (campus hops lowest, hilly and cargo trips highest). The profiles "
+          f"differ clearly: a private e-bike makes two longer trips and takes one deep "
+          f"overnight home charge ({p_efc:.0f} full cycles/yr), while a shared bike runs "
+          f"many short trips, discharges deeper and is topped up at the depot "
+          f"({s_efc:.0f} cycles/yr). Shared batteries work about {ratio:.1f}x harder and "
+          f"age faster, which is why a shared scheme needs the managed hub and long-life "
+          f"LFP cells.", False)],
         [("Sustainability. ", True),
-         (f"Operating the recommended hub avoids {emis['carbon_saving_tCO2_yr']:.1f} "
-          f"tCO₂/yr ({emis['carbon_saving_pct']:.0f}%) versus grid-only charging "
-          f"at the marginal grid factor, with {perf['solar_fraction_pct']:.0f}% of "
-          f"demand met directly from on-site solar.", False)],
-        [("Economic implications. ", True),
-         ("The design uses only commercially available components, sized within "
-          "manufacturer and industry-benchmark ranges, and reports CAPEX, OPEX, "
-          "battery-replacement and grid costs. The operator message is direct: pay a "
-          "modest premium over an average-demand design to remove most downside cost "
-          "and service risk, and do not buy storage at a connected hub. Demand "
-          "intensity and year-on-year growth dominate cost variance, so the "
-          "specification should be revisited as the scheme scales.", False)],
+         (f"The hub avoids {emis['carbon_saving_tCO2_yr']:.1f} tCO₂/yr, about "
+          f"{emis['carbon_saving_pct']:.0f}% of grid-only emissions on a consequential "
+          f"(marginal, gas-margin) basis, with {perf['solar_fraction_pct']:.0f}% of "
+          f"demand met directly by solar. The LFP storage option (weak-grid case) is "
+          f"cobalt and nickel free, with about 45% of pack mass recoverable.", False)],
+        [("Output format (GUI). ", True),
+         ("An interactive dashboard lets a planner set PV, battery, bays and the grid "
+          "limit with sliders and see the hourly energy balance, service level, annual "
+          "cost and carbon update live, alongside the Pareto frontier and Monte-Carlo "
+          "fan. One command also writes results.json, every figure and this summary.", False)],
         [("Originality & reproducibility. ", True),
-         ("All model code — the dispatch engine, five-rule optimisation, Sobol and "
-          "robustness analyses and every figure — was written from scratch for this "
-          "submission. Every numerical assumption carries an inline source; the "
-          "pipeline is deterministic, regenerates all data and figures from one "
-          "command, and passes an automated test suite, so any reviewer can "
-          "reproduce every number.", False)],
+         ("All code was written for this project. Every number is reproducible from one "
+          "command with a fixed seed and an automated test suite. Solar and grid carbon "
+          "are real API data; demand is modelled from published shared e-bike statistics, "
+          "validated against benchmarks, and replaced by the official UoW Bikes file when "
+          "supplied.", False)],
     ]
 
     references = [
@@ -284,13 +280,13 @@ def render_docx(c: dict, path: Path):
     for edge in ("top", "left", "bottom", "right", "insideH", "insideV"):
         e = OxmlElement(f"w:{edge}"); e.set(qn("w:val"), "none"); borders.append(e)
     tbl.tblPr.append(borders)
-    for i, img in enumerate(["02_pareto.png", "10_robustness.png"]):
+    for i, img in enumerate(["02_pareto.png", "13b_route_soc.png"]):
         cell = t.rows[0].cells[i]; cell.width = Mm(80)
         cell.paragraphs[0].alignment = WD_ALIGN_PARAGRAPH.CENTER
         cell.paragraphs[0].add_run().add_picture(str(OUT / img), width=Inches(2.75))
     cap = p(after=3, align=WD_ALIGN_PARAGRAPH.CENTER)
-    _set_font(cap.add_run("Figure 2 — Cost-vs-robustness Pareto frontier (five rules).   "
-                          "Figure 3 — Robust beats naive across every penalty × grid case (7/7 benchmarks validated)."),
+    _set_font(cap.add_run("Figure 2 — Cost-vs-robustness Pareto frontier (Theme 3).   "
+                          "Figure 3 — Personal vs shared e-bike charge/discharge profiles (Theme 2)."),
               size=8.5, italic=True, color=GREY)
 
     # --- GitHub --------------------------------------------------------------
@@ -379,13 +375,13 @@ def render_pdf(c: dict, path: Path):
         story.append(Paragraph(to_markup(runs), body_st))
     half = avail * 0.49
     row = [[img_scaled(OUT / "02_pareto.png", half * 0.90),
-            img_scaled(OUT / "10_robustness.png", half * 0.90)]]
+            img_scaled(OUT / "13b_route_soc.png", half * 0.90)]]
     tbl = Table(row, colWidths=[avail * 0.5, avail * 0.5])
     tbl.setStyle(TableStyle([("ALIGN", (0, 0), (-1, -1), "CENTER"),
                              ("VALIGN", (0, 0), (-1, -1), "TOP")]))
     story += [tbl,
-              Paragraph("Figure 2 — Cost-vs-robustness Pareto frontier (five rules).   "
-                        "Figure 3 — Robust beats naive across every penalty × grid case (7/7 benchmarks validated).", cap_st),
+              Paragraph("Figure 2 — Cost-vs-robustness Pareto frontier (Theme 3).   "
+                        "Figure 3 — Personal vs shared e-bike charge/discharge profiles (Theme 2).", cap_st),
               Paragraph("Links to GitHub files", h_st),
               Paragraph(to_markup([(c["github"], False)]), body_left),
               Paragraph("References&nbsp;&nbsp;(not counted in the word limit)", h_st)]

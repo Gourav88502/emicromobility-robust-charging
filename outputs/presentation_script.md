@@ -1,6 +1,6 @@
 # 3-Minute Presentation Script (anonymised)
 
-*Total ~422 words ≈ 2.8 min at a calm 150 wpm. No personal or organisation details — safe for blind Level-1 review.*
+*Total ~451 words ≈ 3.0 min at a calm 150 wpm. No personal or organisation details — safe for blind Level-1 review.*
 
 ## Slide 1 — Title & hook  (~25s)
 
@@ -12,15 +12,15 @@ Our hub is a depot charging a mixed fleet whose demand swings with season, weath
 
 ## Slide 3 — Approach  (~30s)
 
-The pipeline is fully reproducible. From the real data we build fifteen demand scenarios, then simulate an eight-thousand-seven-hundred-and-sixty-hour energy balance for every candidate station — solar, to battery, to a capped grid. We evaluate a hundred and fifty designs under five decision rules: naive, a two-stage stochastic program, CVaR, minimax-regret and maximin — then confirm the conclusion holds across every assumption and validate against published benchmarks.
+The pipeline is fully reproducible. From fifteen demand scenarios we run an eight-thousand-seven-hundred-and-sixty-hour energy balance for every candidate hub: solar, to battery, to a capped grid. We score a hundred and fifty designs under five decision rules — naive, two-stage stochastic, CVaR, minimax-regret and maximin — then confirm the result holds across every assumption and validate it against published benchmarks.
 
 ## Slide 4 — Key result  (~35s)
 
-Here is the headline. The naive design is cheapest on a normal day, but in the worst demand future it strands about fourteen percent of the fleet and its cost balloons. The robust design cuts worst-case annual cost by over sixty percent and lifts guaranteed fleet service from eighty-five to ninety-six percent — a small expected-cost premium buying large protection against the demand tail.
+Here is the headline. The naive design is cheapest on a normal day, but in the worst demand future it strands roughly one bike in sixteen and its cost balloons. The robust design cuts worst-case annual cost by over sixty percent and lifts guaranteed fleet service from about ninety-four to over ninety-nine percent, a small expected-cost premium buying large protection against the demand tail.
 
 ## Slide 5 — Recommended design  (~25s)
 
-Here is the key insight. Because depot charging is flexible, a smart controller schedules it into sunny, cheap off-peak hours and flattens the overnight load below the connection limit. The consequence surprised us: at a grid-connected depot a battery does not pay — the cost-optimal robust design is solar plus smart-managed bays. Storage becomes essential only as the connection weakens toward off-grid.
+Theme two looks at how the batteries are used. A physics model gives the energy per ride from gradient, speed and load: about four watt-hours per kilometre on a flat hop, eighteen on a hilly cargo run. The profiles then split. A private bike takes one deep overnight charge at home; a shared bike drains deeper over many trips and tops up at the depot. Shared batteries work a third harder and age faster, so a shared scheme needs the managed hub, and smart charging keeps a battery off the bill unless the grid is weak.
 
 ## Slide 6 — Feasibility & sustainability  (~25s)
 
@@ -28,4 +28,4 @@ The design is feasible today: off-the-shelf solar, lithium-ion storage and stand
 
 ## Slide 7 — Originality & close  (~15s)
 
-Every line of code and every figure is original, built from scratch, and all three datasets are real — DfT, PVGIS and the National Grid carbon API. In one sentence: we turn demand uncertainty from a risk into a design input — and show that robustness pays. Thank you.
+Every line of code and every figure is original, built from scratch. Solar and grid carbon are real API data; demand is modelled from published shared-bike statistics and validated. In one sentence: we turn demand uncertainty from a risk into a design input, and show that robustness pays. Thank you.

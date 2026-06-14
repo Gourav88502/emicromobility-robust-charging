@@ -217,6 +217,24 @@ def main():
     except Exception as e:
         print(f"    (battery sustainability skipped: {e})")
 
+    # ---- 5d. Theme 2: route-based charge/discharge profiles ----------------- #
+    print("\n[5d] Theme 2 — route energy + personal vs shared charge/discharge ...")
+    route_res = None
+    try:
+        from src import route_energy
+        route_res = route_energy.analyse()
+        rp = route_res["profiles"]
+        print(f"    Energy/km (grid): {route_res['wh_per_km_grid_min']:.1f}-"
+              f"{route_res['wh_per_km_grid_max']:.1f} Wh/km across routes "
+              f"(fleet-mean {route_res['fleet_mean_wh_per_km_grid']:.1f})")
+        print(f"    Shared bike works {rp['shared_efc_per_yr']/max(rp['personal_efc_per_yr'],1):.1f}x "
+              f"harder than personal ({rp['shared_efc_per_yr']:.0f} vs "
+              f"{rp['personal_efc_per_yr']:.0f} equiv. full cycles/yr)")
+        route_energy.make_figure(OUT / "13_route_profiles.png")          # full 2-panel (deck/report)
+        route_energy.make_figure_compact(OUT / "13b_route_soc.png")      # compact SoC (2-page summary)
+    except Exception as e:
+        print(f"    (Theme-2 route profiles skipped: {e})")
+
     # ---- 6. Persist results ------------------------------------------------ #
     print("\n[6] Writing results.json, executive summary and combined report ...")
     results = _collect_results(opt, s_rob, s_nai, tor, sob, sim, emis, recommended, naive,
@@ -240,6 +258,8 @@ def main():
                          f"at {min(without_b)} kW and above. Confirms the zero-battery "
                          f"recommendation is specific to the 15 kW connection."),
             }
+    if route_res is not None:
+        results["theme2_route"] = route_res
     (OUT / "results.json").write_text(json.dumps(results, indent=2), encoding="utf-8")
     _write_summary(results)
     _write_report(figs, results)

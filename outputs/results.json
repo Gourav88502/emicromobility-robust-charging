@@ -225,5 +225,123 @@
     "battery_recommended_at_or_below_kW": 8,
     "battery_dropped_at_or_above_kW": 10,
     "note": "Robust (maximin) design includes battery storage at grid connections of 8 kW and below; storage drops to zero at 10 kW and above. Confirms the zero-battery recommendation is specific to the 15 kW connection."
+  },
+  "theme2_route": {
+    "per_route": [
+      {
+        "route": "Flat urban",
+        "wh_per_km_battery": 4.2,
+        "wh_per_km_grid": 4.7
+      },
+      {
+        "route": "Hilly urban",
+        "wh_per_km_battery": 10.4,
+        "wh_per_km_grid": 11.7
+      },
+      {
+        "route": "Suburban commute",
+        "wh_per_km_battery": 7.3,
+        "wh_per_km_grid": 8.2
+      },
+      {
+        "route": "Campus short-hop",
+        "wh_per_km_battery": 3.5,
+        "wh_per_km_grid": 4.0
+      },
+      {
+        "route": "Cargo delivery",
+        "wh_per_km_battery": 16.1,
+        "wh_per_km_grid": 18.3
+      }
+    ],
+    "wh_per_km_grid_min": 4.0,
+    "wh_per_km_grid_max": 18.3,
+    "fleet_mean_wh_per_km_grid": 9.4,
+    "profiles": {
+      "hours": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23
+      ],
+      "personal_soc": [
+        100.0,
+        100.0,
+        100.0,
+        100.0,
+        100.0,
+        100.0,
+        100.0,
+        100.0,
+        82.6,
+        82.6,
+        82.6,
+        82.6,
+        82.6,
+        82.6,
+        82.6,
+        82.6,
+        82.6,
+        82.6,
+        65.2,
+        65.2,
+        90.2,
+        100.0,
+        100.0,
+        100.0
+      ],
+      "shared_soc": [
+        100.0,
+        100.0,
+        100.0,
+        100.0,
+        100.0,
+        100.0,
+        98.2,
+        94.6,
+        90.4,
+        87.3,
+        84.9,
+        81.9,
+        78.3,
+        75.3,
+        72.9,
+        72.0,
+        67.8,
+        63.0,
+        59.3,
+        56.9,
+        55.7,
+        55.7,
+        55.7,
+        55.7
+      ],
+      "personal_min_soc": 65.2,
+      "shared_min_soc": 55.7,
+      "personal_efc_per_yr": 127.0,
+      "shared_efc_per_yr": 169.0,
+      "personal_daily_wh": 174.0,
+      "shared_daily_wh": 232.0
+    }
   }
 }
