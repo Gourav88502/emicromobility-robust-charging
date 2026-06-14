@@ -29,7 +29,7 @@ if errorlevel 1 (
 )
 
 echo [1/3] Installing the required packages ^(first time only, ~1-2 min^)...
-%PY% -m pip install --quiet --disable-pip-version-check numpy scipy pandas matplotlib plotly numba openpyxl requests pvlib kaleido python-docx python-pptx odfpy pytest
+%PY% -m pip install --quiet --disable-pip-version-check -r requirements.txt
 echo      ...done.
 echo(
 
