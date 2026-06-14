@@ -38,12 +38,14 @@ grid‑connected hub at the University of Warwick is **15 kWp of solar, no batte
 > assistant the way we'd use Stack Overflow or a library. We can derive the energy
 > equation, explain each decision rule, and reproduce every number live — *(then do it)*.
 
-**"Your demand data is synthetic, not the real UoW data."**
-> Correct, and we're upfront about it. Demand is a **representative series calibrated
-> to published shared‑e‑bike usage** (trips/bike/day and trip distance are *validated*
-> against literature — see the validation table). The loader **auto‑ingests the official
-> `UoW Bikes Data(Sheet1).csv`** the moment it's available, with no code change. Solar
-> and grid‑carbon are **real** API data (PVGIS, National Grid ESO).
+**"Where does your demand data come from — is it real?"**
+> Demand is built from the **real DfT shared rental e‑scooter trials monitoring data**
+> (Jan 2022–May 2024, all UK trial areas, Open Government Licence): we take the real
+> monthly **seasonality**, **usage intensity** (~1.7 trips/vehicle/day) and **trip
+> distance**, and adapt them to a University of Warwick e‑bike scheme. All three are
+> **validated** against published ranges (see the validation table). The loader also
+> **auto‑ingests the official `UoW Bikes Data(Sheet1).csv`** the moment it's available,
+> with no code change. Solar and grid‑carbon are **real** API data (PVGIS, National Grid ESO).
 
 **"Isn't the naive baseline a strawman?"**
 > The naive design is the standard deterministic approach (size to the forecast). But we

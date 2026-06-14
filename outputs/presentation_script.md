@@ -1,6 +1,6 @@
 # 3-Minute Presentation Script (anonymised)
 
-*Total ~453 words ≈ 3.0 min at a calm 150 wpm. No personal or organisation details — safe for blind Level-1 review.*
+*Total ~456 words ≈ 3.0 min at a calm 150 wpm. No personal or organisation details — safe for blind Level-1 review.*
 
 ## Slide 1 — Title & hook  (~25s)
 
@@ -8,7 +8,7 @@ Charging infrastructure for shared e-bikes hides a trap. Size a solar station fo
 
 ## Slide 2 — The problem  (~30s)
 
-Our hub is a depot charging a mixed fleet whose demand swings with season, weather and growth, behind a constrained grid connection — a bigger import limit needs a costly network reinforcement, so the evening peak must come from on-site solar and storage. We built Low, Medium and High scenarios directly from the real UoW Bikes shared e-bike trial: real trips, fleet size, deployment and distance. The demand range is observed, not assumed.
+Our hub is a depot charging a mixed fleet whose demand swings with season, weather and growth, behind a constrained grid connection — a bigger import limit needs a costly network reinforcement, so the evening peak must come from on-site solar and storage. We built Low, Medium and High scenarios from real DfT shared-micromobility monitoring data, adapted to a UoW e-bike scheme: real seasonality, usage and trip distance. The demand range is observed, not assumed.
 
 ## Slide 3 — Approach  (~30s)
 
@@ -28,4 +28,4 @@ The design is feasible today: off-the-shelf solar, lithium-ion storage and stand
 
 ## Slide 7 — Originality & close  (~15s)
 
-Every line of code and every figure is original, built from scratch. Solar and grid carbon are real API data; demand is modelled from published shared-bike statistics and validated. In one sentence: we turn demand uncertainty from a risk into a design input, and show that robustness pays. Thank you.
+Every line of code and every figure is original, built from scratch. Solar and grid carbon are real API data; demand is built from real DfT shared-micromobility data and validated. In one sentence: we turn demand uncertainty from a risk into a design input, and show that robustness pays. Thank you.

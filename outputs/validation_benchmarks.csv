@@ -2,9 +2,9 @@ metric,model,lit_low,lit_high,unit,source,within_range
 "PV specific yield, Coventry/Warwick",1036.04,750.0,1100.0,kWh/kWp/yr,PVGIS / IEA PVPS (UK optimal-tilt),True
 Grid carbon intensity (West Midlands),222.0,110.0,300.0,gCO2/kWh,"National Grid ESO regional API, West Midlands",True
 Battery round-trip efficiency,92.0,86.0,95.0,%,IRENA 2017 / Mongird 2020 (Li-ion BESS),True
-Shared e-bike mean trip distance,3.19,1.5,6.0,km,UoW Bikes scheme; Burani 2022 / Ouf 2023,True
-Shared e-bike usage intensity,2.22,0.8,6.0,trips/bike/day,Shared-scheme operator reports; Corti 2024,True
+Shared e-bike mean trip distance,3.07,1.5,6.0,km,UoW Bikes scheme; Burani 2022 / Ouf 2023,True
+Shared e-bike usage intensity,1.98,0.8,6.0,trips/bike/day,Shared-scheme operator reports; Corti 2024,True
 E-bike route energy use,9.4,4.0,25.0,Wh/km,Physics route model; Burani 2022 / Ouf 2023,True
-Solar fraction (recommended design),15.23,10.0,75.0,%,Commercial solar+storage self-consumption,True
+Solar fraction (recommended design),15.33,10.0,75.0,%,Commercial solar+storage self-consumption,True
 LCOE of charging served,0.25,0.1,0.45,£/kWh,BEIS gen. cost + commercial tariff envelope,True
-Carbon saving vs grid-only,15.23,10.0,95.0,%,PV self-consumption displacement (marginal factor),True
+Carbon saving vs grid-only,15.33,10.0,95.0,%,PV self-consumption displacement (marginal factor),True

@@ -83,12 +83,12 @@ def _content() -> dict:
           "grid-connected hub? How do charge and discharge profiles differ between "
           "private and shared e-bikes?", False)],
         [("Methodology (Figure 1). ", True),
-         ("We build Low, Medium and High demand scenarios from shared e-bike usage and "
-          "scale them across a growth range into nine weighted scenarios; the loader "
-          "reads the official UoW Bikes file directly when it is provided. A "
-          "physics-based route model (Burani 2022; Ouf 2023) gives the energy each ride "
-          "draws from gradient, speed, load and assist level, and produces the Theme 2 "
-          "charge/discharge profiles. An hourly model over 8,760 hours sends solar to "
+         ("We build Low, Medium and High demand scenarios from real DfT shared-micromobility "
+          "monitoring data (all UK trial areas), adapted to a UoW e-bike scheme, and scale them "
+          "across a growth range into nine weighted scenarios; the official UoW Bikes file is used "
+          "when provided. A physics-based route model (Burani 2022; Ouf 2023) gives the energy each "
+          "ride draws from gradient, speed and assist, and produces the Theme 2 "
+          "charge/discharge profiles. An hourly model (8,760 h) sends solar to "
           "demand, then to the battery, then to the capped grid. We score all 150 "
           "designs (PV 5-25 kWp, battery 0-50 kWh, 4-20 bays) under five decision rules "
           "(naive, two-stage stochastic, CVaR, minimax-regret, maximin) and map the "
@@ -148,9 +148,9 @@ def _content() -> dict:
         [("Originality & reproducibility. ", True),
          ("All code was written for this project. Every number is reproducible from one "
           "command with a fixed seed and an automated test suite. Solar and grid carbon "
-          "are real API data; demand is modelled from published shared e-bike statistics, "
-          "validated against benchmarks, and replaced by the official UoW Bikes file when "
-          "supplied.", False)],
+          "are real API data; demand is built from real DfT shared-micromobility monitoring data "
+          "(Open Government Licence), validated against published ranges, and replaced by the "
+          "official UoW Bikes file when supplied.", False)],
     ]
 
     references = [

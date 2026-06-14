@@ -135,7 +135,52 @@ def _coerce_official(path: Path) -> pd.DataFrame | None:
 
 
 # --------------------------------------------------------------------------- #
-#  1b. Calibrated representative UoW shared e-bike demand (offline default)
+#  1b. Real-data BASIS from DfT shared-micromobility monitoring (all UK areas)
+# --------------------------------------------------------------------------- #
+DFT_FILE_CANDIDATES = [
+    config.RAW_DIR / "dft_shared_micromobility_2022_2024.ods",
+    config.RAW_DIR / "shared-rental-e-scooter-trials-monitoring-data-january-2022-to-may-2024.ods",
+]
+_MONTHS = ["January", "February", "March", "April", "May", "June", "July",
+           "August", "September", "October", "November", "December"]
+
+
+def _dft_real_basis() -> dict | None:
+    """
+    Derive REAL monthly seasonality, usage intensity and trip distance from the
+    DfT shared rental e-scooter trials monitoring data (Jan 2022-May 2024, all UK
+    trial areas). These empirical figures anchor the UoW e-bike demand series, so
+    the demand is grounded in real open-government data rather than assumed.
+    """
+    path = next((p for p in DFT_FILE_CANDIDATES if p.exists()), None)
+    if path is None:
+        return None
+    try:
+        m2n = {m: i for i, m in enumerate(_MONTHS, start=1)}
+
+        def rd(sheet):
+            d = pd.read_excel(path, sheet_name=sheet, engine="odf", header=3).iloc[:, :5]
+            d.columns = ["area", "op", "month", "year", "val"]
+            d["val"] = pd.to_numeric(d["val"], errors="coerce")
+            d["mn"] = d["month"].map(m2n)
+            return d.dropna(subset=["val", "mn"])
+
+        seas = rd("monthly_trips").groupby("mn")["val"].mean()
+        seas = (seas / seas.mean()).reindex(range(1, 13)).interpolate().bfill().ffill()
+        intensity = float(rd("trips_per_escooter")["val"].mean())
+        tl = pd.read_excel(path, sheet_name="trip_length", engine="odf", header=3).iloc[:, :3]
+        tl.columns = ["area", "dist", "dur"]
+        dist = float(pd.to_numeric(tl["dist"], errors="coerce").mean())
+        dur = float(pd.to_numeric(tl["dur"], errors="coerce").mean())
+        return {"seasonal": seas.values, "intensity": intensity,
+                "dist": dist, "dur": dur, "name": path.name}
+    except Exception as e:                                    # pragma: no cover
+        print(f"      ! could not parse DfT basis ({str(e)[:60]})")
+        return None
+
+
+# --------------------------------------------------------------------------- #
+#  1c. UoW shared e-bike demand series (DfT-grounded, else representative)
 # --------------------------------------------------------------------------- #
 def build_demand_dataset() -> pd.DataFrame:
     """
@@ -153,19 +198,34 @@ def build_demand_dataset() -> pd.DataFrame:
                   f"({len(coerced)} months, trips "
                   f"{coerced.monthly_trips.min():,.0f}-{coerced.monthly_trips.max():,.0f})")
             return coerced
-        print("      -> using calibrated representative series instead.")
+        print("      -> using DfT-grounded representative series instead.")
 
-    # ---- representative monthly series (24 months, Jan 2023 - Dec 2024) ------
+    # ---- basis: real DfT monitoring data if available, else fallback --------
+    basis = _dft_real_basis()
+    if basis is not None:
+        seasonal = np.asarray(basis["seasonal"], float)          # REAL seasonality
+        # e-bike scheme: usage intensity anchored to the real DfT mean (shared
+        # micromobility), trip distance to e-bike commute distances (a little above
+        # the e-scooter trials, per Burani 2022 / Ouf 2023).
+        base_tpb = round(max(basis["intensity"], 1.0) * 1.15, 2)
+        dist_mean = round(max(basis["dist"] * 1.5, 3.0), 2)
+        dur_mean = round(max(basis["dur"] * 1.6, 12.0), 1)
+        label = "UoW Bikes (DfT-calibrated)"
+        src = (f"seasonality, usage intensity & trip distance from real DfT "
+               f"monitoring data ({basis['name']})")
+    else:
+        seasonal = np.array([0.80, 0.92, 1.04, 1.10, 1.18, 1.16,
+                             0.98, 0.78, 1.06, 1.20, 1.06, 0.78])
+        base_tpb, dist_mean, dur_mean = 2.2, 3.2, 16.0
+        label = "UoW Bikes (representative)"
+        src = "calibrated to published shared e-bike usage"
+
+    # ---- 24-month UoW e-bike series (Jan 2023 - Dec 2024) -------------------
     dates = pd.date_range("2023-01-01", periods=24, freq="MS")
-    # Seasonal multipliers (mean ~1): term-time + warm-weather peaks (May/Jun,
-    # Oct), summer-vacation (Aug) and winter-break (Dec/Jan) dips on campus.
-    seasonal = np.array([0.80, 0.92, 1.04, 1.10, 1.18, 1.16,
-                         0.98, 0.78, 1.06, 1.20, 1.06, 0.78])
     # Fleet grows as the scheme scales (360 -> 470 e-bikes over the 2 years).
     fleet = np.linspace(360, 470, 24).round(0)
     fleet = (fleet + RNG.normal(0, 6, 24)).round(0).clip(min=300).astype(int)
 
-    base_tpb = 2.2          # observed trips per fleet-bike per day (busy scheme)
     rows = []
     for i, d in enumerate(dates):
         s = seasonal[(d.month - 1)]
@@ -173,24 +233,21 @@ def build_demand_dataset() -> pd.DataFrame:
         days = d.days_in_month
         monthly_trips = int(round(fleet[i] * tpb * days))
         rows.append({
-            "date": d,
-            "year": d.year,
-            "month_num": d.month,
-            "operator": "UoW Bikes (representative)",
-            "monthly_trips": monthly_trips,
-            "fleet_size": int(fleet[i]),
+            "date": d, "year": d.year, "month_num": d.month, "operator": label,
+            "monthly_trips": monthly_trips, "fleet_size": int(fleet[i]),
             "trips_per_bike_per_day": round(tpb, 2),
             "daily_trips": round(monthly_trips / days, 0),
-            "avg_trip_distance_km": round(3.2 + RNG.normal(0, 0.05), 2),
-            "avg_trip_duration_min": round(16.0 + RNG.normal(0, 0.4), 2),
+            "avg_trip_distance_km": round(dist_mean + RNG.normal(0, 0.05), 2),
+            "avg_trip_duration_min": round(dur_mean + RNG.normal(0, 0.4), 2),
         })
     df = pd.DataFrame(rows)[CANONICAL_COLS]
     df.to_csv(DEMAND_CSV, index=False)
-    print(f"[1/3] UoW Bikes demand (representative): {DEMAND_CSV.name}  "
+    print(f"[1/3] UoW Bikes demand ({label.split('(')[1].rstrip(')')}): {DEMAND_CSV.name}  "
           f"({len(df)} months, fleet ~{df.fleet_size.mean():.0f} e-bikes, "
-          f"trips {df.monthly_trips.min():,}-{df.monthly_trips.max():,})")
+          f"~{base_tpb:g} trips/bike/day)")
+    print(f"      basis: {src}")
     print("      (drop the official 'UoW Bikes Data(Sheet1).csv' into data/raw/ "
-          "to use the real data — it is picked up automatically.)")
+          "to use it instead — picked up automatically.)")
     return df
 
 

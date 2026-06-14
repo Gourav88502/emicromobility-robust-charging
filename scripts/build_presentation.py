@@ -137,7 +137,7 @@ def build():
         [("A mixed-fleet depot.  ", {"bold": True, "color": NAVY}), ("The hub charges shared e-bikes and e-cargo bikes; demand swings with season, weather, events and growth.", {})],
         [("The dilemma.  ", {"bold": True, "color": NAVY}), ("Size for average demand and the fleet is stranded at peaks; size for the worst case and capital is wasted.", {})],
         [("A constrained grid.  ", {"bold": True, "color": NAVY}), ("A higher import limit needs a costly DNO reinforcement, so the evening peak must come from on-site solar + storage.", {})],
-        [("Real data.  ", {"bold": True, "color": NAVY}), ("Low / Medium / High scenarios are built from the UoW Bikes shared e-bike scheme — trips, fleet, deployment, distance.", {})],
+        [("Real data.  ", {"bold": True, "color": NAVY}), ("Low / Medium / High scenarios use real DfT shared-micromobility monitoring data (seasonality, usage, trip distance), adapted to a UoW e-bike scheme.", {})],
     ]
     text(s, 0.7, 1.6, 6.1, 4.8, pts, size=15.5, space=12, line=1.06)
     pic_fit(s, OUT / "01_scenario_demand.png", 7.0, 1.6, 5.9, 4.6)
@@ -145,9 +145,9 @@ def build():
     SCRIPT.append((2, "Our hub is a depot charging a mixed fleet whose demand swings with season, "
         "weather and growth, behind a constrained grid connection — a bigger import limit needs a "
         "costly network reinforcement, so the evening peak must come from on-site solar and "
-        "storage. We built Low, Medium and High scenarios directly from the real UoW Bikes shared e-bike "
-        "trial: real trips, fleet size, deployment and distance. The demand range is observed, "
-        "not assumed."))
+        "storage. We built Low, Medium and High scenarios from real DfT shared-micromobility "
+        "monitoring data, adapted to a UoW e-bike scheme: real seasonality, usage and trip "
+        "distance. The demand range is observed, not assumed."))
 
     # ---- Slide 3: Approach (light, flow diagram) --------------------------
     s = prs.slides.add_slide(blank); bg(s, WHITE)
@@ -209,9 +209,9 @@ def build():
     text(s, 0.9, 1.2, 11.5, 0.8, [[("Original, authentic, reproducible", {"size": 30, "bold": True, "color": GOLD, "font": HEAD})]])
     text(s, 0.95, 2.2, 11.4, 1.6, [[
         ("Every line of code and every figure is original, written from scratch. Solar and grid "
-         "carbon are real API data (PVGIS and National Grid ESO); demand is modelled from published "
-         "shared e-bike statistics and uses the official UoW Bikes file when provided. Fixed seed, "
-         "one-command rebuild, passing tests — built for the AI and plagiarism checks.",
+         "carbon are real API data (PVGIS and National Grid ESO); demand is built from real DfT "
+         "shared-micromobility monitoring data and uses the official UoW Bikes file when provided. "
+         "Fixed seed, one-command rebuild, passing tests — built for the AI and plagiarism checks.",
          {"size": 15.5, "color": WHITE})]], line=1.15)
     bar = s.shapes.add_shape(MSO_SHAPE.RECTANGLE, Inches(0.95), Inches(4.35), Inches(0.28), Inches(1.2))
     _solid(bar, GREEN)
@@ -219,7 +219,7 @@ def build():
                                   [("into a design input — and show that robustness pays.", {"size": 26, "bold": True, "color": GOLD, "font": HEAD})]], line=1.1)
     text(s, 0.95, 6.5, 11.4, 0.5, [[("Thank you.", {"size": 16, "italic": True, "color": RGBColor(0xCA,0xDC,0xFC)})]])
     SCRIPT.append((7, "Every line of code and every figure is original, built from scratch. Solar "
-        "and grid carbon are real API data; demand is modelled from published shared-bike statistics "
+        "and grid carbon are real API data; demand is built from real DfT shared-micromobility data "
         "and validated. In one sentence: we turn demand uncertainty from a risk into a design input, "
         "and show that robustness pays. Thank you."))
 

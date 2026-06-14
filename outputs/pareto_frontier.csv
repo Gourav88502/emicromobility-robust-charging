@@ -1,4 +1,4 @@
 index,design,pv_kwp,battery_kwh,n_chargers,expected_cost,worst_cost,robustly_feasible
-1,PV=5kWp | BESS=0kWh | 8 chargers,5,0,8,6832.778286997486,21896.50980470559,True
-31,PV=10kWp | BESS=0kWh | 8 chargers,10,0,8,7048.451473974231,21498.164806551144,True
-61,PV=15kWp | BESS=0kWh | 8 chargers,15,0,8,7382.311864888932,21471.947693743405,True
+1,PV=5kWp | BESS=0kWh | 8 chargers,5,0,8,6570.94300553518,19581.23772545217,True
+31,PV=10kWp | BESS=0kWh | 8 chargers,10,0,8,6796.7867078530635,19234.094959318376,True
+61,PV=15kWp | BESS=0kWh | 8 chargers,15,0,8,7136.1778557291545,19232.250294459227,True

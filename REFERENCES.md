@@ -5,11 +5,11 @@ All quantitative assumptions in [`src/config.py`](src/config.py) trace to the so
 
 ## Primary data
 
-1. **UoW Bikes shared e‑bike demand** — the competition's encouraged dataset, `UoW Bikes Data(Sheet1).csv` (University of Warwick). Ingested automatically when placed in `data/raw/`; otherwise a transparent calibrated representative series for the scheme is used (see `scripts/prepare_data.py`).
+1. **UoW Bikes shared e‑bike demand** — the competition's encouraged dataset, `UoW Bikes Data(Sheet1).csv` (University of Warwick). Ingested automatically when placed in `data/raw/`; otherwise the demand is built from the **real DfT monitoring data** (ref. 5), adapted to the scheme (see `scripts/prepare_data.py`).
 2. **PVGIS — Photovoltaic Geographical Information System (EU JRC).** Real hourly solar radiation & PV performance, University of Warwick, Coventry (lat 52.3838, lon −1.5616). https://re.jrc.ec.europa.eu/pvg_tools/en/
 3. **renewables.ninja** — PV generation cross‑check at the same location (per the competition Supplementary Data sheet). https://www.renewables.ninja/
 4. **UK Carbon Intensity API (National Grid ESO).** Real regional endpoint `/regional/regionid/8` (West Midlands). https://api.carbonintensity.org.uk/
-5. **Department for Transport (DfT)** — *Shared rental e‑scooter trials monitoring data, Jan 2022 – May 2024* (contextual benchmark for shared‑micromobility usage). https://www.gov.uk/government/statistics/monitoring-of-dft-funded-e-scooter-trials
+5. **Department for Transport (DfT)** — *Shared rental e‑scooter trials monitoring data, Jan 2022 – May 2024* (Open Government Licence v3.0). **Primary empirical basis for the demand series** — real monthly seasonality, usage intensity and trip distance across all UK trial areas, adapted to a UoW e‑bike scheme. https://www.gov.uk/government/statistics/monitoring-of-dft-funded-e-scooter-trials
 
 ## Solar PV & inverter performance
 

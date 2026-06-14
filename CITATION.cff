@@ -4,8 +4,9 @@ title: "Robust Charging Infrastructure Design under Demand Uncertainty"
 abstract: >-
   A reproducible techno-economic model that designs a solar-powered charging hub
   for a shared e-bike scheme (University of Warwick, Coventry) under demand
-  uncertainty. It builds Low/Medium/High demand scenarios from the UoW Bikes
-  shared e-bike data, runs an hourly energy-balance dispatch under a constrained
+  uncertainty. It builds Low/Medium/High demand scenarios from real DfT
+  shared-micromobility monitoring data adapted to a UoW e-bike scheme, runs an
+  hourly energy-balance dispatch under a constrained
   grid connection, and applies robust optimisation (naive, chance-constrained
   stochastic, CVaR, minimax-regret and maximin) plus Monte-Carlo and Sobol global
   sensitivity analysis to recommend a station specification that performs across

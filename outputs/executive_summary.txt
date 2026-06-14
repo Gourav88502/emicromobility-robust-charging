@@ -11,14 +11,14 @@ RECOMMENDED ROBUST STATION SPECIFICATION
 
 WHY ROBUST DESIGN MATTERS (value of robustness)
   vs a naive average-demand design, the robust design cuts worst-case
-  annual cost by GBP 35,522/yr (62.3%) and lifts guaranteed fleet
-  service from 94.1% to 99.4% under the worst demand scenario.
+  annual cost by GBP 27,947/yr (59.2%) and lifts guaranteed fleet
+  service from 95.3% to 99.6% under the worst demand scenario.
 
 SUSTAINABILITY (recommended design, high-demand scenario)
-  Solar fraction     : 15.2%
-  Carbon saving      : 3.78 tCO2/yr (15% vs grid-only)
+  Solar fraction     : 15.3%
+  Carbon saving      : 3.67 tCO2/yr (15% vs grid-only)
 
 KEY UNCERTAINTY DRIVERS (tornado, ranked)
-  - Demand intensity (trips/bike/day): swing GBP 6,231/yr
-  - Trip energy use: swing GBP 3,706/yr
-  - Daily fleet utilisation: swing GBP 2,965/yr
+  - Demand intensity (trips/bike/day): swing GBP 5,978/yr
+  - Trip energy use: swing GBP 3,555/yr
+  - Daily fleet utilisation: swing GBP 2,844/yr

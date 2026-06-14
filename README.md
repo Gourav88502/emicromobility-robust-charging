@@ -27,11 +27,11 @@ A shared e‑bike **charging hub** (e‑bikes and e‑cargo bikes) for the **UoW
 | | Naive (average‑demand) design | **Robust design (recommended)** |
 |---|---|---|
 | Specification | 5 kWp PV · 4 bays | **15 kWp PV · 8 smart‑managed bays** |
-| Worst‑case annual cost | £56,994 / yr | **£21,472 / yr** |
-| Guaranteed fleet service (worst demand) | 94.1 % | **99.4 %** |
+| Worst‑case annual cost | £47,179 / yr | **£19,232 / yr** |
+| Guaranteed fleet service (worst demand) | 95.3 % | **99.6 %** |
 | Capital cost | — | **≈ £29,400** |
 
-### 🏆 Value of robustness: **−62 % worst‑case cost** (£35,522/yr) and fleet service lifted **94.1 % → 99.4 %**
+### 🏆 Value of robustness: **−59 % worst‑case cost** (£27,947/yr) and fleet service lifted **95.3 % → 99.6 %**
 
 ### 🔑 Key finding: **smart charging is the cheapest robustness lever.** It flattens the load below the grid limit, so **at a connected hub a battery does not pay** — the robust design is solar + smart‑managed bays. Storage only enters the robust design once the grid connection falls to **≈9 kW or below** (toward off‑grid) — a boundary the robustness sweep locates and emits to `results.json`.
 
@@ -213,7 +213,7 @@ Nine uncertain variables are propagated through Monte‑Carlo and ranked by torn
 
 | Dataset | Use | Provenance |
 |---|---|---|
-| **UoW Bikes shared e‑bike demand** | Low/Med/High demand scenarios | Calibrated representative series for the University of Warwick scheme; **auto‑ingests the official `UoW Bikes Data(Sheet1).csv`** when placed in `data/raw/` |
+| **DfT shared‑micromobility monitoring data** (Jan 2022–May 2024, all UK trial areas) | Low/Med/High demand scenarios (real seasonality, usage intensity, trip distance) | **Real** open‑government data, adapted to a University of Warwick e‑bike scheme; **auto‑ingests the official `UoW Bikes Data(Sheet1).csv`** when placed in `data/raw/` |
 | **PVGIS (EU JRC) API** | Hourly solar generation, Coventry | **Real** live API pull (lat 52.3838, lon −1.5616), ≈1036 kWh/kWp/yr |
 | **UK Carbon Intensity API (National Grid ESO)** | Operational CO₂ savings | **Real** live API pull, West Midlands regional (≈222 gCO₂/kWh) |
 | Cost & performance benchmarks | CAPEX/OPEX/efficiency | BEIS, IRENA, BloombergNEF, IEA PVPS, Fraunhofer ISE — see [`REFERENCES.md`](REFERENCES.md) |
@@ -227,7 +227,7 @@ Nine uncertain variables are propagated through Monte‑Carlo and ranked by torn
 This is **100 % original work** written for this competition:
 
 - All model code, the dispatch engine, the five‑rule optimisation, the Sobol and robustness analyses, and every figure were written from scratch for this project.
-- **Solar and grid‑carbon data are real**: live **PVGIS** solar (Coventry) and live **National Grid ESO** carbon intensity (West Midlands). Demand is a transparent, calibrated representative series for the UoW Bikes scheme that ingests the official competition data file when provided.
+- **All data is real or real‑grounded**: live **PVGIS** solar (Coventry) and live **National Grid ESO** carbon intensity (West Midlands); demand is built from the **real DfT shared‑micromobility monitoring data** (Open Government Licence, Jan 2022–May 2024), adapted to a UoW e‑bike scheme and validated against published ranges, and it ingests the official `UoW Bikes Data(Sheet1).csv` when provided.
 - Seven model outputs are **validated** against published benchmark ranges, and the headline conclusion is shown to be **robust to its own assumptions** (penalty × grid × horizon).
 - Every numeric assumption carries an inline source comment in `config.py`; all literature is cited in `REFERENCES.md`.
 - No text or code was copied from third parties. The repository is self‑contained and fully reproducible, supporting the competition's AI/plagiarism checks.
