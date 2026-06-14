@@ -1,2 +1,2 @@
 # Robust Charging Infrastructure Design Under Demand Uncertainty
-# National Competition for Sustainable e-Micromobility 2025-26
+# University of Warwick (Coventry) | National Competition for Sustainable e-Micromobility 2025-26

@@ -30,7 +30,7 @@ def sweep(df=None, solar=None,
           grids=(6, 9, 12, 15, 18, 21, 24),
           horizons=(3, 4, 5, 6, 7)) -> dict:
     if df is None:
-        df = demand_model.load_dft()
+        df = demand_model.load_demand()
     if solar is None:
         solar = pv_model.load_solar()
     designs = optimization.all_designs()
@@ -76,6 +76,14 @@ def sweep(df=None, solar=None,
     config.UNMET_DEMAND_PENALTY = base_pen
     config.GRID_CONNECTION_KW = base_grid
 
+    # Storage boundary: the LARGEST grid-connection level (kW) at which the typical
+    # robust design (median over penalties) still includes a battery. Above it, a
+    # grid-connected hub never benefits from storage; below it, storage enters.
+    # This is what makes the "battery only pays toward off-grid" claim quantitative.
+    med_bess = np.array([np.median(rec_bess[:, ig]) for ig in range(len(grids))])
+    with_storage = [grids[ig] for ig in range(len(grids)) if med_bess[ig] > 0]
+    storage_boundary = float(max(with_storage)) if with_storage else None
+
     return {
         "penalties": list(penalties), "grids": list(grids),
         "vor_pct": vor, "rec_pv": rec_pv, "rec_bess": rec_bess,
@@ -84,6 +92,8 @@ def sweep(df=None, solar=None,
         "fraction_robust_wins": float(robust_beats_naive.mean()),
         "vor_min": float(vor.min()), "vor_max": float(vor.max()),
         "vor_median": float(np.median(vor)),
+        "storage_boundary_grid_kW": storage_boundary,
+        "base_grid_kW": float(base_grid),
     }
 
 

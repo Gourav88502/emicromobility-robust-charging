@@ -2,15 +2,17 @@
 fetch_real_data.py  (live APIs — internet required)
 ===================================================
 Replaces the calibrated synthetic solar / carbon series with GENUINELY REAL data
-so all three datasets are real end-to-end:
+so the solar and carbon datasets are real end-to-end:
 
-  * PVGIS (EU JRC) seriescalc  -> real hourly PV yield (kWh/kWp) for Newcastle,
-    one full non-leap year (2021), losses + optimal tilt applied by PVGIS.
+  * PVGIS (EU JRC) seriescalc  -> real hourly PV yield (kWh/kWp) for the
+    University of Warwick, Coventry (lat 52.3838, lon -1.5616), one full non-leap
+    year, losses + optimal tilt applied by PVGIS.
   * UK Carbon Intensity API (National Grid ESO) -> real regional half-hourly
-    carbon intensity for North East England (regionid 13), stitched to a year.
+    carbon intensity for the West Midlands (regionid 8), stitched to a year.
 
 If any call fails the script keeps the existing CSV and warns, so the pipeline
-always runs. The real DfT e-scooter data is always read from data/raw/.
+always runs. The UoW Bikes demand data is read from data/raw/ (or the calibrated
+representative series — see scripts/prepare_data.py).
 
     python scripts/fetch_real_data.py
 """
@@ -53,7 +55,7 @@ def fetch_pvgis() -> bool:
                 "T_amb_C": pd.to_numeric(d.get("T2m", 9.0), errors="coerce").round(2),
                 "pv_kWh_per_kWp": (pd.to_numeric(d["P"], errors="coerce") / 1000.0).round(5),
             }).fillna(0.0)
-            out.to_csv(config.DATA_DIR / "pvgis_newcastle_hourly.csv", index=False)
+            out.to_csv(config.DATA_DIR / "pvgis_warwick_hourly.csv", index=False)
             print(f"  PVGIS OK (REAL {yr}): specific yield "
                   f"{out['pv_kWh_per_kWp'].sum():.0f} kWh/kWp/yr, "
                   f"POA {out['GHI_Wm2'].sum()/1000:.0f} kWh/m2/yr")
@@ -72,17 +74,32 @@ def fetch_carbon() -> bool:
     records = []
     try:
         cur = start
+        skipped = 0
         while cur < end:
             nxt = min(cur + timedelta(days=13), end)
             url = (f"{base}/{cur:%Y-%m-%dT%H:%MZ}/{nxt:%Y-%m-%dT%H:%MZ}/regionid/{rid}")
-            r = requests.get(url, timeout=60, headers={"Accept": "application/json"})
-            r.raise_for_status()
-            for blk in r.json()["data"]["data"]:
-                fc = blk["intensity"]["forecast"]
-                if fc is not None:
-                    records.append((blk["from"], float(fc)))
+            # The public API intermittently 500s on some windows; retry a few
+            # times then SKIP that window (gaps are interpolated below) so one
+            # bad chunk never discards the whole real series.
+            ok = False
+            for attempt in range(4):
+                try:
+                    r = requests.get(url, timeout=60, headers={"Accept": "application/json"})
+                    r.raise_for_status()
+                    for blk in r.json()["data"]["data"]:
+                        fc = blk["intensity"]["forecast"]
+                        if fc is not None:
+                            records.append((blk["from"], float(fc)))
+                    ok = True
+                    break
+                except Exception:
+                    time.sleep(0.6 * (attempt + 1))
+            if not ok:
+                skipped += 1
             cur = nxt
             time.sleep(0.15)
+        if skipped:
+            print(f"  (carbon: {skipped} window(s) skipped after retries; gaps interpolated)")
         if len(records) < 1000:
             raise ValueError(f"only {len(records)} intervals returned")
         s = pd.DataFrame(records, columns=["from", "ci"])
@@ -96,7 +113,7 @@ def fetch_carbon() -> bool:
             "datetime": idx, "month": idx.month, "hour": idx.hour,
             "carbon_intensity_gCO2_kWh": np.round(ci, 1),
             "region": config.CARBON_REGION_NAME})
-        out.to_csv(config.DATA_DIR / "carbon_intensity_ne_england.csv", index=False)
+        out.to_csv(config.DATA_DIR / "carbon_intensity_west_midlands.csv", index=False)
         print(f"  Carbon API OK (REAL {YEAR}): {len(records):,} intervals, "
               f"mean {np.mean(ci):.0f} gCO2/kWh")
         return True
@@ -106,11 +123,12 @@ def fetch_carbon() -> bool:
 
 
 def main():
-    print("Fetching LIVE real data (PVGIS + UK Carbon Intensity) for Newcastle ...")
+    print("Fetching LIVE real data (PVGIS + UK Carbon Intensity) for "
+          "University of Warwick, Coventry ...")
     ok_pv = fetch_pvgis()
     ok_c = fetch_carbon()
     print(f"Done. PVGIS={'real' if ok_pv else 'kept'}, Carbon={'real' if ok_c else 'kept'}. "
-          "(DfT e-scooter data is always real, read from data/raw/.)")
+          "(UoW Bikes demand read from data/raw/ or representative series.)")
 
 
 if __name__ == "__main__":

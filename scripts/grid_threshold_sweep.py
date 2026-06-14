@@ -32,7 +32,7 @@ GRID_CAPS_KW = [4, 6, 8, 10, 11, 12, 14, 15, 18, 20]
 
 
 def main():
-    df = demand_model.load_dft()
+    df = demand_model.load_demand()
     solar = pv_model.load_solar()
     original = config.GRID_CONNECTION_KW
 

@@ -30,8 +30,8 @@ Thumbs.db
 # Streamlit
 .streamlit/secrets.toml
 
-# Real analysis-ready datasets ARE committed (PVGIS + Carbon API pulls + the
-# DfT-derived series) so the repo ships with real data and runs offline.
+# Analysis-ready datasets ARE committed (real PVGIS + Carbon API pulls + the
+# UoW Bikes demand series) so the repo ships with data and runs offline.
 # (Refresh with scripts/fetch_real_data.py; regenerate fallbacks with prepare_data.py.)
 
 # Large / regenerable outputs we don't track (interactive HTML, raw MC samples).

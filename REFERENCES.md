@@ -5,10 +5,11 @@ All quantitative assumptions in [`src/config.py`](src/config.py) trace to the so
 
 ## Primary data
 
-1. **Department for Transport (DfT)** — *Shared rental e‑scooter trials monitoring data, January 2022 to May 2024.* GOV.UK Open Data (Open Government Licence v3.0). Newcastle City Council / Neuron operator rows. https://www.gov.uk/government/statistics/monitoring-of-dft-funded-e-scooter-trials
-2. **PVGIS — Photovoltaic Geographical Information System (EU JRC).** Solar radiation & PV performance, Newcastle (lat 54.978, lon −1.618), TMY. https://re.jrc.ec.europa.eu/pvg_tools/en/
-3. **NASA POWER** — Prediction of Worldwide Energy Resources (validation). Parameter ALLSKY_SFC_SW_DWN. https://power.larc.nasa.gov/api/
-4. **UK Carbon Intensity API (National Grid ESO).** Regional endpoint `/regional/regionid/13` (North East England). https://api.carbonintensity.org.uk/
+1. **UoW Bikes shared e‑bike demand** — the competition's encouraged dataset, `UoW Bikes Data(Sheet1).csv` (University of Warwick). Ingested automatically when placed in `data/raw/`; otherwise a transparent calibrated representative series for the scheme is used (see `scripts/prepare_data.py`).
+2. **PVGIS — Photovoltaic Geographical Information System (EU JRC).** Real hourly solar radiation & PV performance, University of Warwick, Coventry (lat 52.3838, lon −1.5616). https://re.jrc.ec.europa.eu/pvg_tools/en/
+3. **renewables.ninja** — PV generation cross‑check at the same location (per the competition Supplementary Data sheet). https://www.renewables.ninja/
+4. **UK Carbon Intensity API (National Grid ESO).** Real regional endpoint `/regional/regionid/8` (West Midlands). https://api.carbonintensity.org.uk/
+5. **Department for Transport (DfT)** — *Shared rental e‑scooter trials monitoring data, Jan 2022 – May 2024* (contextual benchmark for shared‑micromobility usage). https://www.gov.uk/government/statistics/monitoring-of-dft-funded-e-scooter-trials
 
 ## Solar PV & inverter performance
 
@@ -42,28 +43,26 @@ All quantitative assumptions in [`src/config.py`](src/config.py) trace to the so
 23. UK Power Networks (2024). *Smart Tariff and Time‑of‑Use Pricing Data.*
 24. Agora Energiewende (2023). *Future Cost of Electricity* (European price projections 2025–2035).
 
-## E‑scooter energy use
+## Shared e‑bike & e‑scooter energy use (Theme 2)
 
-25. Gössling, S. (2020). *Integrating e‑scooters in urban transportation…* Transportation Research Part D, 79, 102230. DOI: 10.1016/j.trd.2020.102230.
-26. Hollingsworth, J. et al. (2019). *Life cycle assessment of the energy and environmental impacts of e‑scooter sharing.* Environmental Science & Technology Letters, 6(5), 279–285. DOI: 10.1021/acs.estlett.9b00141.
+25. Burani, E., Cabri, G. & Leoncini, M. (2022). *An Algorithm to Predict E‑Bike Power Consumption Based on Planned Routes.* Electronics, 11(7), 1105. DOI: 10.3390/electronics11071105.
+26. Ouf, K., Soubra, H. & Mazhr, A. (2023). *E‑Bike Energy Needs Estimation based on Route Characteristics and Rider Behavior.* IEEE ICICIS 2023, 345–352. DOI: 10.1109/ICICIS58388.2023.10391196.
+27. Gössling, S. (2020). *Integrating e‑scooters in urban transportation…* Transportation Research Part D, 79, 102230. DOI: 10.1016/j.trd.2020.102230.
+28. Hollingsworth, J. et al. (2019). *Life cycle assessment of the energy and environmental impacts of e‑scooter sharing.* Environmental Science & Technology Letters, 6(5), 279–285. DOI: 10.1021/acs.estlett.9b00141.
+
+## Micromobility charging infrastructure & sector (Theme 3 / overarching)
+
+29. Corti, F. et al. (2024). *A comprehensive review of charging infrastructure for Electric Micromobility Vehicles: Technologies and challenges.* Energy Reports, 12, 545–567. DOI: 10.1016/j.egyr.2024.06.026.
+30. Marie, J.‑J. (2023). *The Micromobility Revolution Gathers Momentum.* Faraday Insights, Issue 16. https://www.faraday.ac.uk/insights/insight-16-the-micromobility-revolution-gathers-momentum/
+31. Aba, A. & Esztergár‑Kiss, D. (2024). *Electric micromobility from a policy‑making perspective through European use cases.* Environment, Development and Sustainability, 26, 7469–7490. DOI: 10.1007/s10668-023-03016-3.
+32. Office for Product Safety and Standards (2025). *Personal Light Electric Vehicle (PLEV) Battery Safety Research: Final Report.* UK Government.
 
 ## Methodology — robust optimisation, stochastic programming, sensitivity
 
-27. Ben‑Tal, A. & Nemirovski, A. (2009). *Robust Optimization.* Princeton University Press. ISBN 978‑0‑691‑14368‑1. *(minimax‑regret / maximin foundation)*
-28. Birge, J.R. & Louveaux, F. (2011). *Introduction to Stochastic Programming* (2nd ed.). Springer. DOI: 10.1007/978‑1‑4614‑0237‑4. *(chance‑constrained stochastic program)*
-29. Saltelli, A. et al. (2008). *Global Sensitivity Analysis: The Primer.* Wiley. ISBN 978‑0‑470‑05997‑5. *(tornado / OAT sensitivity)*
-30. Saltelli, A. et al. (2010). *Variance based sensitivity analysis of model output: design and estimator for the total sensitivity index.* Computer Physics Communications, 181(2), 259–270. DOI: 10.1016/j.cpc.2009.09.018. *(Sobol first-/total-order estimator in `sensitivity.py`)*
-31. Rockafellar, R.T. & Uryasev, S. (2000). *Optimization of conditional value-at-risk.* Journal of Risk, 2, 21–42. *(CVaR objective in `optimization.py`)*
-32. Savage, L.J. (1951). *The theory of statistical decision.* JASA, 46(253), 55–67. *(minimax-regret criterion)*
-
-## Methodology — LP dispatch, uncertainty quantification, circularity
-
-33. Morales‑España, G., Latorre, J.M. & Ramos, A. (2014). *Tight and compact MILP formulation of start‑up and shut‑down ramping in unit commitment.* IEEE Trans. Power Systems, 29(3), 1288–1296. DOI: 10.1109/TPWRS.2013.2251373. *(LP dispatch formulation, `lp_dispatch.py`)*
-34. Silvente, J. et al. (2018). *A rolling horizon optimization framework for the simultaneous energy supply and demand planning in microgrids.* Applied Energy, 226, 1192–1209. DOI: 10.1016/j.apenergy.2018.05.022. *(rolling‑horizon dispatch coupled into sizing)*
-35. Efron, B. & Hastie, T. (2016). *Computer Age Statistical Inference.* Cambridge University Press, Ch. 10. ISBN 978‑1‑107‑14989‑2. *(bootstrap confidence intervals on MC/Sobol)*
-36. Archer, G.E.B., Saltelli, A. & Sobol, I.M. (1997). *Sensitivity measures, ANOVA‑like techniques and the use of bootstrap.* J. Statistical Computation and Simulation, 58(2), 99–120. *(bootstrap CIs on Sobol indices)*
-37. Harper, G. et al. (2019). *Recycling lithium‑ion batteries from electric vehicles.* Nature, 575, 75–86. DOI: 10.1038/s41586‑019‑1682‑5. *(battery circularity / material recovery)*
-38. Bass, F.M. (1969). *A new product growth model for consumer durables.* Management Science, 15(5), 215–227. *(S‑curve demand‑growth saturation)*
+33. Ben‑Tal, A. & Nemirovski, A. (2009). *Robust Optimization.* Princeton University Press. ISBN 978‑0‑691‑14368‑1. *(minimax‑regret / maximin foundation)*
+34. Birge, J.R. & Louveaux, F. (2011). *Introduction to Stochastic Programming* (2nd ed.). Springer. DOI: 10.1007/978‑1‑4614‑0237‑4. *(chance‑constrained stochastic program)*
+35. Saltelli, A. et al. (2008). *Global Sensitivity Analysis: The Primer.* Wiley. ISBN 978‑0‑470‑05997‑5. *(tornado / OAT sensitivity)*
+36. Rockafellar, R.T. & Uryasev, S. (2000). *Optimization of Conditional Value‑at‑Risk.* Journal of Risk, 2(3), 21–41. *(CVaR risk‑averse rule)*
 
 ---
-*Crown copyright data reused under the Open Government Licence v3.0. All other sources are cited for the assumptions they inform; no third‑party text or code is reproduced in this repository.*
+*PVGIS and National Grid ESO data are used under their open terms; DfT data is Crown copyright reused under the Open Government Licence v3.0. All other sources are cited for the assumptions they inform; no third‑party text or code is reproduced in this repository.*

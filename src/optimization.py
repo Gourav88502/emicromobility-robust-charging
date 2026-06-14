@@ -51,7 +51,7 @@ _USE_LP_DISPATCH = False
 class Scenario:
     name: str
     demand_level: str
-    trips_per_scooter_day: float
+    trips_per_bike_day: float
     fleet_utilisation: float
     demand_growth: float
     probability: float
@@ -62,20 +62,20 @@ def build_scenarios(df=None, year_index: int | None = None) -> list[Scenario]:
     """
     Structured demand scenario set spanning the EoI Low/Medium/High framing.
 
-    Axes: demand level (trips/scooter/day x fleet deployment, the EoI Low/Medium/
+    Axes: demand level (trips/bike/day x fleet deployment, the EoI Low/Medium/
     High lever) x year-on-year demand growth on a finer 5-point grid, evaluated at
     the design horizon. 3 levels x 5 growth rates = 15 probability-weighted
     scenarios (central outcomes more likely; triangular-style weights).
     """
     if df is None:
-        df = demand_model.load_dft()
+        df = demand_model.load_demand()
     if year_index is None:
         year_index = config.OPTIMISATION_HORIZON_YEARS
 
     levels = {
-        "Low":    (config.TRIPS_PER_SCOOTER_DAY["low"], config.FLEET_UTILISATION["low"]),
-        "Medium": (config.TRIPS_PER_SCOOTER_DAY["medium"], config.FLEET_UTILISATION["baseline"]),
-        "High":   (config.TRIPS_PER_SCOOTER_DAY["high"], config.FLEET_UTILISATION["high"]),
+        "Low":    (config.TRIPS_PER_BIKE_DAY["low"], config.FLEET_UTILISATION["low"]),
+        "Medium": (config.TRIPS_PER_BIKE_DAY["medium"], config.FLEET_UTILISATION["baseline"]),
+        "High":   (config.TRIPS_PER_BIKE_DAY["high"], config.FLEET_UTILISATION["high"]),
     }
     gmax = config.DEMAND_GROWTH["high"]
     growth = {"g0": 0.0, "g1": 0.25 * gmax, "g2": 0.5 * gmax,
@@ -87,12 +87,12 @@ def build_scenarios(df=None, year_index: int | None = None) -> list[Scenario]:
     for lname, (tpd, util) in levels.items():
         for gk, gv in growth.items():
             params = demand_model.DemandParams(
-                trips_per_scooter_day=tpd, fleet_utilisation=util,
+                trips_per_bike_day=tpd, fleet_utilisation=util,
                 trip_energy_wh_per_km=config.TRIP_ENERGY_WH_PER_KM["baseline"],
                 demand_growth=gv, year_index=year_index)
             scenarios.append(Scenario(
                 name=f"{lname}/growth:{gk}", demand_level=lname,
-                trips_per_scooter_day=tpd, fleet_utilisation=util,
+                trips_per_bike_day=tpd, fleet_utilisation=util,
                 demand_growth=gv, probability=w_level[lname] * w_growth[gk],
                 demand_kwh=demand_model.hourly_demand_series(params, df)))
     total_p = sum(s.probability for s in scenarios)

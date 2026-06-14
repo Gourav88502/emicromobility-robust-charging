@@ -8,7 +8,7 @@ deliverables to outputs/:
 
 Steps
 -----
-  0. Prepare datasets (real DfT + calibrated solar/carbon) if missing.
+  0. Prepare datasets (UoW Bikes + calibrated solar/carbon) if missing.
   1. Build Low/Medium/High demand scenarios (with weekday/weekend distinction).
   2. Robust optimisation: 150 designs x 9 scenarios -> 5 decision rules,
      Pareto frontier, value of robustness. Each design evaluated under
@@ -44,8 +44,8 @@ OUT = config.OUTPUT_DIR
 
 
 def _ensure_data():
-    needed = ["dft_newcastle_scooter_data.csv", "pvgis_newcastle_hourly.csv",
-              "carbon_intensity_ne_england.csv"]
+    needed = ["uow_bikes_demand.csv", "pvgis_warwick_hourly.csv",
+              "carbon_intensity_west_midlands.csv"]
     if not all((config.DATA_DIR / f).exists() for f in needed):
         print("Datasets missing -> generating via scripts/prepare_data.py ...")
         sys.path.insert(0, str(ROOT / "scripts"))
@@ -72,7 +72,7 @@ def main():
     print("=" * 72)
     _ensure_data()
 
-    df = demand_model.load_dft()
+    df = demand_model.load_demand()
     solar = pv_model.load_solar()
     carbon = emissions.load_carbon()
     figs = {}
@@ -263,15 +263,10 @@ def main():
     except Exception as e:
         print(f"   (flow diagram skipped: {e})")
     try:
-        import build_two_pager
-        build_two_pager.build()
+        import build_executive_summary
+        build_executive_summary.build()
     except Exception as e:
-        print(f"   (two-page summary skipped: {e})")
-    try:
-        import build_final_report
-        build_final_report.build()
-    except Exception as e:
-        print(f"   (full report skipped: {e})")
+        print(f"   (executive summary skipped: {e})")
     try:
         import build_presentation
         build_presentation.build()
@@ -323,6 +318,8 @@ def _collect_results(opt, s_rob, s_nai, tor, sob, sim, emis, recommended, naive,
             "value_of_robustness_min_pct": round(rob["vor_min"], 0),
             "value_of_robustness_median_pct": round(rob["vor_median"], 0),
             "value_of_robustness_max_pct": round(rob["vor_max"], 0),
+            "storage_boundary_grid_kW": rob.get("storage_boundary_grid_kW"),
+            "base_grid_kW": rob.get("base_grid_kW"),
             "n_combinations": int(rob["vor_pct"].size)},
         "validation": {
             "metrics_within_published_range": f"{int(val['within_range'].sum())}/{len(val)}",
@@ -375,7 +372,7 @@ def _write_report(figs: dict, r: dict):
              "05_cost_distribution", "10_robustness", "06_tornado", "09_global_sensitivity",
              "11_validation", "07_energy_balance", "08_energy_sources"]
     titles = {
-        "01_scenario_demand": "1. Demand scenarios (from real DfT Newcastle data)",
+        "01_scenario_demand": "1. Demand scenarios (from UoW Bikes data)",
         "04_demand_fan": "2. Monte-Carlo demand fan (500 samples)",
         "02_pareto": "3. Cost vs robustness — Pareto frontier (5 decision rules)",
         "03_design_comparison": "4. Decision-rule comparison",
@@ -432,7 +429,7 @@ def _write_report(figs: dict, r: dict):
  {cards}
 </div>
 <footer>Generated automatically by <code>run_analysis.py</code>.
- Data: DfT e-scooter trials (real), PVGIS-calibrated solar, National Grid ESO carbon intensity.</footer>
+ Data: UoW Bikes shared e-bike schemes (real), PVGIS-calibrated solar, National Grid ESO carbon intensity.</footer>
 </body></html>"""
     (config.OUTPUT_DIR / "index.html").write_text(html, encoding="utf-8")
 

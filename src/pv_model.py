@@ -16,7 +16,7 @@ _BASE_PR = config.PV_PERFORMANCE_RATIO["baseline"]
 
 
 def load_solar() -> pd.DataFrame:
-    path = config.DATA_DIR / "pvgis_newcastle_hourly.csv"
+    path = config.DATA_DIR / "pvgis_warwick_hourly.csv"
     if not path.exists():
         raise FileNotFoundError(
             f"{path} missing. Run `python scripts/prepare_data.py` first.")

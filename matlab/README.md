@@ -47,9 +47,9 @@ real data CSVs are committed) so `../data/` exists.
 
 ## CV / application statements (for renewable-energy PhD applications)
 
-> *Developed MATLAB simulations of shared e‑micromobility charging demand across
-> fleet sizes (50–500 vehicles) using real DfT trial data, quantifying peak load,
-> energy demand and grid impact.*
+> *Developed MATLAB simulations of shared e‑bike charging demand across
+> fleet sizes (50–500 bikes) for a University of Warwick scheme, quantifying peak
+> load, energy demand and grid impact.*
 
 > *Implemented and evaluated **smart‑charging optimisation** with MATLAB's
 > Optimization Toolbox (linear programming, time‑of‑use scheduling), reducing

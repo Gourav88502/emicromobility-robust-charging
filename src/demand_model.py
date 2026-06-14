@@ -1,14 +1,14 @@
 """
 demand_model.py
 ===============
-Turns the real DfT Newcastle/Neuron monthly data into an 8,760-hour charging
+Turns the real UoW Bikes shared e-bike monthly data into an 8,760-hour charging
 energy-demand series, for Low / Medium / High scenarios and for arbitrary
 Monte-Carlo parameter draws.
 
 Pipeline
 --------
 monthly trips & fleet (DfT)  ->  seasonal monthly weights
-        +  scenario trips/scooter/day, fleet utilisation, growth
+        +  scenario trips/bike/day, fleet utilisation, growth
         +  trip distance (km) x trip energy (Wh/km)            ->  daily kWh
         +  weekday / weekend distinction (DfT data, 1.25x weekend)  ->  daily kWh
         +  24-hour demand shape (peak 17-21h, smart-charging aware)  ->  hourly kWh
@@ -16,8 +16,8 @@ monthly trips & fleet (DfT)  ->  seasonal monthly weights
 Weekday/Weekend Modelling
 --------------------------
 Shared e-micromobility exhibits a strong day-of-week effect: weekend trip
-intensity is typically 1.2–1.4× weekdays in the DfT Newcastle data (riders
-use scooters for leisure rather than commuting).  Ignoring this collapses
+intensity is typically 1.2–1.4× weekdays in the UoW Bikes data (riders
+use bikes for leisure rather than commuting).  Ignoring this collapses
 two structurally different demand regimes into one, underestimating the
 realistic 48-hour peak and the battery sizing requirement at hubs with
 no weekend grid top-up.
@@ -40,7 +40,7 @@ from . import config
 @dataclass
 class DemandParams:
     """Parameters that define one realised demand series."""
-    trips_per_scooter_day: float
+    trips_per_bike_day: float
     fleet_utilisation: float
     trip_energy_wh_per_km: float
     demand_growth: float = 0.0
@@ -48,8 +48,8 @@ class DemandParams:
     hourly_shape: np.ndarray | None = None
 
 
-def load_dft() -> pd.DataFrame:
-    path = config.DATA_DIR / "dft_newcastle_scooter_data.csv"
+def load_demand() -> pd.DataFrame:
+    path = config.DATA_DIR / "uow_bikes_demand.csv"
     if not path.exists():
         raise FileNotFoundError(
             f"{path} missing. Run `python scripts/prepare_data.py` first.")
@@ -85,14 +85,14 @@ def mean_fleet_size(df: pd.DataFrame) -> float:
 def annual_demand_kwh(params: DemandParams, df: pd.DataFrame | None = None) -> float:
     """Total annual charging-energy demand (kWh) for the given parameters."""
     if df is None:
-        df = load_dft()
+        df = load_demand()
     fleet = mean_fleet_size(df)
     trip_dist_km = float(df["avg_trip_distance_km"].mean())
 
-    # Station daily energy = fleet x trips/scooter/day x (fraction of fleet
+    # Station daily energy = fleet x trips/bike/day x (fraction of fleet
     # needing a charge that day) x (share of those charges captured by this hub)
     # x energy per trip. Two-stage demand decomposition (see config docstrings).
-    daily_trips = (fleet * params.trips_per_scooter_day
+    daily_trips = (fleet * params.trips_per_bike_day
                    * params.fleet_utilisation * config.STATION_DEMAND_SHARE)
     energy_per_trip_kwh = trip_dist_km * params.trip_energy_wh_per_km / 1000.0
     daily_kwh = daily_trips * energy_per_trip_kwh
@@ -113,7 +113,7 @@ _IS_WEEKEND = (_DOW_IDX >= 5).astype(float)   # Sat=5, Sun=6 -> 1.0; Mon-Fri -> 
 _DEFAULT_SHAPE = normalised_hourly_shape()
 _SMART_WEIGHT_CACHE: np.ndarray | None = None
 
-# Weekday / weekend demand scaling factors (empirical from DfT Newcastle data).
+# Weekday / weekend demand scaling factors (empirical from UoW Bikes data).
 # Weekend trip intensity is ~25 % higher than weekday (leisure vs commute mix).
 # Weighted average preserves the correct weekly total (2/7 × 1.25 + 5/7 × 1.0 = 1.071),
 # so the annual totals from annual_demand_kwh() are not distorted.
@@ -167,7 +167,7 @@ def hourly_demand_series(params: DemandParams,
                          df: pd.DataFrame | None = None) -> np.ndarray:
     """8,760-hour charging-energy demand profile (kWh per hour)."""
     if df is None:
-        df = load_dft()
+        df = load_demand()
     annual_kwh = annual_demand_kwh(params, df)
     month_w = seasonal_monthly_weights(df)
     base_daily = annual_kwh / 365.0
@@ -191,7 +191,7 @@ def hourly_demand_series(params: DemandParams,
 def monthly_demand_series(params: DemandParams, df: pd.DataFrame | None = None) -> np.ndarray:
     """12-element monthly charging-demand vector (kWh) for the demand fan."""
     if df is None:
-        df = load_dft()
+        df = load_demand()
     annual = annual_demand_kwh(params, df)
     w = seasonal_monthly_weights(df)             # mean ~1 across 12 months
     return annual * w / w.sum()
@@ -204,7 +204,7 @@ def scenario_params(scenario: str, year_index: int = 0) -> DemandParams:
         raise ValueError(f"scenario must be one of {list(table)}")
     s = table[scenario]
     return DemandParams(
-        trips_per_scooter_day=s["trips_per_scooter_day"],
+        trips_per_bike_day=s["trips_per_bike_day"],
         fleet_utilisation=s["fleet_utilisation"],
         trip_energy_wh_per_km=config.TRIP_ENERGY_WH_PER_KM["baseline"],
         demand_growth=s["demand_growth"],
@@ -214,14 +214,14 @@ def scenario_params(scenario: str, year_index: int = 0) -> DemandParams:
 
 def scenario_summary() -> pd.DataFrame:
     """Annual demand for each headline scenario (year 0 and final year)."""
-    df = load_dft()
+    df = load_demand()
     rows = []
     for sc in ("Low", "Medium", "High"):
         p0 = scenario_params(sc, 0)
         pN = scenario_params(sc, config.PROJECT_LIFETIME_YEARS - 1)
         rows.append({
             "scenario": sc,
-            "trips_per_scooter_day": p0.trips_per_scooter_day,
+            "trips_per_bike_day": p0.trips_per_bike_day,
             "fleet_utilisation": p0.fleet_utilisation,
             "demand_growth": p0.demand_growth,
             "annual_kwh_year0": round(annual_demand_kwh(p0, df), 0),
@@ -231,8 +231,8 @@ def scenario_summary() -> pd.DataFrame:
 
 
 if __name__ == "__main__":
-    df = load_dft()
-    print(f"Mean fleet size      : {mean_fleet_size(df):.0f} e-scooters")
+    df = load_demand()
+    print(f"Mean fleet size      : {mean_fleet_size(df):.0f} e-bikes")
     print(f"Mean trip distance   : {df['avg_trip_distance_km'].mean():.2f} km")
     print(f"Seasonal weights     : {np.round(seasonal_monthly_weights(df), 2)}")
     print("\nScenario annual demand (kWh):")

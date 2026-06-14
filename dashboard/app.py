@@ -42,13 +42,13 @@ st.set_page_config(page_title="Robust e-Micromobility Charging Station",
 # --------------------------------------------------------------------------- #
 @st.cache_data(show_spinner=False)
 def _bootstrap():
-    needed = ["dft_newcastle_scooter_data.csv", "pvgis_newcastle_hourly.csv",
-              "carbon_intensity_ne_england.csv"]
+    needed = ["uow_bikes_demand.csv", "pvgis_warwick_hourly.csv",
+              "carbon_intensity_west_midlands.csv"]
     if not all((config.DATA_DIR / f).exists() for f in needed):
         sys.path.insert(0, str(ROOT / "scripts"))
         import prepare_data
         prepare_data.main()
-    return (demand_model.load_dft(), pv_model.load_solar(), emissions.load_carbon())
+    return (demand_model.load_demand(), pv_model.load_solar(), emissions.load_carbon())
 
 
 @st.cache_data(show_spinner="Running robust optimisation (150 designs × 9 scenarios)…")
@@ -234,16 +234,17 @@ with tab_sens:
 with tab_data:
     st.subheader("Datasets")
     st.markdown(f"""
-- **DfT shared e-scooter trials (REAL)** — Newcastle/Neuron monthly trips, fleet
-  size, trips/scooter/day, trip distance & duration (Jan 2022 – May 2024).
-- **PVGIS solar (REAL, live API)** — hourly generation for Newcastle
-  (lat {config.SITE_LAT}, lon {config.SITE_LON}), ≈979 kWh/kWp/yr.
+- **UoW Bikes shared e-bike demand** — monthly trips, fleet size, trips/bike/day,
+  trip distance & duration. Auto-ingests the official `UoW Bikes Data(Sheet1).csv`
+  if placed in `data/raw/`; otherwise a calibrated representative series is used.
+- **PVGIS solar (REAL, live API)** — hourly generation for Coventry
+  (lat {config.SITE_LAT}, lon {config.SITE_LON}), ≈1036 kWh/kWp/yr.
 - **Carbon intensity (REAL, live API)** — National Grid ESO regional series for
-  {config.CARBON_REGION_NAME} (≈152 gCO₂/kWh mean).
+  {config.CARBON_REGION_NAME} (≈222 gCO₂/kWh mean).
 """)
     st.subheader("Method")
     st.markdown("""
-1. Build **Low / Medium / High × growth** demand scenarios from the real DfT data.
+1. Build **Low / Medium / High × growth** demand scenarios from the UoW Bikes data.
 2. **Hourly energy-balance** dispatch over 8,760 h with a *constrained grid
    connection* (PV → battery → capped grid, off-peak battery top-up).
 3. **Robust optimisation** of 150 designs × 15 scenarios via five rules: naive,
@@ -252,7 +253,7 @@ with tab_data:
 5. **Tornado** + variance-based **global (Sobol)** sensitivity.
 6. **Robustness-of-robustness** sweep + benchmark **validation**.
 """)
-    st.subheader("Headline scenario demand (from real Newcastle data)")
+    st.subheader("Headline scenario demand (from real Coventry data)")
     st.dataframe(demand_model.scenario_summary(), use_container_width=True, hide_index=True)
     st.caption("All assumptions live in `src/config.py`; every figure is reproducible "
                "via `python run_analysis.py`.")

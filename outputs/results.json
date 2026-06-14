@@ -1,15 +1,15 @@
 {
   "project": "Robust Charging Infrastructure Design Under Demand Uncertainty",
-  "site": "Newcastle upon Tyne, UK",
+  "site": "University of Warwick, Coventry, UK",
   "grid_connection_kW": 15.0,
   "design_horizon_years": 5,
   "recommended_design": {
-    "pv_kwp": 20,
+    "pv_kwp": 15,
     "battery_kwh": 0,
     "n_chargers": 8
   },
-  "recommended_capex_gbp": 36000.0,
-  "recommended_lcoe_gbp_per_kwh": 0.25,
+  "recommended_capex_gbp": 29400.0,
+  "recommended_lcoe_gbp_per_kwh": 0.251,
   "naive_design": {
     "pv_kwp": 5,
     "battery_kwh": 0,
@@ -22,11 +22,11 @@
         "battery_kwh": 0,
         "n_chargers": 4
       },
-      "expected_cost": 14304.0,
-      "worst_cost": 142423.0,
-      "max_regret": 87422.0,
-      "min_service_pct": 85.3,
-      "prob_served_pct": 92.5,
+      "expected_cost": 7788.0,
+      "worst_cost": 56994.0,
+      "max_regret": 35522.0,
+      "min_service_pct": 94.1,
+      "prob_served_pct": 97.5,
       "robustly_feasible": false
     },
     "stochastic": {
@@ -35,23 +35,23 @@
         "battery_kwh": 0,
         "n_chargers": 8
       },
-      "expected_cost": 8840.0,
-      "worst_cost": 55878.0,
-      "max_regret": 877.0,
-      "min_service_pct": 95.8,
+      "expected_cost": 6833.0,
+      "worst_cost": 21897.0,
+      "max_regret": 616.0,
+      "min_service_pct": 99.4,
       "prob_served_pct": 100.0,
       "robustly_feasible": true
     },
     "cvar": {
       "design": {
-        "pv_kwp": 15,
+        "pv_kwp": 10,
         "battery_kwh": 0,
         "n_chargers": 8
       },
-      "expected_cost": 9349.0,
-      "worst_cost": 55027.0,
-      "max_regret": 1518.0,
-      "min_service_pct": 95.9,
+      "expected_cost": 7048.0,
+      "worst_cost": 21498.0,
+      "max_regret": 1035.0,
+      "min_service_pct": 99.4,
       "prob_served_pct": 100.0,
       "robustly_feasible": true
     },
@@ -61,59 +61,59 @@
         "battery_kwh": 0,
         "n_chargers": 8
       },
-      "expected_cost": 8840.0,
-      "worst_cost": 55878.0,
-      "max_regret": 877.0,
-      "min_service_pct": 95.8,
+      "expected_cost": 6833.0,
+      "worst_cost": 21897.0,
+      "max_regret": 616.0,
+      "min_service_pct": 99.4,
       "prob_served_pct": 100.0,
       "robustly_feasible": true
     },
     "maximin_robust": {
       "design": {
-        "pv_kwp": 20,
+        "pv_kwp": 15,
         "battery_kwh": 0,
         "n_chargers": 8
       },
-      "expected_cost": 9727.0,
-      "worst_cost": 55002.0,
-      "max_regret": 1994.0,
-      "min_service_pct": 95.9,
+      "expected_cost": 7382.0,
+      "worst_cost": 21472.0,
+      "max_regret": 1487.0,
+      "min_service_pct": 99.4,
       "prob_served_pct": 100.0,
       "robustly_feasible": true
     }
   },
   "value_of_robustness": {
-    "naive_worst_cost": 142423.16,
-    "robust_worst_cost": 55001.567,
-    "worst_cost_reduction": 87421.593,
-    "worst_cost_reduction_pct": 61.382,
-    "naive_min_service": 0.853,
-    "robust_min_service": 0.959,
-    "naive_max_regret": 87421.593,
-    "robust_max_regret": 1994.475
+    "naive_worst_cost": 56993.707,
+    "robust_worst_cost": 21471.948,
+    "worst_cost_reduction": 35521.759,
+    "worst_cost_reduction_pct": 62.326,
+    "naive_min_service": 0.941,
+    "robust_min_service": 0.994,
+    "naive_max_regret": 35521.759,
+    "robust_max_regret": 1487.038
   },
   "monte_carlo": {
     "robust": {
-      "cost_mean": 8372.8,
-      "cost_p05": 5231.6,
-      "cost_p50": 7875.3,
-      "cost_p95": 13262.8,
-      "cost_std": 2619.0,
+      "cost_mean": 7273.8,
+      "cost_p05": 4623.3,
+      "cost_p50": 6884.9,
+      "cost_p95": 11260.9,
+      "cost_std": 2077.7,
       "service_mean": 1.0,
       "service_p05": 1.0,
       "prob_meets_target": 1.0,
       "solar_fraction_mean": 0.2,
       "ci_cost_p05": [
-        5067.1,
-        5505.7
+        4444.9,
+        4843.6
       ],
       "ci_cost_p50": [
-        7677.9,
-        8125.0
+        6718.0,
+        7086.4
       ],
       "ci_cost_p95": [
-        12319.7,
-        13520.0
+        10540.1,
+        11760.4
       ],
       "ci_prob_meets": [
         1.0,
@@ -123,26 +123,26 @@
       "n_samples": 500.0
     },
     "naive": {
-      "cost_mean": 7272.6,
-      "cost_p05": 3350.4,
-      "cost_p50": 6297.2,
-      "cost_p95": 13203.9,
-      "cost_std": 5754.7,
+      "cost_mean": 6154.1,
+      "cost_p05": 3214.3,
+      "cost_p50": 5693.0,
+      "cost_p95": 10521.5,
+      "cost_std": 2819.3,
       "service_mean": 1.0,
       "service_p05": 1.0,
       "prob_meets_target": 1.0,
-      "solar_fraction_mean": 0.1,
+      "solar_fraction_mean": 0.2,
       "ci_cost_p05": [
-        3225.9,
-        3557.3
+        3092.9,
+        3367.9
       ],
       "ci_cost_p50": [
-        5944.1,
-        6526.1
+        5406.6,
+        5910.9
       ],
       "ci_cost_p95": [
-        11187.9,
-        14826.3
+        9542.0,
+        11039.6
       ],
       "ci_prob_meets": [
         1.0,
@@ -154,37 +154,39 @@
   },
   "top_sensitivities": [
     {
-      "variable": "Demand intensity (trips/scooter/day)",
-      "swing": 8098.993191141968
+      "variable": "Demand intensity (trips/bike/day)",
+      "swing": 6231.193349389232
     },
     {
       "variable": "Trip energy use",
-      "swing": 3779.4315930958874
+      "swing": 3705.8052723329183
     },
     {
       "variable": "Daily fleet utilisation",
-      "swing": 3067.7462773321477
+      "swing": 2965.434101285183
     }
   ],
   "global_sensitivity_sobol_total": [
     {
-      "variable": "Demand intensity (trips/scooter/day)",
-      "pct_total": 49.9
+      "variable": "Demand intensity (trips/bike/day)",
+      "pct_total": 48.9
     },
     {
-      "variable": "Demand growth (YoY)",
-      "pct_total": 29.0
+      "variable": "Trip energy use",
+      "pct_total": 19.7
     },
     {
       "variable": "Daily fleet utilisation",
-      "pct_total": 19.1
+      "pct_total": 16.2
     }
   ],
   "robustness_of_robustness": {
     "fraction_robust_beats_naive_pct": 100.0,
     "value_of_robustness_min_pct": 2.0,
-    "value_of_robustness_median_pct": 50.0,
-    "value_of_robustness_max_pct": 96.0,
+    "value_of_robustness_median_pct": 27.0,
+    "value_of_robustness_max_pct": 90.0,
+    "storage_boundary_grid_kW": 9.0,
+    "base_grid_kW": 15.0,
     "n_combinations": 35
   },
   "validation": {
@@ -192,20 +194,20 @@
     "all_pass": true
   },
   "recommended_performance_high_scenario": {
-    "service_level_pct": 95.9,
-    "solar_fraction_pct": 15.8,
-    "grid_import_kwh": 68168.0
+    "service_level_pct": 99.4,
+    "solar_fraction_pct": 15.2,
+    "grid_import_kwh": 58427.0
   },
   "emissions": {
-    "mean_carbon_intensity_gCO2_kWh": 151.76,
+    "mean_carbon_intensity_gCO2_kWh": 222.0,
     "marginal_factor_gCO2_kWh": 360.0,
-    "displaced_grid_kwh": 12800.75,
-    "station_emissions_tCO2_yr": 24.54,
-    "counterfactual_emissions_tCO2_yr": 29.15,
-    "carbon_saving_tCO2_yr": 4.61,
-    "carbon_saving_tCO2_lifetime": 69.12,
-    "carbon_saving_pct": 15.81,
-    "carbon_value_gbp_yr": 368.66
+    "displaced_grid_kwh": 10497.67,
+    "station_emissions_tCO2_yr": 21.03,
+    "counterfactual_emissions_tCO2_yr": 24.81,
+    "carbon_saving_tCO2_yr": 3.78,
+    "carbon_saving_tCO2_lifetime": 56.69,
+    "carbon_saving_pct": 15.23,
+    "carbon_value_gbp_yr": 302.33
   },
   "grid_battery_threshold": {
     "grid_caps_tested_kW": [
@@ -220,8 +222,8 @@
       18,
       20
     ],
-    "battery_recommended_at_or_below_kW": 11,
-    "battery_dropped_at_or_above_kW": 12,
-    "note": "Robust (maximin) design includes battery storage at grid connections of 11 kW and below; storage drops to zero at 12 kW and above. Confirms the zero-battery recommendation is specific to the 15 kW connection."
+    "battery_recommended_at_or_below_kW": 8,
+    "battery_dropped_at_or_above_kW": 10,
+    "note": "Robust (maximin) design includes battery storage at grid connections of 8 kW and below; storage drops to zero at 10 kW and above. Confirms the zero-battery recommendation is specific to the 15 kW connection."
   }
 }

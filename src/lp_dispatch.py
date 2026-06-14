@@ -331,7 +331,7 @@ if __name__ == "__main__":
     from . import demand_model, pv_model
     from .economics import Design
 
-    df = demand_model.load_dft()
+    df = demand_model.load_demand()
     solar = pv_model.load_solar()
     demand = demand_model.hourly_demand_series(
         demand_model.scenario_params("Medium", 5), df)

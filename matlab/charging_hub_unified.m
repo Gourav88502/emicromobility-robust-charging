@@ -53,7 +53,7 @@ outdir = fullfile('..', 'outputs', 'matlab');
 if ~exist(outdir, 'dir'); mkdir(outdir); end
 
 fprintf('\n╔══════════════════════════════════════════════════════╗\n');
-fprintf('║  Charging Hub Unified Analysis — Newcastle e-Mobility ║\n');
+fprintf('║  Charging Hub Unified Analysis — University of Warwick, Coventry ║\n');
 fprintf('╚══════════════════════════════════════════════════════╝\n');
 
 %% ──────────────────────────────────────────────────────────────────────────
@@ -62,7 +62,7 @@ fprintf('╚══════════════════════�
 fprintf('\n[Stage 1] Fleet-load simulation...\n');
 
 fleets = [50, 100, 200];
-kwh_per_vehicle_day = 0.8;   % mixed fleet (e-scooter 0.4-0.5 kWh + e-bikes 1.0-1.5 kWh)
+kwh_per_vehicle_day = 0.8;   % mixed fleet (shared e-bike 0.4-0.5 kWh + e-cargo 1.0-1.5 kWh)
 season_wt = [0.78 0.81 0.88 0.97 1.06 1.15 1.18 1.13 1.02 0.94 0.83 0.75]; % monthly
 
 % Build full-year hourly demand for the 100-vehicle fleet (primary scenario)
@@ -182,8 +182,8 @@ fprintf('   Full-year LP:  peak %.1f -> %.1f kW  (-%.0f%%)  |  cost GBP%.0f -> %
 %% ──────────────────────────────────────────────────────────────────────────
 fprintf('\n[Stage 3] Solar + Battery EMS (coupled to LP schedule)...\n');
 
-% Load or generate PV series (calibrated to PVGIS Newcastle ~979 kWh/kWp/yr)
-pv_file = fullfile('..', 'data', 'pvgis_newcastle_hourly.csv');
+% Load or generate PV series (calibrated to PVGIS Coventry ~1036 kWh/kWp/yr)
+pv_file = fullfile('..', 'data', 'pvgis_warwick_hourly.csv');
 if exist(pv_file, 'file')
     pv_tbl = readtable(pv_file);
     % Expect column 'specific_yield_kwh_kwp' or similar
@@ -429,14 +429,14 @@ fprintf('Results saved → %s\n\n', fullfile(outdir, 'unified_results.mat'));
 %% ──────────────────────────────────────────────────────────────────────────
 
 function pv = generate_pv_series(n_hours, pv_kwp)
-    % Physics-based clear-sky + stochastic cloud model (Newcastle calibrated)
-    % Target: ~979 kWh/kWp/yr (PVGIS TMY)
+    % Physics-based clear-sky + stochastic cloud model (Coventry calibrated)
+    % Target: ~1036 kWh/kWp/yr (PVGIS TMY)
     pv = zeros(n_hours, 1);
     for h = 1:n_hours
         doy = ceil(h / 24);
         hod = mod(h-1, 24);
         declination = 23.45 * sind(360/365 * (doy - 81));
-        lat = 54.978;
+        lat = 52.3838;
         ha  = 15 * (hod - 12);
         cos_z = sind(lat)*sind(declination) + cosd(lat)*cosd(declination)*cosd(ha);
         ghi = max(cos_z, 0) * 1000 * 0.85;  % W/m2 (PR=0.85)
@@ -444,7 +444,7 @@ function pv = generate_pv_series(n_hours, pv_kwp)
         pv(h) = ghi * cloud * pv_kwp / 1000;   % kWh
     end
     % Scale to target yield
-    target_annual = 979 * pv_kwp;
+    target_annual = 1036 * pv_kwp;
     pv = pv * (target_annual / (sum(pv) + 1e-6));
 end
 

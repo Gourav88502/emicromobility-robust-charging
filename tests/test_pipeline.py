@@ -22,8 +22,8 @@ from src.economics import Design
 
 
 def _data_ready():
-    needed = ["dft_newcastle_scooter_data.csv", "pvgis_newcastle_hourly.csv",
-              "carbon_intensity_ne_england.csv"]
+    needed = ["uow_bikes_demand.csv", "pvgis_warwick_hourly.csv",
+              "carbon_intensity_west_midlands.csv"]
     if not all((config.DATA_DIR / f).exists() for f in needed):
         sys.path.insert(0, str(ROOT / "scripts"))
         import prepare_data
@@ -32,7 +32,7 @@ def _data_ready():
 
 def test_data_loads():
     _data_ready()
-    df = demand_model.load_dft()
+    df = demand_model.load_demand()
     assert len(df) >= 24                       # ~29 months of real data
     assert df["monthly_trips"].min() > 0
     solar = pv_model.load_solar()
@@ -42,13 +42,13 @@ def test_data_loads():
 def test_pv_yield_realistic():
     solar = pv_model.load_solar()
     y = pv_model.annual_yield(10, solar=solar) / 10      # kWh/kWp/yr
-    assert 600 < y < 1100, f"Newcastle specific yield out of range: {y:.0f}"
+    assert 600 < y < 1150, f"Coventry/Warwick specific yield out of range: {y:.0f}"
 
 
 def test_energy_balance_conservation():
     """Served demand + unmet must equal total demand (energy is conserved)."""
     _data_ready()
-    df = demand_model.load_dft(); solar = pv_model.load_solar()
+    df = demand_model.load_demand(); solar = pv_model.load_solar()
     demand = demand_model.hourly_demand_series(demand_model.scenario_params("High", 5), df)
     design = Design(20, 40, 12)
     pv = pv_model.pv_generation(20, solar=solar)
@@ -61,7 +61,7 @@ def test_energy_balance_conservation():
 
 def test_fast_matches_full():
     """simulate_fast must return identical scalars to simulate (with traces)."""
-    df = demand_model.load_dft(); solar = pv_model.load_solar()
+    df = demand_model.load_demand(); solar = pv_model.load_solar()
     demand = demand_model.hourly_demand_series(demand_model.scenario_params("Medium", 5), df)
     design = Design(15, 30, 8)
     pv = pv_model.pv_generation(15, solar=solar)
@@ -73,7 +73,7 @@ def test_fast_matches_full():
 
 def test_bigger_design_never_worse_service():
     """More PV+battery cannot reduce service level in a fixed scenario."""
-    df = demand_model.load_dft(); solar = pv_model.load_solar()
+    df = demand_model.load_demand(); solar = pv_model.load_solar()
     demand = demand_model.hourly_demand_series(demand_model.scenario_params("High", 5), df)
     small = simulate_fast(Design(5, 0, 4), demand, pv_model.pv_generation(5, solar=solar))
     big = simulate_fast(Design(25, 50, 20), demand, pv_model.pv_generation(25, solar=solar))
@@ -100,7 +100,7 @@ def test_optimisation_produces_distinct_rules():
 
 
 def test_monte_carlo_runs():
-    df = demand_model.load_dft(); solar = pv_model.load_solar()
+    df = demand_model.load_demand(); solar = pv_model.load_solar()
     samples = monte_carlo.draw_samples(50)
     res = monte_carlo.evaluate_design(Design(20, 40, 12), samples, df, solar)
     assert len(res) == 50
@@ -110,7 +110,7 @@ def test_monte_carlo_runs():
 def test_global_sensitivity_sobol():
     """Total-order Sobol indices are valid; demand/cost drivers dominate."""
     from src import sensitivity
-    df = demand_model.load_dft(); solar = pv_model.load_solar()
+    df = demand_model.load_demand(); solar = pv_model.load_solar()
     g = sensitivity.global_sensitivity(Design(25, 50, 8), df, solar,
                                        output="annual_cost", n=1024)
     assert len(g) == len(config.UNCERTAIN_VARIABLES)
@@ -126,7 +126,7 @@ def test_global_sensitivity_sobol():
 def test_robustness_conclusion_holds():
     """Robust must beat naive across (almost) the whole penalty x grid space."""
     from src import robustness
-    df = demand_model.load_dft(); solar = pv_model.load_solar()
+    df = demand_model.load_demand(); solar = pv_model.load_solar()
     res = robustness.sweep(df, solar, penalties=(5, 10, 20),
                            grids=(12, 16, 20), horizons=(5,))
     assert res["fraction_robust_wins"] >= 0.9      # robust wins (almost) everywhere

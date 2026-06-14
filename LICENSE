@@ -1,6 +1,6 @@
 MIT License
 
-Copyright (c) 2026 Gourav Singh, Neelesh Raj, Priti Burud (Newcastle University)
+Copyright (c) 2026 The Authors (identity withheld for blind competition review)
 Robust Charging Infrastructure Design under Demand Uncertainty
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -23,7 +23,8 @@ SOFTWARE.
 
 ---------------------------------------------------------------------------
 Third-party data:
-The Department for Transport (DfT) shared e-scooter trials monitoring dataset
-bundled in data/raw/ is © Crown copyright and is reused under the Open
-Government Licence v3.0 (https://www.nationalarchives.gov.uk/doc/open-
-government-licence/version/3/).
+PVGIS (EU JRC) and the National Grid ESO Carbon Intensity API are used under
+their respective open terms. Where the Department for Transport (DfT) shared
+e-scooter trials dataset is referenced as a contextual benchmark, it is
+© Crown copyright, reused under the Open Government Licence v3.0
+(https://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/).

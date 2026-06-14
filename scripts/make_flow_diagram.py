@@ -44,9 +44,9 @@ def main():
             family="DejaVu Sans")
 
     # Row 1: data inputs
-    box(ax, 2.2, 11.2, 3.6, 0.9, "Real DfT e-scooter data\n(Low/Med/High demand)", C["data"], fs=9.5)
-    box(ax, 6.0, 11.2, 3.2, 0.9, "PVGIS solar series\n(8,760 h, Newcastle)", C["data"], fs=9.5)
-    box(ax, 9.7, 11.2, 3.2, 0.9, "Carbon intensity\n(NE England grid)", C["data"], fs=9.5)
+    box(ax, 2.2, 11.2, 3.6, 0.9, "UoW Bikes e-bike demand\n(Low/Med/High)", C["data"], fs=9.5)
+    box(ax, 6.0, 11.2, 3.2, 0.9, "PVGIS solar series\n(8,760 h, Coventry)", C["data"], fs=9.5)
+    box(ax, 9.7, 11.2, 3.2, 0.9, "Carbon intensity\n(West Midlands grid)", C["data"], fs=9.5)
 
     # Row 2: scenarios
     box(ax, 6.0, 9.6, 8.6, 0.85,

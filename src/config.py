@@ -32,35 +32,37 @@ for _d in (DATA_DIR, RAW_DIR, OUTPUT_DIR):
 # Reproducibility — fixed master seed for every stochastic routine.
 RANDOM_SEED = 42
 
-# Site: Newcastle upon Tyne (EoI section 1)
-SITE_NAME = "Newcastle upon Tyne, UK"
-SITE_LAT = 54.978
-SITE_LON = -1.618
-CARBON_REGION_ID = 13          # National Grid ESO: North East England
-CARBON_REGION_NAME = "North East England"
+# Site: University of Warwick, Coventry CV4 7AL — the example location named in
+# the competition's Supplementary Data & References sheet for the solar-PV design.
+SITE_NAME = "University of Warwick, Coventry, UK"
+SITE_LAT = 52.3838             # University of Warwick main campus
+SITE_LON = -1.5616             # (CV4 7AL)
+CARBON_REGION_ID = 8           # National Grid ESO regional API: West Midlands
+CARBON_REGION_NAME = "West Midlands"
 
 HOURS_PER_YEAR = 8760
 
 # --------------------------------------------------------------------------- #
-#  1. Demand model  (DfT Newcastle / Neuron data + literature)
+#  1. Demand model  (UoW Bikes shared e-bike data + literature)
 # --------------------------------------------------------------------------- #
 # SCOPE (Theme 3): a shared-micromobility DEPOT charging hub serving a mixed
-# fleet of e-scooters, e-bikes and e-cargo bikes. Vehicles are charged at the
-# depot through AC charge points (e-bikes / e-cargo bikes accept 3-7 kW; e-scooter
-# battery packs are bench-charged). Demand is anchored to the REAL DfT Newcastle
+# fleet of shared e-bikes and e-cargo bikes. Vehicles are charged at the
+# depot through AC charge points (e-bikes / e-cargo bikes accept 3-7 kW; e-bike
+# battery packs are bench-charged). Demand is anchored to the REAL UoW Bikes
 # trial (trips, fleet size, trip distance) and scaled for the higher energy
 # intensity of the e-bike / e-cargo bike mix.
 #
 # Demand is decomposed into two INDEPENDENT factors (no double counting):
-#   demand_intensity   = trips per DEPLOYED vehicle per day  (usage intensity)
+#   demand_intensity   = trips per DEPLOYED bike per day  (usage intensity)
 #   fleet_utilisation  = fraction of the fleet DEPLOYED that day (deployment rate)
-# Their product is the trips-per-fleet-vehicle figure reported by the DfT.
-TRIPS_PER_SCOOTER_DAY = {"low": 0.5, "medium": 1.5, "high": 3.5}
+# Their product is the trips-per-fleet-bike figure reported in the scheme data.
+TRIPS_PER_BIKE_DAY = {"low": 0.8, "medium": 2.0, "high": 4.0}
 
-# Trip energy consumption (Wh/km) for the MIXED fleet. e-scooters ~20-35
-# (Gossling 2020, Hollingsworth 2019); e-cargo / e-bikes are heavier and draw
-# more, so the fleet-mean baseline is higher with a wider band.
-TRIP_ENERGY_WH_PER_KM = {"baseline": 35.0, "low": 22.0, "high": 55.0}
+# Trip energy consumption (Wh/km) for the MIXED shared e-bike fleet. Pedal-assist
+# e-bikes draw ~5-15 Wh/km at the battery (the rider contributes power); heavier
+# e-cargo bikes draw ~20-40 Wh/km. The fleet-mean baseline sits between, with a
+# wide band covering the e-bike <-> e-cargo mix (Burani 2022; Ouf 2023).
+TRIP_ENERGY_WH_PER_KM = {"baseline": 22.0, "low": 14.0, "high": 35.0}
 TRIP_ENERGY_UNCERTAINTY = 0.30          # +/-30 % for Monte Carlo
 
 # Daily fleet DEPLOYMENT rate (fraction of fleet out on the street that day;
@@ -80,8 +82,8 @@ DEMAND_GROWTH = {"low": 0.0, "medium": 0.08, "high": 0.15}
 # the headline result is unchanged; it only tames the long-horizon reporting.
 DEMAND_GROWTH_SATURATION = 3.0
 
-# Battery capacity of one e-scooter (Wh) — used to convert energy to "charges".
-SCOOTER_BATTERY_WH = 500.0              # ~0.5 kWh typical shared e-scooter pack
+# Battery capacity of one e-bike (Wh) — used to convert energy to "charges".
+BIKE_BATTERY_WH = 500.0              # ~0.5 kWh typical shared e-bike pack
 
 # Fraction of the local fleet's charging served by THIS depot hub (~half; a
 # mid-sized neighbourhood depot — larger operators run several). This places
@@ -145,7 +147,7 @@ BATTERY_MIN_SOC = 0.10                  # reserve floor
 BATTERY_CALENDAR_LIFE_YEARS = 12        # calendar-aging floor (replace even if lightly cycled)
 
 # --------------------------------------------------------------------------- #
-#  4. Micromobility charge points  (e-bike / e-cargo AC points; e-scooter benches)
+#  4. Micromobility charge points  (e-bike / e-cargo AC points; e-bike benches)
 # --------------------------------------------------------------------------- #
 # Depot micromobility charge points are LOW power (~2-4 kW per bay), unlike 7-22
 # kW EV chargers. With low-power bays, the NUMBER of bays is a genuine binding
@@ -219,7 +221,7 @@ GRID_CONNECTION_KW = 15.0
 # tested against this threshold in the robustness analysis.
 SERVICE_LEVEL_TARGET = 0.95
 # Value of unmet charging demand (GBP/kWh). A kWh of charging the station cannot
-# deliver = a stranded e-scooter = lost mobility service and operator revenue.
+# deliver = a stranded e-bike = lost mobility service and operator revenue.
 # Conservative vs a bottom-up estimate (~0.4 kWh/charge enabling several
 # GBP3-4 trips => GBP30-100/kWh); 10 GBP/kWh is a defensible "value of lost
 # load" that makes under-provision costly, as it is in reality.
@@ -251,13 +253,13 @@ class UncertainVariable:
 
 
 # Ordered list of the uncertain variables named in the EoI / Data Inventory.
-# demand_intensity (trips/scooter/day) is the primary demand lever; the rest are
+# demand_intensity (trips/bike/day) is the primary demand lever; the rest are
 # the operating, performance and cost uncertainties.
 UNCERTAIN_VARIABLES: list[UncertainVariable] = [
-    UncertainVariable("demand_intensity", "Demand intensity (trips/scooter/day)", 1.5, 0.5, 3.5, "trips/day"),
+    UncertainVariable("demand_intensity", "Demand intensity (trips/bike/day)", 2.0, 0.8, 4.0, "trips/day"),
     UncertainVariable("demand_growth", "Demand growth (YoY)", 0.08, 0.0, 0.15, "/yr"),
     UncertainVariable("fleet_utilisation", "Daily fleet utilisation", 0.65, 0.40, 0.90, "frac"),
-    UncertainVariable("trip_energy", "Trip energy use", 35.0, 22.0, 55.0, "Wh/km"),
+    UncertainVariable("trip_energy", "Trip energy use", 22.0, 14.0, 35.0, "Wh/km"),
     UncertainVariable("pv_output", "PV performance ratio", 0.85, 0.75, 0.95, "frac"),
     UncertainVariable("battery_eff", "Battery round-trip eff.", 0.92, 0.88, 0.94, "frac"),
     UncertainVariable("charger_avail", "Charger availability", 0.95, 0.90, 0.99, "frac"),
@@ -269,13 +271,13 @@ UNCERTAIN_VARIABLES: list[UncertainVariable] = [
 def scenario_table() -> dict:
     """Return the headline Low / Medium / High scenario definition."""
     return {
-        "Low":    {"trips_per_scooter_day": TRIPS_PER_SCOOTER_DAY["low"],
+        "Low":    {"trips_per_bike_day": TRIPS_PER_BIKE_DAY["low"],
                    "fleet_utilisation": FLEET_UTILISATION["low"],
                    "demand_growth": DEMAND_GROWTH["low"]},
-        "Medium": {"trips_per_scooter_day": TRIPS_PER_SCOOTER_DAY["medium"],
+        "Medium": {"trips_per_bike_day": TRIPS_PER_BIKE_DAY["medium"],
                    "fleet_utilisation": FLEET_UTILISATION["baseline"],
                    "demand_growth": DEMAND_GROWTH["medium"]},
-        "High":   {"trips_per_scooter_day": TRIPS_PER_SCOOTER_DAY["high"],
+        "High":   {"trips_per_bike_day": TRIPS_PER_BIKE_DAY["high"],
                    "fleet_utilisation": FLEET_UTILISATION["high"],
                    "demand_growth": DEMAND_GROWTH["high"]},
     }

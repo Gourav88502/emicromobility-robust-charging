@@ -101,7 +101,7 @@ def draw_samples(n: int = config.N_MONTE_CARLO, seed: int = config.RANDOM_SEED,
 
 def _demand_for_sample(s: Sample, df, year_index: int) -> np.ndarray:
     params = demand_model.DemandParams(
-        trips_per_scooter_day=s.demand_intensity,
+        trips_per_bike_day=s.demand_intensity,
         fleet_utilisation=s.fleet_utilisation,
         trip_energy_wh_per_km=s.trip_energy,
         demand_growth=s.demand_growth,
@@ -116,7 +116,7 @@ def evaluate_design(design: Design,
                     year_index: int | None = None) -> pd.DataFrame:
     """Run every Monte-Carlo sample for one design; return a tidy results frame."""
     if df is None:
-        df = demand_model.load_dft()
+        df = demand_model.load_demand()
     if solar is None:
         solar = pv_model.load_solar()
     if year_index is None:
@@ -217,7 +217,7 @@ def summarise(results: pd.DataFrame, n_boot: int = 2000) -> dict:
 
 if __name__ == "__main__":
     import time
-    df = demand_model.load_dft()
+    df = demand_model.load_demand()
     solar = pv_model.load_solar()
     samples = draw_samples(config.N_MONTE_CARLO)
     design = Design(20, 30, 12)

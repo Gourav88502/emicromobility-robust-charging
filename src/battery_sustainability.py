@@ -186,7 +186,7 @@ if __name__ == "__main__":
     from .economics import Design
     from .energy_balance import simulate_fast
 
-    df = demand_model.load_dft(); solar = pv_model.load_solar()
+    df = demand_model.load_demand(); solar = pv_model.load_solar()
     base_yield = pv_model.specific_yield_per_kwp(solar)
     demand = demand_model.hourly_demand_series(
         demand_model.scenario_params("High", config.OPTIMISATION_HORIZON_YEARS), df)

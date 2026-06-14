@@ -263,7 +263,7 @@ def meets_service_target(result: dict) -> bool:
 if __name__ == "__main__":
     from . import demand_model, pv_model
     import time
-    df = demand_model.load_dft()
+    df = demand_model.load_demand()
     solar = pv_model.load_solar()
     demand = demand_model.hourly_demand_series(demand_model.scenario_params("High", 7), df)
     pv_series = pv_model.specific_yield_per_kwp(solar)

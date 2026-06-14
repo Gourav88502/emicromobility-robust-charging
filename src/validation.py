@@ -20,7 +20,7 @@ from .economics import Design
 
 def validate(df=None, solar=None, carbon=None, recommended: Design | None = None) -> pd.DataFrame:
     if df is None:
-        df = demand_model.load_dft()
+        df = demand_model.load_demand()
     if solar is None:
         solar = pv_model.load_solar()
     if carbon is None:
@@ -46,14 +46,14 @@ def validate(df=None, solar=None, carbon=None, recommended: Design | None = None
     emis = emissions.emissions_analysis(sim, carbon)
 
     rows = [
-        ("PV specific yield, Newcastle", specific_yield, 750, 1050, "kWh/kWp/yr",
+        ("PV specific yield, Coventry/Warwick", specific_yield, 750, 1100, "kWh/kWp/yr",
          "PVGIS / IEA PVPS (UK optimal-tilt)"),
-        ("Grid carbon intensity (NE England)", mean_ci, 120, 280, "gCO2/kWh",
-         "National Grid ESO regional, 2021-23"),
+        ("Grid carbon intensity (West Midlands)", mean_ci, 110, 300, "gCO2/kWh",
+         "National Grid ESO regional API, West Midlands"),
         ("Battery round-trip efficiency", config.BATTERY_ROUNDTRIP_EFF["baseline"] * 100,
          86, 95, "%", "IRENA 2017 / Mongird 2020 (Li-ion BESS)"),
-        ("E-scooter mean trip distance", trip_dist, 1.0, 3.5, "km",
-         "DfT trials (real); Gossling 2020"),
+        ("Shared e-bike mean trip distance", trip_dist, 1.5, 6.0, "km",
+         "UoW Bikes scheme; Burani 2022 / Ouf 2023"),
         ("Solar fraction (recommended design)", sim["solar_fraction"] * 100, 15, 75, "%",
          "Commercial solar+storage self-consumption"),
         ("LCOE of charging served", lcoe, 0.10, 0.45, "£/kWh",

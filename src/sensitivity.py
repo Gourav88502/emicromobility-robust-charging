@@ -24,7 +24,7 @@ def _evaluate(design: Design, df, solar, *,
               pv_output, battery_eff, charger_avail, electricity_price,
               equipment_cost, year_index) -> dict:
     params = demand_model.DemandParams(
-        trips_per_scooter_day=demand_intensity,
+        trips_per_bike_day=demand_intensity,
         fleet_utilisation=fleet_utilisation, trip_energy_wh_per_km=trip_energy,
         demand_growth=demand_growth, year_index=year_index)
     demand = demand_model.hourly_demand_series(params, df)
@@ -50,14 +50,14 @@ def tornado(design: Design, df=None, solar=None,
     `output` ('annual_cost', 'service_level' or 'unmet_kwh').
     """
     if df is None:
-        df = demand_model.load_dft()
+        df = demand_model.load_demand()
     if solar is None:
         solar = pv_model.load_solar()
     if year_index is None:
         year_index = config.OPTIMISATION_HORIZON_YEARS
 
     baseline_kwargs = dict(
-        demand_intensity=config.TRIPS_PER_SCOOTER_DAY["medium"],
+        demand_intensity=config.TRIPS_PER_BIKE_DAY["medium"],
         demand_growth=config.DEMAND_GROWTH["medium"],
         fleet_utilisation=config.FLEET_UTILISATION["baseline"],
         trip_energy=config.TRIP_ENERGY_WH_PER_KM["baseline"],
@@ -115,7 +115,7 @@ def global_sensitivity(design: Design, df=None, solar=None,
     Uses n*(D+2) independent model evaluations.
     """
     if df is None:
-        df = demand_model.load_dft()
+        df = demand_model.load_demand()
     if solar is None:
         solar = pv_model.load_solar()
     base_yield = pv_model.specific_yield_per_kwp(solar)
@@ -180,7 +180,7 @@ def global_sensitivity(design: Design, df=None, solar=None,
 
 
 if __name__ == "__main__":
-    df = demand_model.load_dft()
+    df = demand_model.load_demand()
     solar = pv_model.load_solar()
     design = Design(25, 50, 4)            # robust recommendation
     t = tornado(design, df, solar, output="annual_cost")

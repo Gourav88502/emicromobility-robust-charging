@@ -4,7 +4,7 @@ emissions.py
 Operational carbon analysis (Theme 3 sustainability narrative).
 
 Compares the solar+storage station against a grid-only counterfactual using the
-North East England regional carbon-intensity series (National Grid ESO). Reports
+West Midlands regional carbon-intensity series (National Grid ESO). Reports
 annual and lifetime CO2 savings and the implied carbon value.
 """
 
@@ -16,7 +16,7 @@ from . import config
 
 
 def load_carbon() -> pd.DataFrame:
-    path = config.DATA_DIR / "carbon_intensity_ne_england.csv"
+    path = config.DATA_DIR / "carbon_intensity_west_midlands.csv"
     if not path.exists():
         raise FileNotFoundError(
             f"{path} missing. Run `python scripts/prepare_data.py` first.")
@@ -125,7 +125,7 @@ def carbon_cost_frontier(pv_sizes=None, battery_kwh: float = 0.0,
     if pv_sizes is None:
         pv_sizes = config.PV_SIZES_KWP
     if df is None:
-        df = demand_model.load_dft()
+        df = demand_model.load_demand()
     if solar is None:
         solar = pv_model.load_solar()
     if carbon is None:
@@ -156,7 +156,7 @@ if __name__ == "__main__":
     from . import demand_model, pv_model
     from .energy_balance import simulate
     from .economics import Design
-    df = demand_model.load_dft()
+    df = demand_model.load_demand()
     solar = pv_model.load_solar()
     demand = demand_model.hourly_demand_series(demand_model.scenario_params("Medium"), df)
     design = Design(15, 30, 12)

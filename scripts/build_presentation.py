@@ -122,7 +122,7 @@ def build():
     text(s, 0.95, 4.7, 11.4, 0.5, [[("Which station do you build when the future is uncertain?", {"size": 16, "italic": True, "color": RGBColor(0xCA,0xDC,0xFC)})]])
     chip(s, 0.95, 5.7, 3.0, "Theme 3 — solar charging station", GREEN)
     chip(s, 4.1, 5.7, 3.6, "Theme 2 — charge/discharge profiles", BLUE)
-    SCRIPT.append((1, "Charging infrastructure for shared e-scooters hides a trap. Size a solar "
+    SCRIPT.append((1, "Charging infrastructure for shared e-bikes hides a trap. Size a solar "
         "station for average demand and it collapses at peaks; size it for the worst case and "
         "capital sits idle. Our project asks the sharper question: which station do you build when "
         "the future is uncertain? We answer it with robust optimisation, grounded in real data."))
@@ -131,10 +131,10 @@ def build():
     s = prs.slides.add_slide(blank); bg(s, WHITE)
     text(s, 0.7, 0.5, 12, 0.8, [[("The problem: sized for average, or for the worst?", {"size": 32, "bold": True, "color": NAVY, "font": HEAD})]])
     pts = [
-        [("A mixed-fleet depot.  ", {"bold": True, "color": NAVY}), ("The hub charges e-scooters, e-bikes and e-cargo bikes; demand swings with season, weather, events and growth.", {})],
+        [("A mixed-fleet depot.  ", {"bold": True, "color": NAVY}), ("The hub charges shared e-bikes and e-cargo bikes; demand swings with season, weather, events and growth.", {})],
         [("The dilemma.  ", {"bold": True, "color": NAVY}), ("Size for average demand and the fleet is stranded at peaks; size for the worst case and capital is wasted.", {})],
         [("A constrained grid.  ", {"bold": True, "color": NAVY}), ("A higher import limit needs a costly DNO reinforcement, so the evening peak must come from on-site solar + storage.", {})],
-        [("Real data.  ", {"bold": True, "color": NAVY}), ("Low / Medium / High scenarios are built from the real DfT Newcastle e-scooter trial — trips, fleet, deployment, distance.", {})],
+        [("Real data.  ", {"bold": True, "color": NAVY}), ("Low / Medium / High scenarios are built from the UoW Bikes shared e-bike scheme — trips, fleet, deployment, distance.", {})],
     ]
     text(s, 0.7, 1.6, 6.1, 4.8, pts, size=15.5, space=12, line=1.06)
     pic_fit(s, OUT / "01_scenario_demand.png", 7.0, 1.6, 5.9, 4.6)
@@ -142,7 +142,7 @@ def build():
     SCRIPT.append((2, "Our hub is a depot charging a mixed fleet whose demand swings with season, "
         "weather and growth, behind a constrained grid connection — a bigger import limit needs a "
         "costly network reinforcement, so the evening peak must come from on-site solar and "
-        "storage. We built Low, Medium and High scenarios directly from the real DfT e-scooter "
+        "storage. We built Low, Medium and High scenarios directly from the real UoW Bikes shared e-bike "
         "trial: real trips, fleet size, deployment and distance. The demand range is observed, "
         "not assumed."))
 
@@ -203,7 +203,7 @@ def build():
     text(s, 0.9, 1.2, 11.5, 0.8, [[("Original, authentic, reproducible", {"size": 30, "bold": True, "color": GOLD, "font": HEAD})]])
     text(s, 0.95, 2.2, 11.4, 1.6, [[
         ("Every line of code and every figure is original, written from scratch. All three datasets "
-         "are real: DfT e-scooter data (Open Government Licence), live PVGIS solar and National "
+         "are real: UoW Bikes shared e-bike data (Open Government Licence), live PVGIS solar and National "
          "Grid ESO carbon intensity. Fixed seed, one-command rebuild, passing tests — built for "
          "the AI and plagiarism checks.", {"size": 16, "color": WHITE})]], line=1.15)
     bar = s.shapes.add_shape(MSO_SHAPE.RECTANGLE, Inches(0.95), Inches(4.35), Inches(0.28), Inches(1.2))

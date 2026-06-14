@@ -1,14 +1,14 @@
 # 3-Minute Presentation Script (anonymised)
 
-*Total ~420 words ≈ 2.8 min at a calm 150 wpm. No personal or organisation details — safe for blind Level-1 review.*
+*Total ~422 words ≈ 2.8 min at a calm 150 wpm. No personal or organisation details — safe for blind Level-1 review.*
 
 ## Slide 1 — Title & hook  (~25s)
 
-Charging infrastructure for shared e-scooters hides a trap. Size a solar station for average demand and it collapses at peaks; size it for the worst case and capital sits idle. Our project asks the sharper question: which station do you build when the future is uncertain? We answer it with robust optimisation, grounded in real data.
+Charging infrastructure for shared e-bikes hides a trap. Size a solar station for average demand and it collapses at peaks; size it for the worst case and capital sits idle. Our project asks the sharper question: which station do you build when the future is uncertain? We answer it with robust optimisation, grounded in real data.
 
 ## Slide 2 — The problem  (~30s)
 
-Our hub is a depot charging a mixed fleet whose demand swings with season, weather and growth, behind a constrained grid connection — a bigger import limit needs a costly network reinforcement, so the evening peak must come from on-site solar and storage. We built Low, Medium and High scenarios directly from the real DfT e-scooter trial: real trips, fleet size, deployment and distance. The demand range is observed, not assumed.
+Our hub is a depot charging a mixed fleet whose demand swings with season, weather and growth, behind a constrained grid connection — a bigger import limit needs a costly network reinforcement, so the evening peak must come from on-site solar and storage. We built Low, Medium and High scenarios directly from the real UoW Bikes shared e-bike trial: real trips, fleet size, deployment and distance. The demand range is observed, not assumed.
 
 ## Slide 3 — Approach  (~30s)
 
@@ -24,7 +24,7 @@ Here is the key insight. Because depot charging is flexible, a smart controller 
 
 ## Slide 6 — Feasibility & sustainability  (~25s)
 
-The design is feasible today: off-the-shelf solar, lithium-ion storage and standard low-power charge bays. It cuts operational carbon by about 16 percent versus grid-only charging, and all seven key outputs sit within published benchmark ranges. Every number is reproducible — open-source, deterministic, one command — so any reviewer can audit the result.
+The design is feasible today: off-the-shelf solar, lithium-ion storage and standard low-power charge bays. It cuts operational carbon by about 15 percent versus grid-only charging, and all seven key outputs sit within published benchmark ranges. Every number is reproducible — open-source, deterministic, one command — so any reviewer can audit the result.
 
 ## Slide 7 — Originality & close  (~15s)
 

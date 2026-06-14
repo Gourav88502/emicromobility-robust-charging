@@ -1,0 +1,25 @@
+date,year,month_num,operator,monthly_trips,fleet_size,trips_per_bike_per_day,daily_trips,avg_trip_distance_km,avg_trip_duration_min
+2023-01-01,2023,1,UoW Bikes (representative),19497,362,1.74,629.0,3.18,16.21
+2023-02-01,2023,2,UoW Bikes (representative),20568,359,2.05,735.0,3.22,16.17
+2023-03-01,2023,3,UoW Bikes (representative),28307,375,2.44,913.0,3.18,15.8
+2023-04-01,2023,4,UoW Bikes (representative),26914,380,2.36,897.0,3.23,16.45
+2023-05-01,2023,5,UoW Bikes (representative),29434,367,2.59,949.0,3.16,15.67
+2023-06-01,2023,6,UoW Bikes (representative),29348,376,2.6,978.0,3.24,16.22
+2023-07-01,2023,7,UoW Bikes (representative),25546,390,2.11,824.0,3.21,16.05
+2023-08-01,2023,8,UoW Bikes (representative),20936,391,1.73,675.0,3.24,16.09
+2023-09-01,2023,9,UoW Bikes (representative),28411,398,2.38,947.0,3.2,16.12
+2023-10-01,2023,10,UoW Bikes (representative),33189,398,2.69,1071.0,3.13,15.87
+2023-11-01,2023,11,UoW Bikes (representative),28486,413,2.3,950.0,3.17,15.89
+2023-12-01,2023,12,UoW Bikes (representative),23233,418,1.79,749.0,3.16,16.39
+2024-01-01,2024,1,UoW Bikes (representative),21603,417,1.67,697.0,3.18,16.07
+2024-02-01,2024,2,UoW Bikes (representative),25623,429,2.06,884.0,3.24,16.32
+2024-03-01,2024,3,UoW Bikes (representative),30180,430,2.26,974.0,3.18,16.34
+2024-04-01,2024,4,UoW Bikes (representative),30822,427,2.41,1027.0,3.14,15.55
+2024-05-01,2024,5,UoW Bikes (representative),34354,439,2.52,1108.0,3.22,16.06
+2024-06-01,2024,6,UoW Bikes (representative),33993,435,2.6,1133.0,3.18,16.06
+2024-07-01,2024,7,UoW Bikes (representative),30709,451,2.2,991.0,3.18,16.18
+2024-08-01,2024,8,UoW Bikes (representative),23515,451,1.68,759.0,3.18,15.85
+2024-09-01,2024,9,UoW Bikes (representative),30690,455,2.25,1023.0,3.22,15.81
+2024-10-01,2024,10,UoW Bikes (representative),37333,456,2.64,1204.0,3.22,16.18
+2024-11-01,2024,11,UoW Bikes (representative),33680,472,2.38,1123.0,3.2,15.83
+2024-12-01,2024,12,UoW Bikes (representative),24889,469,1.71,803.0,3.12,15.42
