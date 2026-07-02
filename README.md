@@ -14,6 +14,18 @@
 > **Theme 2 (secondary)** — route-based energy model + personal-vs-shared e‑bike charge/discharge profiles
 > **Example site:** University of Warwick, Coventry (CV4 7AL) — the location named in the competition's Supplementary Data sheet
 
+## ▶️ FINAL-ROUND LIVE DEMO — the model, running in your browser
+
+**https://gourav88502.github.io/emicromobility-robust-charging/** — or simply open
+[`demo.html`](demo.html) from a clone (single file, fully offline, nothing to install).
+
+The page re-implements the dispatch engine and cost model in JavaScript, **validates
+itself against this Python pipeline at load time (max Δ <0.005%)**, and lets you:
+drag PV/battery/bay/grid sliders and watch the 8,760-hour × 15-scenario evaluation
+re-run instantly · re-solve the full **150-design robust optimisation live (~1 s)** ·
+find the **≈9 kW storage boundary** yourself · and run the timed 3-minute
+**Presenter mode** (press `P`) used for the in-person demo.
+
 ---
 
 ## 1. The problem in one sentence
@@ -104,12 +116,17 @@ blind‑judged Level‑1 package.
 **Then open the interactive report and deliverables:**
 
 ```
-outputs/index.html               ← interactive results, open in any browser
-outputs/Executive_Summary.docx   ← 2-page anonymised summary (Aptos 11; open in Word → Save as PDF)
+demo.html / docs/index.html      ← FINAL-ROUND live demo (offline, self-validating; press P for Presenter mode)
+outputs/index.html               ← interactive results report
+outputs/Executive_Summary.docx   ← 2-page summary (Aptos 11; open in Word → Save as PDF)
 outputs/Executive_Summary.pdf    ← ready-to-send PDF backup
-outputs/Presentation.pptx        ← anonymised 3-minute slide deck (speaker notes = script)
-outputs/presentation_script.md   ← timed 3-minute narration
+outputs/Presentation.pptx        ← final-round deck: 3-min oral + demo handoff + Q&A backdrop
+outputs/presentation_script.md   ← timed scripts for BOTH halves (3-min oral + 3-min demo)
+SAFETY_AND_SCALING.md            ← safety standards mapping + scale-up analysis (10% criterion)
+DEFENSE_NOTES.md                 ← Q&A drill + event-day runbook
 ```
+
+Rebuild the demo site after changing the model: `python scripts/build_demo_site.py`
 
 > **Submission note:** the official template specifies **font Aptos 11**. The `.docx` is set in Aptos — open it in Word and **Save as PDF** to lock the font for the final submission. The bundled `.pdf` is a faithful backup if you cannot open Word.
 
