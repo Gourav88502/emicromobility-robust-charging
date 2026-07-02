@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="theme-color" content="#07060b">
+<script>try{if(localStorage.getItem("hub-theme")==="light")document.documentElement.dataset.theme="light"}catch(e){}</script>
 <title>Solar Charging Hub — Live Model Demo · Sustainable e-Micromobility</title>
 <meta name="description" content="Interactive demonstration of a robust solar charging-hub design for a shared e-bike fleet at the University of Warwick. The full 8,760-hour model runs live in your browser.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -204,6 +205,59 @@ footer b{color:var(--ink2)}
   section,header#hero{padding:56px 0}
 }
 
+/* ---- v4: ghost button, skeleton, theme transition ---- */
+a.btn.ghost,button.btn.ghost{background:transparent;border:1px solid var(--line2);color:var(--ink);box-shadow:none}
+a.btn.ghost:hover{background:rgba(124,92,255,.1);border-color:var(--purple)}
+.kpi .v.skel{color:transparent!important;border-radius:8px;min-height:22px;
+  background:linear-gradient(90deg,rgba(148,132,216,.12) 25%,rgba(148,132,216,.28) 50%,rgba(148,132,216,.12) 75%);
+  background-size:200% 100%;animation:skel 1.2s linear infinite}
+@keyframes skel{to{background-position:-200% 0}}
+body,nav,.tile,.card,.kpi,.stat,.status,.pipeline,pre.repro{transition:background-color .35s ease,color .35s ease,border-color .35s ease}
+
+/* ---- v4: light theme ---- */
+[data-theme="light"]{
+  --bg:#f6f6fb; --bg2:#eef0f8; --panel:#ffffff; --panel2:#f2f1fa;
+  --ink:#191731; --ink2:#454263; --ink3:#6f6c8e;
+  --gold:#a86f00; --purple:#6d28d9; --purple2:#7c3aed;
+  --solar:#d97706; --grid:#2563eb; --batt:#059669; --unmet:#dc2626; --export:#9333ea;
+  --line:rgba(64,54,128,.14); --line2:rgba(64,54,128,.30);
+  --ok:#059669; --warn:#dc2626;
+  --shadow:0 14px 44px rgba(42,36,90,.10);
+}
+[data-theme="light"] .grad{background:linear-gradient(92deg,#191731 10%,#6d28d9 55%,#a86f00 105%);-webkit-background-clip:text;background-clip:text;color:transparent}
+[data-theme="light"] .bg-aurora i{opacity:.22}
+[data-theme="light"] .bg-noise{opacity:.025}
+[data-theme="light"] nav{background:rgba(249,249,253,.82)}
+[data-theme="light"] nav .links a:hover{background:rgba(64,54,128,.06)}
+[data-theme="light"] nav .links a.active{background:rgba(109,40,217,.12)}
+[data-theme="light"] .tile{background:linear-gradient(180deg,#ffffff,#fbfaff) padding-box,linear-gradient(160deg,rgba(109,40,217,.30),rgba(109,40,217,.07) 38%,rgba(168,111,0,.20) 100%) border-box}
+[data-theme="light"] .tile.hot{background:linear-gradient(180deg,#ffffff,#fffdf4) padding-box,linear-gradient(160deg,rgba(168,111,0,.5),rgba(168,111,0,.12) 45%,rgba(109,40,217,.22) 100%) border-box}
+[data-theme="light"] .tile.danger{background:linear-gradient(180deg,#ffffff,#fff8f8) padding-box,linear-gradient(160deg,rgba(220,38,38,.4),rgba(220,38,38,.08) 45%,rgba(109,40,217,.18) 100%) border-box}
+[data-theme="light"] .tile::after{background:radial-gradient(420px circle at var(--mx,50%) var(--my,0%),rgba(109,40,217,.08),transparent 65%)}
+[data-theme="light"] .card,[data-theme="light"] .kpi,[data-theme="light"] .stat{background:#ffffff}
+[data-theme="light"] button.btn{background:rgba(109,40,217,.05)}
+[data-theme="light"] button.btn:hover{background:rgba(109,40,217,.12)}
+[data-theme="light"] .seg button.on{background:rgba(109,40,217,.14)}
+[data-theme="light"] .badge{background:rgba(64,54,128,.04)}
+[data-theme="light"] .badge.ok{border-color:rgba(5,150,105,.5);color:#047857;background:rgba(5,150,105,.07)}
+[data-theme="light"] .status.good{border-color:rgba(5,150,105,.4);background:rgba(5,150,105,.07);color:#047857}
+[data-theme="light"] .status.warn{border-color:rgba(180,120,10,.4);background:rgba(217,119,6,.08);color:#92600a}
+[data-theme="light"] .status.bad{border-color:rgba(220,38,38,.4);background:rgba(220,38,38,.07);color:#b42318}
+[data-theme="light"] .kpi.warn .v{color:#c2790a}
+[data-theme="light"] pre.repro{background:#f4f2fc;color:#3d2e6b}
+[data-theme="light"] .pipeline{background:rgba(255,255,255,.75)}
+[data-theme="light"] .pipeline span{background:rgba(109,40,217,.06)}
+[data-theme="light"] .pipeline b{background:rgba(168,111,0,.10)}
+[data-theme="light"] #presenter{background:rgba(251,251,255,.97)}
+[data-theme="light"] .kpi .v.skel{background:linear-gradient(90deg,rgba(64,54,128,.08) 25%,rgba(64,54,128,.18) 50%,rgba(64,54,128,.08) 75%);background-size:200% 100%}
+/* the hub diagram is a dark-designed SVG — keep its card dark in light mode */
+[data-theme="light"] .hub-card{background:linear-gradient(180deg,#151129,#0c0a17) padding-box,linear-gradient(160deg,rgba(167,139,250,.4),rgba(167,139,250,.08) 38%,rgba(255,194,51,.16) 100%) border-box}
+[data-theme="light"] .hub-card .muted{color:#8d84ad}
+[data-theme="light"] .hub-card .muted a{color:#a78bfa}
+[data-theme="light"] .hub-card .btn{background:rgba(255,255,255,.07);border-color:rgba(148,132,216,.35);color:#f5f3ff}
+[data-theme="light"] .hub-controls .clock{color:#f5f3ff}
+[data-theme="light"] .hub-controls .desc{color:#8d84ad}
+
 /* ---- v3 additions ---- */
 .hint{font-size:11.5px;color:var(--ink3);margin-top:6px;line-height:1.4}
 .status{margin-top:2px;padding:11px 15px;border-radius:13px;font-size:13.5px;border:1px solid var(--line);background:rgba(255,255,255,.03);color:var(--ink2)}
@@ -230,6 +284,7 @@ pre.repro{font-size:12.5px;line-height:1.7;background:rgba(0,0,0,.35);border:1px
       <a href="#case">Problem</a><a href="#approach">Method</a><a href="#lab">Live Model</a>
       <a href="#threshold">Battery Threshold</a><a href="#ssc">Scale · Safety · Cost</a><a href="#impact">Validation</a>
     </div>
+    <button class="btn" id="btn-theme" aria-label="Toggle light or dark theme" title="Toggle light/dark theme">☀️</button>
     <button class="btn" id="btn-presenter" title="Guided 3-minute demo tour (P)">▶ Presenter</button>
     <a class="cta" href="https://github.com/Gourav88502/emicromobility-robust-charging" target="_blank" rel="noopener">GitHub ↗</a>
   </div>
@@ -248,6 +303,8 @@ pre.repro{font-size:12.5px;line-height:1.7;background:rgba(0,0,0,.35);border:1px
         <div style="display:flex;gap:12px;flex-wrap:wrap;align-items:center">
           <button class="btn gold" id="btn-start-demo">▶ Start 3-minute demo</button>
           <a class="btn" href="#lab">⚡ Open the live model</a>
+          <a class="btn ghost" href="report/" target="_blank" rel="noopener">📊 Open dashboard</a>
+          <a class="btn ghost" href="https://github.com/Gourav88502/emicromobility-robust-charging" target="_blank" rel="noopener">View GitHub ↗</a>
           <span class="badge" id="engine-badge"><span class="dot"></span>validating engine…</span>
         </div>
         <div class="stats">
@@ -414,6 +471,9 @@ pre.repro{font-size:12.5px;line-height:1.7;background:rgba(0,0,0,.35);border:1px
         <div class="row"><label>Grid connection limit <output id="o-grid">15 kW</output></label>
           <input type="range" id="s-grid" min="4" max="22" step="1" value="15" aria-label="Grid connection limit, kilowatts">
           <p class="hint">Site connection constraint — the crux of the design problem.</p></div>
+        <div class="row"><label>Demand stress <output id="o-stress">×1.00</output></label>
+          <input type="range" id="s-stress" min="0.8" max="1.5" step="0.05" value="1" aria-label="Demand stress multiplier applied to all futures">
+          <p class="hint">Scales all 15 futures (growth 0–15%/yr is already inside them) — push demand beyond the modelled range.</p></div>
         <div class="presets">
           <button class="btn" id="p-naive">Naive 5/0/4</button>
           <button class="btn" id="p-robust">🏆 Robust 15/0/8</button>
@@ -427,14 +487,14 @@ pre.repro{font-size:12.5px;line-height:1.7;background:rgba(0,0,0,.35);border:1px
 
       <div style="display:grid;gap:16px">
         <div class="kpis" id="kpis">
-          <div class="kpi" id="k-worst"><div class="v num">—</div><div class="l">worst-case cost / yr</div><i class="bar"></i></div>
-          <div class="kpi" id="k-exp"><div class="v num">—</div><div class="l">expected cost / yr</div><i class="bar"></i></div>
-          <div class="kpi" id="k-serv"><div class="v num">—</div><div class="l">guaranteed service (target ≥95%)</div><i class="bar"></i></div>
-          <div class="kpi" id="k-capex"><div class="v num">—</div><div class="l">capital cost</div><i class="bar"></i></div>
-          <div class="kpi" id="k-solar"><div class="v num">—</div><div class="l">solar fraction (worst-case year)</div><i class="bar"></i></div>
-          <div class="kpi" id="k-co2"><div class="v num">—</div><div class="l">CO₂ avoided / yr (worst-case year)</div><i class="bar"></i></div>
-          <div class="kpi" id="k-lcoe"><div class="v num">—</div><div class="l">LCOE of delivered energy</div><i class="bar"></i></div>
-          <div class="kpi" id="k-peak"><div class="v num">—</div><div class="l">peak grid draw (cap <span id="k-peak-cap">15</span> kW)</div><i class="bar"></i></div>
+          <div class="kpi" id="k-worst"><div class="v num skel">—</div><div class="l">worst-case cost / yr</div><i class="bar"></i></div>
+          <div class="kpi" id="k-exp"><div class="v num skel">—</div><div class="l">expected cost / yr</div><i class="bar"></i></div>
+          <div class="kpi" id="k-serv"><div class="v num skel">—</div><div class="l">guaranteed service (target ≥95%)</div><i class="bar"></i></div>
+          <div class="kpi" id="k-capex"><div class="v num skel">—</div><div class="l">capital cost</div><i class="bar"></i></div>
+          <div class="kpi" id="k-solar"><div class="v num skel">—</div><div class="l">solar fraction (worst-case year)</div><i class="bar"></i></div>
+          <div class="kpi" id="k-co2"><div class="v num skel">—</div><div class="l">CO₂ avoided / yr (worst-case year)</div><i class="bar"></i></div>
+          <div class="kpi" id="k-lcoe"><div class="v num skel">—</div><div class="l">LCOE of delivered energy</div><i class="bar"></i></div>
+          <div class="kpi" id="k-peak"><div class="v num skel">—</div><div class="l">peak grid draw (cap <span id="k-peak-cap">15</span> kW)</div><i class="bar"></i></div>
         </div>
         <div id="status-line" class="status" role="status">…</div>
         <div id="engine-fallback" class="status bad" style="display:none">⚠️ The live engine could not start in this browser.
@@ -449,7 +509,7 @@ pre.repro{font-size:12.5px;line-height:1.7;background:rgba(0,0,0,.35);border:1px
             <span><i style="background:var(--batt)"></i>Battery → bikes</span>
             <span><i style="background:var(--grid)"></i>Grid → bikes</span>
             <span><i style="background:var(--unmet)"></i>Unmet</span>
-            <span><i style="background:#fff;height:2px;border-radius:0"></i>Charging demand</span>
+            <span><i style="background:var(--ink);height:2px;border-radius:0"></i>Charging demand</span>
             <span id="lg-soc" style="display:none"><i style="background:transparent;height:0;border-top:2px dashed var(--batt);border-radius:0"></i>Battery state of charge</span>
           </div>
         </div>
@@ -621,6 +681,20 @@ python -m pytest -q         # 11 regression tests</pre>
   </div>
 </section>
 
+<!-- ============================ CLOSING ============================ -->
+<section id="closing" style="padding-top:40px">
+  <div class="wrap">
+    <div class="tile hot" style="text-align:center;padding:52px 30px">
+      <h2 style="max-width:920px;margin:0 auto 10px">The prototype turns uncertain e-bike charging demand into a clear infrastructure decision:</h2>
+      <p class="lead" style="margin:0 auto 24px;max-width:760px"><b style="color:var(--gold)">how much solar</b> · <b style="color:var(--gold)">whether a battery is needed</b> · <b style="color:var(--gold)">how many smart bays to install</b></p>
+      <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap">
+        <button class="btn gold" id="btn-start-demo-2">▶ Start 3-minute demo</button>
+        <a class="btn ghost" href="https://github.com/Gourav88502/emicromobility-robust-charging" target="_blank" rel="noopener">View GitHub ↗</a>
+      </div>
+    </div>
+  </div>
+</section>
+
 <footer>
   <div class="wrap cols">
     <div><b>Solar Charging Hub</b> · UK National Competition for Sustainable e-Micromobility 2025-26<br>
@@ -678,6 +752,19 @@ function pvFor(kwp){
 }
 const SCEN = D.scenarios;                              // 15 futures at horizon yr 5
 const SCEN_DEMAND = SCEN.map(s=>demandFor(s.annual_kwh));
+/* demand-stress multiplier: x1 = the published 15 futures; the slider scales
+   ALL futures uniformly for extra stress-testing beyond the modelled range */
+let DSTRESS = 1;
+let _stressKey = 1, _stressArrs = SCEN_DEMAND;
+function scenDemand(j){
+  if (DSTRESS === 1) return SCEN_DEMAND[j];
+  if (_stressKey !== DSTRESS){
+    _stressArrs = SCEN_DEMAND.map(d=>{ const o=new Float64Array(d.length);
+      for (let t=0;t<d.length;t++) o[t]=d[t]*DSTRESS; return o; });
+    _stressKey = DSTRESS;
+  }
+  return _stressArrs[j];
+}
 const PROBS = SCEN.map(s=>s.prob);
 
 /* ---- dispatch (mirrors _dispatch in energy_balance.py) ---- */
@@ -772,7 +859,7 @@ function evaluate(pv,batt,bays,gridCap){
   let worst=-1e18, expct=0, minServ=1, worstIdx=0, solarW=0, co2W=0, worstCost=null;
   const costs=[];
   for (let j=0;j<SCEN.length;j++){
-    const en = dispatch(SCEN_DEMAND[j], pvArr, batt, bays, gridCap, false);
+    const en = dispatch(scenDemand(j), pvArr, batt, bays, gridCap, false);
     const c = annualCosts(pv,batt,bays,en);
     costs.push(c.total);
     expct += c.total*PROBS[j];
@@ -783,7 +870,7 @@ function evaluate(pv,batt,bays,gridCap){
   }
   // re-run the binding (worst) scenario once for its energy stats, so the
   // solar-fraction / CO2 KPIs match the published high-scenario basis
-  const enW = dispatch(SCEN_DEMAND[worstIdx], pvArr, batt, bays, gridCap, false);
+  const enW = dispatch(scenDemand(worstIdx), pvArr, batt, bays, gridCap, false);
   return {pv,batt,bays,gridCap,costs,worst,expected:expct,minService:minServ,worstIdx,
           solarFraction:solarW, co2Saved:co2W, worstCosts:worstCost,
           solarFractionWorst:enW.solarFraction,
@@ -843,7 +930,7 @@ function axes(ctx,w,h,pad,xmin,xmax,ymin,ymax,xticks,yticks,xfmt,yfmt){
    LIVE LAB UI
    ===================================================================== */
 const $ = id=>document.getElementById(id);
-const sliders = {pv:$("s-pv"), batt:$("s-batt"), bays:$("s-bays"), grid:$("s-grid")};
+const sliders = {pv:$("s-pv"), batt:$("s-batt"), bays:$("s-bays"), grid:$("s-grid"), stress:$("s-stress")};
 function sliderFill(s){ s.style.setProperty("--fill", ((s.value-s.min)/(s.max-s.min)*100)+"%"); }
 let weekMode = "summer";
 let current = null;          // last evaluate() result
@@ -856,18 +943,21 @@ function designKey(pv,batt,bays){ return pv+"/"+batt+"/"+bays; }
 
 function refresh(){
   const pv=+sliders.pv.value, batt=+sliders.batt.value, bays=+sliders.bays.value, grid=+sliders.grid.value;
+  DSTRESS=+sliders.stress.value;
   $("o-pv").textContent=pv+" kWp"; $("o-batt").textContent=batt+" kWh";
   $("o-bays").textContent=bays; $("o-grid").textContent=grid+" kW";
+  $("o-stress").textContent="\u00d7"+DSTRESS.toFixed(2);
   Object.values(sliders).forEach(sliderFill);
   current = evaluate(pv,batt,bays,grid);
-  if (grid===G.grid_kw) evaluatedSet.set(designKey(pv,batt,bays), current);
+  current.stress = DSTRESS;
+  if (grid===G.grid_kw && DSTRESS===1) evaluatedSet.set(designKey(pv,batt,bays), current);
   // traces for worst scenario (for charts + hub animation)
-  currentTraces = dispatch(SCEN_DEMAND[current.worstIdx], pvFor(pv), batt, bays, grid, true).traces;
+  currentTraces = dispatch(scenDemand(current.worstIdx), pvFor(pv), batt, bays, grid, true).traces;
   renderKPIs(); drawWeek(); drawPareto(); drawThreshold(); updateHubStatic(); hubFrame();
 }
 function renderKPIs(){
   const c=current, wc=c.worstCosts;
-  const set=(id,html,cls)=>{ const el=$(id); el.querySelector(".v").innerHTML=html; el.classList.remove("bad","good","warn"); if(cls) el.classList.add(cls); };
+  const set=(id,html,cls)=>{ const el=$(id); const v=el.querySelector(".v"); v.classList.remove("skel"); v.innerHTML=html; el.classList.remove("bad","good","warn"); if(cls) el.classList.add(cls); };
   set("k-worst", fmtGBP(c.worst)+"<span class='u'>/yr</span>", c.worst>30000?"bad":(c.worst<20000?"good":null));
   set("k-exp", fmtGBP(c.expected)+"<span class='u'>/yr</span>");
   const sp=(c.minService*100);
@@ -917,7 +1007,7 @@ function drawWeek(){
   // demand line
   ctx.beginPath();
   for (let i=0;i<n;i++){ const y=Y(tr.dem[t0+i]); i?ctx.lineTo(X(i),y):ctx.moveTo(X(i),y); }
-  ctx.strokeStyle="#fff"; ctx.lineWidth=1.6; ctx.stroke();
+  ctx.strokeStyle=COL("--ink"); ctx.lineWidth=1.6; ctx.stroke();
   // battery state-of-charge (scaled to chart height) when a battery is fitted
   const battKwh=+sliders.batt.value, lg=$("lg-soc");
   if (battKwh>0){
@@ -980,10 +1070,10 @@ function drawPareto(){
     star(ctx,X(rob.expected),Y(rob.worst),11,COL("--gold"));
   }
   // current design
-  if (current && current.gridCap===G.grid_kw){
+  if (current && current.gridCap===G.grid_kw && current.stress===1){
     const x=X(current.expected),y=Y(current.worst);
-    ctx.strokeStyle="#fff"; ctx.lineWidth=2; ctx.beginPath(); ctx.arc(x,y,7,0,7); ctx.stroke();
-    ctx.fillStyle="#fff"; ctx.font="700 11px system-ui"; ctx.textAlign="left"; ctx.fillText("you",x+10,y+3);
+    ctx.strokeStyle=COL("--ink"); ctx.lineWidth=2; ctx.beginPath(); ctx.arc(x,y,7,0,7); ctx.stroke();
+    ctx.fillStyle=COL("--ink"); ctx.font="700 11px system-ui"; ctx.textAlign="left"; ctx.fillText("you",x+10,y+3);
   }
 }
 function star(ctx,x,y,r,col){
@@ -1052,7 +1142,7 @@ async function optimise(){
     const [pv,b,ch]=designs[i];
     const ev=evaluate(pv,b,ch,gridCap);
     evs.push(ev);
-    if (gridCap===G.grid_kw) evaluatedSet.set(designKey(pv,b,ch),ev);
+    if (gridCap===G.grid_kw && DSTRESS===1) evaluatedSet.set(designKey(pv,b,ch),ev);
     if (i%10===0){ bar.style.width=(i/designs.length*100)+"%";
       // rAF stalls in hidden tabs — only yield for paint when actually visible
       if (document.visibilityState==="visible") await new Promise(r=>requestAnimationFrame(r)); }
@@ -1073,9 +1163,9 @@ async function optimise(){
   SCEN.forEach((s,j)=>{ if (s.level==="Medium"){ const d=Math.abs(s.growth-D.demand_const.growth.medium); if (d<bd){bd=d;medIdx=j;} }});
   const svcCache=new Map();
   function serviceAt(e,j){
-    const k=designKey(e.pv,e.batt,e.bays)+"@"+j+"@"+e.gridCap;
+    const k=designKey(e.pv,e.batt,e.bays)+"@"+j+"@"+e.gridCap+"@"+DSTRESS;
     if (svcCache.has(k)) return svcCache.get(k);
-    const en=dispatch(SCEN_DEMAND[j],pvFor(e.pv),e.batt,e.bays,e.gridCap,false);
+    const en=dispatch(scenDemand(j),pvFor(e.pv),e.batt,e.bays,e.gridCap,false);
     svcCache.set(k,en.service); return en.service;
   }
   // naive rule: cheapest design that meets the service target in the central scenario
@@ -1097,7 +1187,7 @@ async function optimise(){
   renderRules();
   drawPareto(); drawThreshold();
   const dt=((performance.now()-t0)/1000).toFixed(1);
-  $("opt-note").innerHTML=`Done in <b>${dt}s</b>: ${nD} designs × ${SCEN.length} futures × 8,760 h at grid cap <b>${gridCap} kW</b>. Robust pick: <b style="color:var(--gold)">${rulePicks.rules.maximin_robust.pv} kWp · ${rulePicks.rules.maximin_robust.batt} kWh · ${rulePicks.rules.maximin_robust.bays} bays</b>.`;
+  $("opt-note").innerHTML=`Done in <b>${dt}s</b>: ${nD} designs × ${SCEN.length} futures × 8,760 h at grid cap <b>${gridCap} kW</b>${DSTRESS!==1?` \u00b7 demand \u00d7${DSTRESS.toFixed(2)}`:""}. Robust pick: <b style="color:var(--gold)">${rulePicks.rules.maximin_robust.pv} kWp · ${rulePicks.rules.maximin_robust.batt} kWh · ${rulePicks.rules.maximin_robust.bays} bays</b>.`;
   setTimeout(()=>{prog.style.display="none";bar.style.width="0";},600);
   btn.disabled=false; optRunning=false;
   $("rules-card").classList.add("flash"); setTimeout(()=>$("rules-card").classList.remove("flash"),1000);
@@ -1133,6 +1223,7 @@ Object.values(sliders).forEach(s=>s.addEventListener("input",queueRefresh));
 function setDesign(pv,batt,bays,grid){
   sliders.pv.value=pv; sliders.batt.value=batt; sliders.bays.value=bays;
   if (grid!=null) sliders.grid.value=grid;
+  if (sliders.stress) sliders.stress.value=1;   // presets/tour run at the published futures
   refresh();
 }
 $("p-naive").addEventListener("click",()=>setDesign(5,0,4,15));
@@ -1394,7 +1485,25 @@ document.querySelectorAll(".tile").forEach(t=>{
     const tw=document.getElementById("p-thresh-weak"), ts=document.getElementById("p-thresh-strong");
     if (tw) tw.addEventListener("click",()=>{ setDesign(15,20,8,8); optimise(); });
     if (ts) ts.addEventListener("click",()=>{ setDesign(15,0,8,15); optimise(); });
+    const sd2=document.getElementById("btn-start-demo-2");
+    if (sd2) sd2.addEventListener("click",()=>tourStart());
   }, 1200);
+})();
+(function(){
+  // dark/light theme toggle — charts re-read CSS vars, so redraw after switch
+  const btn=document.getElementById("btn-theme");
+  const glyph=()=>{ btn.textContent = document.documentElement.dataset.theme==="light" ? "\u{1F319}" : "\u2600\uFE0F"; };
+  function applyTheme(t){
+    if (t==="light") document.documentElement.dataset.theme="light";
+    else delete document.documentElement.dataset.theme;
+    try{ localStorage.setItem("hub-theme", t); }catch(e){}
+    const mc=document.querySelector('meta[name="theme-color"]');
+    if (mc) mc.setAttribute("content", t==="light" ? "#f6f6fb" : "#07060b");
+    glyph();
+    requestAnimationFrame(()=>{ if (window.__bootOK){ refresh(); drawRoutes(); drawSoc(); drawCapex(); } });
+  }
+  btn.addEventListener("click",()=>applyTheme(document.documentElement.dataset.theme==="light" ? "dark" : "light"));
+  glyph();
 })();
 </script>
 </body>

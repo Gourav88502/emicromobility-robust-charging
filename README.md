@@ -30,11 +30,14 @@ storage only becomes useful once the grid connection weakens to roughly **8–10
 The demo page re-implements the dispatch engine and cost model in JavaScript, **validates
 itself against this Python pipeline at load time (max Δ <0.005%)**, and lets you:
 drag PV/battery/bay/grid sliders and watch the 8,760-hour × 15-scenario evaluation
-re-run instantly · re-solve the full **150-design robust optimisation live (~1 s)** ·
-find the **≈8–10 kW storage boundary** yourself · and run the timed 3-minute
-**Presenter mode** (press `P`) used for the in-person demo. It is a
-**decision-support prototype**: it tells an operator what to build and when storage
-pays, not a construction-ready electrical design.
+re-run instantly · push demand **beyond the modelled futures with the ×0.8–×1.5
+demand-stress slider** · re-solve the full **150-design robust optimisation live (~1 s)** ·
+find the **≈8–10 kW storage boundary** yourself · switch between **dark and light
+themes** (☀️/🌙 in the nav) · and run the timed 3-minute **Presenter mode** (press `P`)
+used for the in-person demo. The **📊 Open dashboard** button opens the full interactive
+results report (`docs/report/`, Plotly charts — needs internet for the chart library;
+the demo page itself is fully offline). It is a **decision-support prototype**: it tells
+an operator what to build and when storage pays, not a construction-ready electrical design.
 
 ---
 

@@ -1,0 +1,43 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Robust e-Micromobility Charging Station — Results</title>
+<style>
+ :root{--g:#43AA8B;--d:#1B1B3A;--a:#2E86AB;}
+ *{box-sizing:border-box}
+ body{margin:0;font-family:Arial,Helvetica,sans-serif;color:#222;background:#f4f6f8}
+ header{background:linear-gradient(120deg,#1B1B3A,#2E86AB);color:#fff;padding:38px 28px}
+ header h1{margin:0 0 6px;font-size:26px}
+ header p{margin:2px 0;opacity:.92}
+ .wrap{max-width:1180px;margin:0 auto;padding:24px}
+ .kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:16px;margin:24px 0}
+ .kpi{background:#fff;border-radius:14px;padding:18px 20px;box-shadow:0 2px 10px rgba(0,0,0,.06);border-left:5px solid var(--g)}
+ .kpi b{display:block;font-size:26px;color:var(--d)}
+ .kpi span{color:#667;font-size:13px}
+ section{background:#fff;border-radius:14px;padding:18px 20px;margin:20px 0;box-shadow:0 2px 10px rgba(0,0,0,.06)}
+ section h2{margin:.2em 0 .6em;color:var(--d);font-size:18px}
+ iframe{width:100%;height:560px;border:0;border-radius:8px}
+ footer{text-align:center;color:#889;padding:30px;font-size:13px}
+ .badge{display:inline-block;background:var(--g);color:#fff;border-radius:20px;padding:3px 12px;font-size:12px;margin-right:6px}
+</style></head><body>
+<header>
+ <h1>Robust Charging Infrastructure Design Under Demand Uncertainty</h1>
+ <p>Solar-powered shared e-micromobility charging station &middot; University of Warwick, Coventry, UK</p>
+ <p><span class="badge">Theme 3 primary</span><span class="badge">Theme 2 secondary</span>
+    National Competition for Sustainable e-Micromobility 2025-26</p>
+</header>
+<div class="wrap">
+ <div class="kpis">
+  <div class="kpi"><span>Recommended robust design</span>
+    <b>15 kWp</b><span>PV &middot; 0 kWh battery &middot; 8 chargers</span></div>
+  <div class="kpi"><span>Value of robustness (worst-case cost)</span>
+    <b>-59%</b><span>GBP 27,947/yr saved vs naive design</span></div>
+  <div class="kpi"><span>Guaranteed fleet service (worst case)</span>
+    <b>100%</b><span>vs 95% for the naive design</span></div>
+  <div class="kpi"><span>Carbon saving</span>
+    <b>3.7 t/yr</b><span>15% vs grid-only charging</span></div>
+ </div>
+ <section><h2>1. Demand scenarios (from UoW Bikes data)</h2><iframe src="01_scenario_demand.html" loading="lazy"></iframe></section><section><h2>2. Monte-Carlo demand fan (500 samples)</h2><iframe src="04_demand_fan.html" loading="lazy"></iframe></section><section><h2>3. Cost vs robustness — Pareto frontier (5 decision rules)</h2><iframe src="02_pareto.html" loading="lazy"></iframe></section><section><h2>4. Decision-rule comparison</h2><iframe src="03_design_comparison.html" loading="lazy"></iframe></section><section><h2>5. Cost distribution: naive vs robust</h2><iframe src="05_cost_distribution.html" loading="lazy"></iframe></section><section><h2>6. Robustness of the conclusion (penalty x grid sweep)</h2><iframe src="10_robustness.html" loading="lazy"></iframe></section><section><h2>7. Tornado sensitivity (one-at-a-time)</h2><iframe src="06_tornado.html" loading="lazy"></iframe></section><section><h2>8. Global sensitivity — total-effect Sobol indices</h2><iframe src="09_global_sensitivity.html" loading="lazy"></iframe></section><section><h2>9. Validation vs published benchmarks</h2><iframe src="11_validation.html" loading="lazy"></iframe></section><section><h2>10. Hourly dispatch & battery profile (Theme 2)</h2><iframe src="07_energy_balance.html" loading="lazy"></iframe></section><section><h2>11. Energy mix & carbon savings (Theme 3)</h2><iframe src="08_energy_sources.html" loading="lazy"></iframe></section>
+</div>
+<footer>Generated automatically by <code>run_analysis.py</code>.
+ Data: UoW Bikes shared e-bike schemes (real), PVGIS-calibrated solar, National Grid ESO carbon intensity.</footer>
+</body></html>
