@@ -3,150 +3,197 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#07060b">
 <title>Solar Charging Hub — Live Model Demo · Sustainable e-Micromobility</title>
 <meta name="description" content="Interactive demonstration of a robust solar charging-hub design for a shared e-bike fleet at the University of Warwick. The full 8,760-hour model runs live in your browser.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
 :root{
-  --bg:#0c0a12; --bg2:#131020; --panel:#1a1626; --panel2:#221c33;
-  --ink:#f3efff; --ink2:#b9b0d6; --ink3:#8d84ad;
-  --gold:#ffb81c; --purple:#8b5cf6; --purple2:#a78bfa;
-  --solar:#fbbf24; --grid:#60a5fa; --batt:#34d399; --unmet:#f87171; --export:#c084fc;
-  --line:#2e2745; --ok:#34d399; --warn:#f87171;
-  --radius:16px; --shadow:0 10px 40px rgba(0,0,0,.45);
-  --maxw:1180px;
+  --bg:#07060b; --bg2:#0c0a15; --panel:#110e1d; --panel2:#191531;
+  --ink:#f5f3ff; --ink2:#b8b0d8; --ink3:#837ba6;
+  --gold:#ffc233; --purple:#7c5cff; --purple2:#a78bfa;
+  --solar:#ffb224; --grid:#4da3ff; --batt:#2fd79b; --unmet:#ff6b6b; --export:#c98bff;
+  --line:rgba(148,132,216,.16); --line2:rgba(148,132,216,.30);
+  --ok:#2fd79b; --warn:#ff6b6b;
+  --radius:22px; --shadow:0 18px 60px rgba(3,2,8,.55);
+  --font-d:"Space Grotesk","Segoe UI Variable Display","Segoe UI",system-ui,sans-serif;
+  --font-b:"Inter","Segoe UI",system-ui,-apple-system,sans-serif;
+  --maxw:1200px;
 }
 *{box-sizing:border-box;margin:0;padding:0}
 html{scroll-behavior:smooth}
-body{background:var(--bg);color:var(--ink);font-family:"Segoe UI",system-ui,-apple-system,Roboto,Helvetica,Arial,sans-serif;line-height:1.55;overflow-x:hidden}
-body::before{content:"";position:fixed;inset:0;z-index:-1;background:
-  radial-gradient(1000px 600px at 85% -10%, rgba(139,92,246,.16), transparent 60%),
-  radial-gradient(800px 500px at -10% 30%, rgba(255,184,28,.08), transparent 60%),
-  var(--bg)}
+body{background:var(--bg);color:var(--ink);font-family:var(--font-b);line-height:1.6;overflow-x:hidden;-webkit-font-smoothing:antialiased}
 a{color:var(--purple2);text-decoration:none}
 a:hover{text-decoration:underline}
-.wrap{max-width:var(--maxw);margin:0 auto;padding:0 22px}
-section{padding:72px 0}
-h1{font-size:clamp(30px,4.6vw,52px);line-height:1.12;letter-spacing:-.5px}
-h2{font-size:clamp(24px,3vw,34px);letter-spacing:-.3px;margin-bottom:10px}
-h3{font-size:18px;margin-bottom:6px}
-.kicker{display:inline-flex;align-items:center;gap:8px;font-size:12.5px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--gold);margin-bottom:12px}
-.kicker .w{display:inline-block;min-width:44px;text-align:center;padding:2px 9px;border-radius:999px;background:rgba(255,184,28,.14);border:1px solid rgba(255,184,28,.35);color:var(--gold);font-size:12px}
-.lead{color:var(--ink2);font-size:17px;max-width:820px}
+::selection{background:rgba(124,92,255,.4)}
+.wrap{max-width:var(--maxw);margin:0 auto;padding:0 24px}
+section,header#hero{position:relative;padding:96px 0;scroll-margin-top:64px}
+h1{font-family:var(--font-d);font-size:clamp(34px,5vw,62px);line-height:1.05;letter-spacing:-.03em;font-weight:700}
+h2{font-family:var(--font-d);font-size:clamp(26px,3.2vw,40px);letter-spacing:-.02em;line-height:1.12;margin-bottom:12px;font-weight:700}
+h3{font-family:var(--font-d);font-size:18px;letter-spacing:-.01em;margin-bottom:6px;font-weight:600}
+.grad{background:linear-gradient(92deg,#fff 10%,#cabffc 55%,var(--gold) 105%);-webkit-background-clip:text;background-clip:text;color:transparent}
+.kicker{display:inline-flex;align-items:center;gap:9px;font-size:12px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--purple2);margin-bottom:14px}
+.kicker .w{display:inline-block;min-width:46px;text-align:center;padding:3px 10px;border-radius:999px;background:rgba(255,194,51,.12);border:1px solid rgba(255,194,51,.4);color:var(--gold);font-size:12px;letter-spacing:.02em}
+.lead{color:var(--ink2);font-size:17px;max-width:840px}
 .muted{color:var(--ink3);font-size:13.5px}
-.card{background:linear-gradient(180deg,var(--panel),var(--bg2));border:1px solid var(--line);border-radius:var(--radius);padding:22px;box-shadow:var(--shadow)}
-.grid{display:grid;gap:18px}
-.grid>*,.two>*,.three>*,.compare>*,#lab .layout>*,#hero .top>*{min-width:0}
-.badge{display:inline-flex;align-items:center;gap:7px;padding:5px 12px;border-radius:999px;font-size:12.5px;font-weight:600;border:1px solid var(--line);background:rgba(255,255,255,.03);color:var(--ink2)}
-.badge.ok{border-color:rgba(52,211,153,.5);color:var(--ok)}
-.badge .dot{width:7px;height:7px;border-radius:50%;background:currentColor;box-shadow:0 0 8px currentColor}
-/* nav */
-nav{position:sticky;top:0;z-index:50;background:rgba(12,10,18,.82);backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
-nav .wrap{display:flex;align-items:center;gap:18px;height:58px}
-nav .logo{display:flex;align-items:center;gap:10px;font-weight:800;font-size:15px;color:var(--ink);white-space:nowrap}
-nav .logo .mark{width:26px;height:26px;border-radius:8px;background:conic-gradient(from 210deg,var(--gold),var(--purple));display:grid;place-items:center;font-size:14px}
-nav .links{display:flex;gap:4px;margin-left:auto;overflow-x:auto}
-nav .links a{color:var(--ink2);font-size:13.5px;padding:7px 11px;border-radius:9px;white-space:nowrap}
-nav .links a:hover{background:rgba(255,255,255,.06);color:var(--ink);text-decoration:none}
-nav .cta{margin-left:6px;background:linear-gradient(90deg,var(--gold),#ffd15e);color:#1a1300;font-weight:700;font-size:13.5px;padding:8px 14px;border-radius:10px;white-space:nowrap}
-nav .cta:hover{text-decoration:none;filter:brightness(1.06)}
-/* hero */
-#hero{padding:64px 0 40px}
-#hero .top{display:grid;grid-template-columns:1.05fr .95fr;gap:36px;align-items:center}
-#hero .sub{color:var(--ink2);font-size:17.5px;margin:16px 0 22px;max-width:560px}
-.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:26px}
-.stat{background:rgba(255,255,255,.035);border:1px solid var(--line);border-radius:14px;padding:14px 14px 12px}
-.stat .v{font-size:clamp(20px,2.4vw,28px);font-weight:800;letter-spacing:-.5px}
-.stat .l{font-size:12px;color:var(--ink3);margin-top:2px}
+/* ------- ambient background: aurora mesh + grain ------- */
+.bg-aurora{position:fixed;inset:0;z-index:-2;overflow:hidden;pointer-events:none}
+.bg-aurora i{position:absolute;border-radius:50%;filter:blur(110px);opacity:.5;will-change:transform}
+.bg-aurora i:nth-child(1){width:56vw;height:56vw;left:-14vw;top:-18vw;background:radial-gradient(circle,#3b1d95 0%,transparent 65%);animation:drift1 26s ease-in-out infinite alternate}
+.bg-aurora i:nth-child(2){width:44vw;height:44vw;right:-12vw;top:6vh;background:radial-gradient(circle,#7c5cff33 0%,#a4520022 45%,transparent 70%);animation:drift2 32s ease-in-out infinite alternate}
+.bg-aurora i:nth-child(3){width:50vw;height:50vw;left:22vw;top:110vh;background:radial-gradient(circle,#12324f 0%,transparent 65%);animation:drift1 40s ease-in-out infinite alternate-reverse}
+@keyframes drift1{to{transform:translate3d(6vw,4vh,0) scale(1.12)}}
+@keyframes drift2{to{transform:translate3d(-5vw,8vh,0) scale(.94)}}
+.bg-noise{position:fixed;inset:0;z-index:-1;pointer-events:none;opacity:.05;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
+/* ------- tiles / bento ------- */
+.tile{position:relative;border-radius:var(--radius);padding:24px;border:1px solid transparent;
+  background:linear-gradient(180deg,rgba(20,16,34,.92),rgba(11,9,20,.94)) padding-box,
+             linear-gradient(160deg,rgba(167,139,250,.38),rgba(167,139,250,.07) 38%,rgba(255,194,51,.14) 100%) border-box;
+  box-shadow:var(--shadow);overflow:hidden}
+.tile::after{content:"";position:absolute;inset:0;border-radius:inherit;opacity:0;transition:opacity .35s;pointer-events:none;
+  background:radial-gradient(420px circle at var(--mx,50%) var(--my,0%),rgba(139,92,246,.14),transparent 65%)}
+.tile:hover::after{opacity:1}
+.tile.hot{background:linear-gradient(180deg,rgba(20,16,34,.92),rgba(11,9,20,.94)) padding-box,
+             linear-gradient(160deg,rgba(255,194,51,.55),rgba(255,194,51,.10) 45%,rgba(167,139,250,.25) 100%) border-box}
+.tile.danger{background:linear-gradient(180deg,rgba(20,16,34,.92),rgba(11,9,20,.94)) padding-box,
+             linear-gradient(160deg,rgba(255,107,107,.45),rgba(255,107,107,.08) 45%,rgba(167,139,250,.2) 100%) border-box}
+.card{border-radius:var(--radius);padding:22px;background:linear-gradient(180deg,rgba(20,16,34,.9),rgba(11,9,20,.92));border:1px solid var(--line);box-shadow:var(--shadow)}
+.bento{display:grid;gap:16px}
+.grid{display:grid;gap:16px}
+.grid>*,.two>*,.three>*,.compare>*,#lab .layout>*,#hero .top>*,.bento>*{min-width:0}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.three{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.badge{display:inline-flex;align-items:center;gap:7px;padding:6px 13px;border-radius:999px;font-size:12.5px;font-weight:600;border:1px solid var(--line2);background:rgba(255,255,255,.03);color:var(--ink2)}
+.badge.ok{border-color:rgba(47,215,155,.55);color:var(--ok);background:rgba(47,215,155,.07)}
+.badge .dot{width:7px;height:7px;border-radius:50%;background:currentColor;box-shadow:0 0 10px currentColor}
+.pulse{width:8px;height:8px;border-radius:50%;background:var(--ok);box-shadow:0 0 0 0 rgba(47,215,155,.7);animation:pulse 1.8s infinite}
+@keyframes pulse{70%{box-shadow:0 0 0 9px rgba(47,215,155,0)}100%{box-shadow:0 0 0 0 rgba(47,215,155,0)}}
+/* ------- nav ------- */
+nav{position:sticky;top:0;z-index:50;background:rgba(7,6,11,.72);backdrop-filter:blur(16px) saturate(1.3);border-bottom:1px solid var(--line)}
+nav .wrap{display:flex;align-items:center;gap:16px;height:62px}
+nav .logo{display:flex;align-items:center;gap:10px;font-family:var(--font-d);font-weight:700;font-size:15px;color:var(--ink);white-space:nowrap}
+nav .logo .mark{width:28px;height:28px;border-radius:9px;background:conic-gradient(from 210deg,var(--gold),var(--purple),#2fd79b,var(--gold));display:grid;place-items:center;font-size:14px;box-shadow:0 0 18px rgba(124,92,255,.45)}
+nav .links{display:flex;gap:2px;margin-left:auto;overflow-x:auto;scrollbar-width:none}
+nav .links a{color:var(--ink3);font-size:13.5px;font-weight:500;padding:8px 12px;border-radius:10px;white-space:nowrap;transition:.15s}
+nav .links a:hover{color:var(--ink);text-decoration:none;background:rgba(255,255,255,.05)}
+nav .links a.active{color:var(--ink);background:rgba(124,92,255,.16)}
+nav .cta{margin-left:6px;background:linear-gradient(90deg,var(--gold),#ffd76b);color:#231900;font-weight:700;font-size:13.5px;padding:9px 15px;border-radius:11px;white-space:nowrap;box-shadow:0 0 24px rgba(255,194,51,.25)}
+nav .cta:hover{text-decoration:none;filter:brightness(1.07)}
+/* ------- buttons ------- */
+button.btn{cursor:pointer;border:1px solid var(--line2);background:rgba(255,255,255,.04);color:var(--ink);font-family:var(--font-b);font-weight:600;font-size:13.5px;padding:10px 16px;border-radius:12px;transition:.18s}
+button.btn:hover{border-color:var(--purple);background:rgba(124,92,255,.14);transform:translateY(-1px)}
+button.btn.primary{background:linear-gradient(90deg,var(--purple),#6238f5);border:none;color:#fff;box-shadow:0 0 28px rgba(124,92,255,.35)}
+button.btn.primary:hover{filter:brightness(1.12)}
+button.btn.gold{background:linear-gradient(90deg,var(--gold),#ffd76b);border:none;color:#231900;box-shadow:0 0 28px rgba(255,194,51,.3)}
+button.btn:disabled{opacity:.45;cursor:default;transform:none}
+a.btn{display:inline-block;cursor:pointer;border:none;background:linear-gradient(90deg,var(--purple),#6238f5);color:#fff;font-weight:600;font-size:14px;padding:12px 20px;border-radius:12px;box-shadow:0 0 28px rgba(124,92,255,.35);transition:.18s}
+a.btn:hover{text-decoration:none;filter:brightness(1.12);transform:translateY(-1px)}
+/* ------- hero ------- */
+#hero{padding:76px 0 34px}
+#hero .top{display:grid;grid-template-columns:1.04fr .96fr;gap:40px;align-items:center}
+#hero .sub{color:var(--ink2);font-size:17.5px;margin:18px 0 24px;max-width:560px}
+#hero .sub b{color:var(--ink)}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:30px}
+.stat{border-radius:16px;padding:15px 15px 13px;background:rgba(255,255,255,.03);border:1px solid var(--line)}
+.stat .v{font-family:var(--font-d);font-size:clamp(20px,2.3vw,28px);font-weight:700;letter-spacing:-.02em}
+.stat .l{font-size:11.5px;color:var(--ink3);margin-top:3px;line-height:1.4}
 .stat .v .u{font-size:.62em;color:var(--ink2);font-weight:600}
 .accent-gold{color:var(--gold)} .accent-green{color:var(--batt)} .accent-purple{color:var(--purple2)} .accent-blue{color:var(--grid)}
-/* hub svg */
-.hub-card{position:relative;padding:10px 10px 16px}
-.hub-controls{display:flex;align-items:center;gap:12px;padding:8px 12px 0;flex-wrap:wrap}
-.hub-controls .clock{font-variant-numeric:tabular-nums;font-weight:800;font-size:20px;min-width:74px}
+/* ------- marquee stat band ------- */
+.band{border-top:1px solid var(--line);border-bottom:1px solid var(--line);background:rgba(255,255,255,.02);overflow:hidden;padding:14px 0;
+  mask-image:linear-gradient(90deg,transparent,#000 6%,#000 94%,transparent)}
+.band-track{display:flex;gap:56px;width:max-content;animation:band 38s linear infinite;will-change:transform}
+.band:hover .band-track{animation-play-state:paused}
+.band span{display:inline-flex;align-items:center;gap:10px;font-size:13.5px;color:var(--ink3);white-space:nowrap}
+.band b{font-family:var(--font-d);color:var(--ink);font-size:15px;font-weight:600}
+.band i{width:6px;height:6px;border-radius:50%;background:var(--purple);opacity:.7}
+@keyframes band{to{transform:translateX(-50%)}}
+/* ------- hub card ------- */
+.hub-card{position:relative;padding:12px 12px 16px}
+.hub-controls{display:flex;align-items:center;gap:12px;padding:8px 12px 2px;flex-wrap:wrap}
+.hub-controls .clock{font-variant-numeric:tabular-nums;font-family:var(--font-d);font-weight:700;font-size:21px;min-width:76px}
 .hub-controls .desc{color:var(--ink3);font-size:12.5px}
-button.btn{cursor:pointer;border:1px solid var(--line);background:var(--panel2);color:var(--ink);font-weight:600;font-size:13.5px;padding:9px 15px;border-radius:11px;transition:.15s}
-button.btn:hover{border-color:var(--purple);background:#2a2342}
-button.btn.primary{background:linear-gradient(90deg,var(--purple),#7c3aed);border:none;color:#fff}
-button.btn.primary:hover{filter:brightness(1.1)}
-button.btn.gold{background:linear-gradient(90deg,var(--gold),#ffd15e);border:none;color:#221a00}
-button.btn:disabled{opacity:.45;cursor:default}
 .flow{stroke-dasharray:7 9;animation:flowmove 1.1s linear infinite;stroke-linecap:round;fill:none}
 @keyframes flowmove{to{stroke-dashoffset:-16}}
-@media (prefers-reduced-motion: reduce){.flow{animation:none}}
-/* sections */
-.two{display:grid;grid-template-columns:1fr 1fr;gap:22px}
-.three{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
-.pill-num{display:inline-grid;place-items:center;width:30px;height:30px;border-radius:10px;background:rgba(139,92,246,.18);border:1px solid rgba(139,92,246,.4);color:var(--purple2);font-weight:800;font-size:14px;margin-bottom:10px}
+/* ------- section chrome ------- */
+.sec-head{margin-bottom:30px}
+.pill-num{display:inline-grid;place-items:center;width:32px;height:32px;border-radius:11px;background:rgba(124,92,255,.16);border:1px solid rgba(124,92,255,.45);color:var(--purple2);font-family:var(--font-d);font-weight:700;font-size:14px;margin-bottom:12px}
 .step h3{font-size:15.5px}
 .step p{font-size:13.5px;color:var(--ink2)}
-/* big compare */
-.compare{display:grid;grid-template-columns:1fr auto 1fr;gap:18px;align-items:stretch}
-.compare .vs{display:grid;place-items:center;color:var(--ink3);font-weight:800}
-.compare .card h3{font-size:16px}
-.big{font-size:clamp(26px,3.4vw,40px);font-weight:800;letter-spacing:-1px}
+.step p b{color:var(--ink)}
+/* case bento */
+.case-bento{grid-template-columns:repeat(2,1fr)}
+.case-bento .span2{grid-column:1/-1}
+.big{font-family:var(--font-d);font-size:clamp(28px,3.6vw,44px);font-weight:700;letter-spacing:-.02em}
 table{width:100%;border-collapse:collapse;font-size:13.5px}
-th{color:var(--ink3);text-align:left;font-weight:600;font-size:12px;letter-spacing:.06em;text-transform:uppercase;padding:8px 10px;border-bottom:1px solid var(--line)}
-td{padding:9px 10px;border-bottom:1px solid rgba(46,39,69,.6);color:var(--ink2)}
+th{color:var(--ink3);text-align:left;font-weight:600;font-size:11.5px;letter-spacing:.07em;text-transform:uppercase;padding:9px 10px;border-bottom:1px solid var(--line2)}
+td{padding:10px;border-bottom:1px solid var(--line);color:var(--ink2)}
 td b{color:var(--ink)}
-tr.hl td{background:rgba(255,184,28,.07)}
+tr.hl td{background:rgba(255,194,51,.06)}
 tr.hl td b{color:var(--gold)}
 .num{font-variant-numeric:tabular-nums}
-/* lab */
-#lab .layout{display:grid;grid-template-columns:340px 1fr;gap:20px;align-items:start}
-.controls .row{margin-bottom:18px}
-.controls label{display:flex;justify-content:space-between;font-size:13.5px;color:var(--ink2);margin-bottom:7px}
+/* ------- lab ------- */
+#lab .layout{display:grid;grid-template-columns:350px 1fr;gap:18px;align-items:start}
+.controls .row{margin-bottom:19px}
+.controls label{display:flex;justify-content:space-between;font-size:13.5px;color:var(--ink2);margin-bottom:8px}
 .controls label output{color:var(--ink);font-weight:700;font-variant-numeric:tabular-nums}
-input[type=range]{width:100%;appearance:none;height:6px;border-radius:4px;background:linear-gradient(90deg,var(--purple) var(--fill,50%),var(--line) var(--fill,50%));outline:none}
-input[type=range]::-webkit-slider-thumb{appearance:none;width:19px;height:19px;border-radius:50%;background:#fff;border:4px solid var(--purple);box-shadow:0 2px 8px rgba(0,0,0,.5);cursor:pointer}
+input[type=range]{width:100%;appearance:none;height:6px;border-radius:4px;background:linear-gradient(90deg,var(--purple) var(--fill,50%),rgba(148,132,216,.18) var(--fill,50%));outline:none}
+input[type=range]::-webkit-slider-thumb{appearance:none;width:20px;height:20px;border-radius:50%;background:#fff;border:4px solid var(--purple);box-shadow:0 0 14px rgba(124,92,255,.6);cursor:pointer}
+input[type=range]:focus-visible::-webkit-slider-thumb{box-shadow:0 0 0 4px rgba(124,92,255,.35)}
 .presets{display:flex;gap:8px;flex-wrap:wrap;margin-top:4px}
 .kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
-.kpi{background:rgba(255,255,255,.035);border:1px solid var(--line);border-radius:13px;padding:13px 14px 11px;position:relative;overflow:hidden}
-.kpi .v{font-size:clamp(17px,1.9vw,24px);font-weight:800;font-variant-numeric:tabular-nums;letter-spacing:-.4px}
-.kpi .l{font-size:11.5px;color:var(--ink3);margin-top:1px}
+.kpi{border-radius:15px;padding:14px 15px 12px;position:relative;overflow:hidden;background:rgba(255,255,255,.03);border:1px solid var(--line)}
+.kpi .v{font-family:var(--font-d);font-size:clamp(17px,1.9vw,24px);font-weight:700;font-variant-numeric:tabular-nums;letter-spacing:-.02em}
+.kpi .l{font-size:11px;color:var(--ink3);margin-top:2px;line-height:1.35}
 .kpi .u{font-size:.62em;color:var(--ink2);font-weight:600}
 .kpi.bad .v{color:var(--unmet)} .kpi.good .v{color:var(--batt)}
-.kpi .bar{position:absolute;left:0;bottom:0;height:3px;background:var(--purple);transition:width .35s}
+.kpi .bar{position:absolute;left:0;bottom:0;height:3px;background:linear-gradient(90deg,var(--purple),var(--gold));transition:width .35s}
 canvas{width:100%;display:block}
-.chart-title{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
-.chart-title h3{font-size:14.5px;color:var(--ink2);font-weight:600}
+.chart-title{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px;flex-wrap:wrap}
+.chart-title h3{font-size:14px;color:var(--ink2);font-weight:600;font-family:var(--font-b)}
 .legend{display:flex;gap:14px;flex-wrap:wrap;font-size:12px;color:var(--ink3)}
 .legend span{display:inline-flex;align-items:center;gap:6px}
 .legend i{width:10px;height:10px;border-radius:3px;display:inline-block}
-.seg{display:inline-flex;border:1px solid var(--line);border-radius:10px;overflow:hidden}
-.seg button{border:none;background:transparent;color:var(--ink2);font-size:12.5px;padding:6px 12px;cursor:pointer}
-.seg button.on{background:var(--panel2);color:var(--ink);font-weight:700}
-.progress{height:8px;border-radius:5px;background:var(--line);overflow:hidden;margin-top:10px;display:none}
+.seg{display:inline-flex;border:1px solid var(--line2);border-radius:11px;overflow:hidden}
+.seg button{border:none;background:transparent;color:var(--ink3);font-size:12.5px;font-weight:500;padding:7px 13px;cursor:pointer}
+.seg button.on{background:rgba(124,92,255,.2);color:var(--ink);font-weight:700}
+.progress{height:8px;border-radius:5px;background:rgba(148,132,216,.15);overflow:hidden;margin-top:10px;display:none}
 .progress i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--purple),var(--gold));transition:width .12s}
-.opt-note{font-size:12.5px;color:var(--ink3);margin-top:8px}
+.opt-note{font-size:12.5px;color:var(--ink3);margin-top:9px}
 .flash{animation:flash 1s ease}
-@keyframes flash{0%{box-shadow:0 0 0 3px rgba(255,184,28,.9)}100%{box-shadow:0 0 0 3px transparent}}
-/* safety cards */
+@keyframes flash{0%{box-shadow:0 0 0 3px rgba(255,194,51,.9)}100%{box-shadow:0 0 0 3px transparent}}
+/* ------- lists ------- */
 .icon{font-size:22px;margin-bottom:8px}
 ul.tick{list-style:none;font-size:13.5px;color:var(--ink2)}
 ul.tick li{padding:5px 0 5px 26px;position:relative}
 ul.tick li::before{content:"✓";position:absolute;left:2px;color:var(--batt);font-weight:800}
 ul.tick li b{color:var(--ink)}
-/* reveal */
-.reveal{opacity:0;transform:translateY(22px);transition:opacity .7s ease,transform .7s ease}
+/* ------- reveal ------- */
+.reveal{opacity:0;transform:translateY(26px);transition:opacity .8s cubic-bezier(.2,.7,.2,1),transform .8s cubic-bezier(.2,.7,.2,1);transition-delay:calc(var(--d,0)*1ms)}
 .reveal.in{opacity:1;transform:none}
-/* presenter */
-#presenter{position:fixed;left:0;right:0;bottom:0;z-index:90;display:none;background:rgba(16,12,26,.96);backdrop-filter:blur(10px);border-top:2px solid var(--gold);padding:14px 20px}
+/* ------- presenter ------- */
+#presenter{position:fixed;left:0;right:0;bottom:0;z-index:90;display:none;background:rgba(10,8,18,.96);backdrop-filter:blur(14px);border-top:2px solid var(--gold);padding:14px 20px;box-shadow:0 -14px 50px rgba(0,0,0,.5)}
 #presenter.on{display:block}
 #presenter .inner{max-width:var(--maxw);margin:0 auto;display:flex;gap:18px;align-items:center}
-#presenter .stepno{font-size:13px;color:var(--gold);font-weight:800;white-space:nowrap}
+#presenter .stepno{font-family:var(--font-d);font-size:13px;color:var(--gold);font-weight:700;white-space:nowrap}
 #presenter .text{font-size:15.5px;flex:1}
 #presenter .text b{color:var(--gold)}
-#presenter .timer{font-variant-numeric:tabular-nums;font-weight:800;font-size:20px;color:var(--ink)}
+#presenter .timer{font-variant-numeric:tabular-nums;font-family:var(--font-d);font-weight:700;font-size:21px;color:var(--ink)}
 #presenter .timer.over{color:var(--unmet)}
 #presenter .keys{font-size:11.5px;color:var(--ink3);white-space:nowrap}
-footer{border-top:1px solid var(--line);padding:34px 0 46px;color:var(--ink3);font-size:13px}
+footer{border-top:1px solid var(--line);padding:38px 0 52px;color:var(--ink3);font-size:13px;background:rgba(255,255,255,.015)}
 footer .cols{display:flex;gap:30px;flex-wrap:wrap;justify-content:space-between}
+footer b{color:var(--ink2)}
+@media (prefers-reduced-motion: reduce){
+  .flow,.band-track,.bg-aurora i,.pulse{animation:none}
+  .reveal{opacity:1;transform:none;transition:none}
+}
 @media (max-width:960px){
-  #hero .top,.two,#lab .layout{grid-template-columns:1fr}
+  #hero .top,.two,#lab .layout,.case-bento{grid-template-columns:1fr}
   .three{grid-template-columns:1fr}
   .stats,.kpis{grid-template-columns:repeat(2,1fr)}
-  .compare{grid-template-columns:1fr}
-  .compare .vs{display:none}
 }
 @media (max-width:720px){
   nav .wrap{flex-wrap:wrap;height:auto;padding-top:8px;padding-bottom:8px;row-gap:6px}
@@ -154,16 +201,18 @@ footer .cols{display:flex;gap:30px;flex-wrap:wrap;justify-content:space-between}
   nav .cta,#btn-presenter{margin-left:auto}
   #presenter .inner{flex-wrap:wrap;row-gap:6px}
   #presenter .keys{display:none}
-  section{padding:52px 0}
+  section,header#hero{padding:56px 0}
 }
 </style>
 </head>
 <body>
+<div class="bg-aurora" aria-hidden="true"><i></i><i></i><i></i></div>
+<div class="bg-noise" aria-hidden="true"></div>
 
 <nav>
   <div class="wrap">
     <span class="logo"><span class="mark">☀</span>Solar&nbsp;Charging&nbsp;Hub</span>
-    <div class="links">
+    <div class="links" id="navlinks">
       <a href="#case">The Case</a><a href="#approach">Approach</a><a href="#lab">Live Model</a>
       <a href="#theme2">Battery Use</a><a href="#ssc">Scale · Safety · Cost</a><a href="#impact">Validation</a>
     </div>
@@ -178,12 +227,12 @@ footer .cols{display:flex;gap:30px;flex-wrap:wrap;justify-content:space-between}
     <div class="top">
       <div>
         <span class="kicker">UK National Competition · Sustainable e-Micromobility · Final Round</span>
-        <h1>Which charging hub do you build when the <span class="accent-gold">future is uncertain</span>?</h1>
+        <h1>Which charging hub do you build when the <span class="grad">future is uncertain?</span></h1>
         <p class="sub">A solar charging hub for the shared e-bike fleet at the <b>University of Warwick</b>, sized with
         <b>robust optimisation</b> so it performs in <i>every</i> plausible demand future — not just the average one.
         The full 8,760-hour model is running <b>live on this page</b>.</p>
-        <div style="display:flex;gap:10px;flex-wrap:wrap">
-          <a class="btn primary" href="#lab" style="display:inline-block">⚡ Open the live model</a>
+        <div style="display:flex;gap:12px;flex-wrap:wrap;align-items:center">
+          <a class="btn" href="#lab">⚡ Open the live model</a>
           <span class="badge" id="engine-badge"><span class="dot"></span>validating engine…</span>
         </div>
         <div class="stats">
@@ -193,22 +242,20 @@ footer .cols{display:flex;gap:30px;flex-wrap:wrap;justify-content:space-between}
           <div class="stat"><div class="v accent-blue num" data-count="9" data-suffix="/9">0</div><div class="l">outputs validated vs published benchmarks</div></div>
         </div>
       </div>
-      <div class="card hub-card reveal">
+      <div class="tile hub-card reveal">
         <div class="hub-controls">
           <button class="btn" id="hub-play">▶ Play a day</button>
           <span class="clock" id="hub-clock">06:00</span>
-          <input type="range" id="hub-hour" min="0" max="23" value="6" style="flex:1;min-width:120px">
+          <input type="range" id="hub-hour" min="0" max="23" value="6" style="flex:1;min-width:120px" aria-label="Hour of day">
           <span class="desc" id="hub-desc">Average summer day · recommended design</span>
         </div>
         <svg id="hub-svg" viewBox="0 0 900 430" role="img" aria-label="Animated diagram of the solar charging hub: PV array, smart controller, grid connection, optional battery and charge bays serving e-bikes">
-          <!-- sky glow -->
           <defs>
             <radialGradient id="sung" cx="50%" cy="50%"><stop offset="0%" stop-color="#ffd15e" stop-opacity=".95"/><stop offset="100%" stop-color="#ffd15e" stop-opacity="0"/></radialGradient>
             <linearGradient id="pvg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#3b3563"/><stop offset="1" stop-color="#191537"/></linearGradient>
           </defs>
           <circle id="sun-glow" cx="150" cy="80" r="55" fill="url(#sung)"/>
           <circle id="sun" cx="150" cy="80" r="20" fill="#ffd15e"/>
-          <!-- PV array -->
           <g id="pv-array">
             <rect x="80" y="168" width="190" height="10" rx="3" fill="#241e3e"/>
             <g transform="translate(90,120) skewX(-18)">
@@ -217,36 +264,30 @@ footer .cols{display:flex;gap:30px;flex-wrap:wrap;justify-content:space-between}
             </g>
             <text x="178" y="200" text-anchor="middle" fill="#8d84ad" font-size="13">Solar PV <tspan id="lbl-pv-size" fill="#f3efff" font-weight="700">15 kWp</tspan></text>
           </g>
-          <!-- controller -->
           <g id="ems">
             <rect x="400" y="150" width="120" height="76" rx="12" fill="#221c33" stroke="#8b5cf6" stroke-width="1.6"/>
             <text x="460" y="182" text-anchor="middle" fill="#f3efff" font-size="14" font-weight="700">Smart EMS</text>
             <text x="460" y="202" text-anchor="middle" fill="#8d84ad" font-size="11.5">schedules charging</text>
             <circle cx="412" cy="162" r="3.5" fill="#34d399"><animate attributeName="opacity" values="1;.2;1" dur="1.6s" repeatCount="indefinite"/></circle>
           </g>
-          <!-- grid -->
           <g id="grid-g">
             <path d="M770 70 l22 0 l-14 34 l20 0 M770 70 l-22 0 l14 34 l-20 0 M756 104 h48 M748 138 h64 M760 104 l-14 70 M796 104 l14 70" stroke="#60a5fa" stroke-width="2.4" fill="none" stroke-linecap="round"/>
             <text x="782" y="196" text-anchor="middle" fill="#8d84ad" font-size="13">Grid <tspan id="lbl-grid-cap" fill="#f3efff" font-weight="700">≤15 kW</tspan></text>
           </g>
-          <!-- battery -->
           <g id="batt-g">
             <rect x="415" y="288" width="90" height="46" rx="9" fill="#16241f" stroke="#34d399" stroke-width="1.6"/>
             <rect x="505" y="302" width="7" height="18" rx="2" fill="#34d399"/>
             <rect id="batt-fill" x="421" y="294" width="50" height="34" rx="5" fill="#34d399" opacity=".8"/>
             <text x="460" y="356" text-anchor="middle" fill="#8d84ad" font-size="13">Battery <tspan id="lbl-batt-size" fill="#f3efff" font-weight="700">0 kWh</tspan></text>
           </g>
-          <!-- bays -->
           <g id="bays-g" transform="translate(600,258)">
             <text x="120" y="98" text-anchor="middle" fill="#8d84ad" font-size="13"><tspan id="lbl-bays" fill="#f3efff" font-weight="700">8 bays</tspan> · e-bikes &amp; e-cargo</text>
           </g>
-          <!-- flows -->
           <path id="f-pv"   class="flow" d="M270 150 C 330 150, 340 185, 398 187" stroke="#fbbf24" stroke-width="4"/>
           <path id="f-grid" class="flow" d="M760 180 C 640 195, 600 188, 522 188" stroke="#60a5fa" stroke-width="3.4"/>
           <path id="f-batt" class="flow" d="M460 286 C 460 262, 460 250, 460 228" stroke="#34d399" stroke-width="3.2"/>
           <path id="f-bays" class="flow" d="M522 205 C 580 218, 590 250, 640 280" stroke="#a78bfa" stroke-width="4"/>
           <path id="f-exp"  class="flow" d="M522 170 C 610 150, 640 130, 748 118" stroke="#c084fc" stroke-width="2.6"/>
-          <!-- flow labels -->
           <text id="t-pv"   x="330" y="138" fill="#fbbf24" font-size="12.5" font-weight="700">0.0 kW</text>
           <text id="t-grid" x="612" y="172" fill="#60a5fa" font-size="12.5" font-weight="700">0.0 kW</text>
           <text id="t-batt" x="472" y="258" fill="#34d399" font-size="12.5" font-weight="700">0.0 kW</text>
@@ -259,57 +300,85 @@ footer .cols{display:flex;gap:30px;flex-wrap:wrap;justify-content:space-between}
   </div>
 </header>
 
+<!-- ============================ MARQUEE BAND ============================ -->
+<div class="band" aria-hidden="true">
+  <div class="band-track">
+    <span><b>−59%</b> worst-case cost vs naive<i></i></span>
+    <span><b>99.6%</b> guaranteed fleet service<i></i></span>
+    <span><b>£29,400</b> CAPEX, battery-free<i></i></span>
+    <span><b>£0.253/kWh</b> LCOE delivered<i></i></span>
+    <span><b>3.7 tCO₂/yr</b> avoided, marginal basis<i></i></span>
+    <span><b>9/9</b> outputs validated<i></i></span>
+    <span><b>≈9 kW</b> storage boundary, located<i></i></span>
+    <span><b>20M hours</b> simulated live in your browser<i></i></span>
+    <span><b>−59%</b> worst-case cost vs naive<i></i></span>
+    <span><b>99.6%</b> guaranteed fleet service<i></i></span>
+    <span><b>£29,400</b> CAPEX, battery-free<i></i></span>
+    <span><b>£0.253/kWh</b> LCOE delivered<i></i></span>
+    <span><b>3.7 tCO₂/yr</b> avoided, marginal basis<i></i></span>
+    <span><b>9/9</b> outputs validated<i></i></span>
+    <span><b>≈9 kW</b> storage boundary, located<i></i></span>
+    <span><b>20M hours</b> simulated live in your browser<i></i></span>
+  </div>
+</div>
+
 <!-- ============================ CASE ============================ -->
 <section id="case">
   <div class="wrap">
-    <span class="kicker"><span class="w">10%</span> Case understanding</span>
-    <h2>The trap in sizing charging infrastructure</h2>
-    <p class="lead">UoW Bikes charges a mixed fleet of shared e-bikes and e-cargo bikes at a depot behind a
-    <b>constrained 15 kW grid connection</b> — a bigger import limit means a costly, slow DNO reinforcement.
-    Demand swings with term-time, weather and multi-year growth. Size the hub for the <i>average</i> and it strands
-    bikes on busy days; size it for the <i>worst case</i> and capital sits idle.</p>
-    <div class="compare" style="margin-top:26px">
-      <div class="card reveal">
+    <div class="sec-head">
+      <span class="kicker"><span class="w">10%</span> Case understanding</span>
+      <h2>The trap in sizing charging infrastructure</h2>
+      <p class="lead">UoW Bikes charges a mixed fleet of shared e-bikes and e-cargo bikes at a depot behind a
+      <b>constrained 15 kW grid connection</b> — a bigger import limit means a costly, slow DNO reinforcement.
+      Demand swings with term-time, weather and multi-year growth. Size the hub for the <i>average</i> and it strands
+      bikes on busy days; size it for the <i>worst case</i> and capital sits idle.</p>
+    </div>
+    <div class="bento case-bento">
+      <div class="tile danger reveal">
         <h3>😬 Naive design — sized for average demand</h3>
         <p class="muted" style="margin:4px 0 14px">5 kWp PV · 0 kWh battery · 4 bays</p>
-        <div class="big accent-blue num">£47,179<span style="font-size:.45em;color:var(--ink3)">/yr worst case</span></div>
+        <div class="big accent-blue num">£47,179<span style="font-size:.4em;color:var(--ink3)"> /yr worst case</span></div>
         <p style="color:var(--ink2);font-size:14px;margin-top:10px">Cheapest on a normal day — but in the high-demand future its unmet-charging penalty balloons and it strands
         <b style="color:var(--unmet)">1 bike in 21</b> (95.3% service).</p>
       </div>
-      <div class="vs">VS</div>
-      <div class="card reveal" style="border-color:rgba(255,184,28,.45)">
+      <div class="tile hot reveal" style="--d:90">
         <h3>🏆 Robust design — performs in every future</h3>
         <p class="muted" style="margin:4px 0 14px">15 kWp PV · 0 kWh battery · 8 smart-managed bays</p>
-        <div class="big accent-gold num">£19,232<span style="font-size:.45em;color:var(--ink3)">/yr worst case</span></div>
+        <div class="big accent-gold num">£19,232<span style="font-size:.4em;color:var(--ink3)"> /yr worst case</span></div>
         <p style="color:var(--ink2);font-size:14px;margin-top:10px"><b style="color:var(--gold)">−59% worst-case cost</b> and guaranteed service lifted to
         <b style="color:var(--batt)">99.6%</b> — a small expected-cost premium buys protection against the demand tail.</p>
       </div>
+      <div class="tile span2 reveal" style="--d:160">
+        <h3>💡 The surprise: smart charging is the cheapest robustness lever</h3>
+        <p style="color:var(--ink2);font-size:14.5px;margin-top:8px;max-width:900px">A bike returned in the evening only needs to be ready by morning, so the controller schedules charging into sunny and
+        cheap off-peak hours. That flattens the load below the grid limit — so at this connected site <b style="color:var(--ink)">a battery does not pay</b>.
+        Storage only enters the design when the grid connection weakens to <b style="color:var(--ink)">≈9 kW or below</b>.
+        <a href="#lab">Prove it yourself in the live lab ↓</a></p>
+      </div>
     </div>
-    <p class="lead" style="margin-top:24px">The surprise: <b>smart charging is the cheapest robustness lever</b>. A bike returned in the evening
-    only needs to be ready by morning, so the controller schedules charging into sunny and cheap off-peak hours. That flattens the load below
-    the grid limit — so at this connected site <b>a battery does not pay</b>. Storage only enters the design when the grid connection
-    weakens to <b>≈9 kW or below</b>. <a href="#lab">Prove it yourself in the live lab ↓</a></p>
   </div>
 </section>
 
 <!-- ============================ APPROACH ============================ -->
-<section id="approach" style="background:linear-gradient(180deg,transparent,rgba(139,92,246,.05),transparent)">
+<section id="approach">
   <div class="wrap">
-    <span class="kicker"><span class="w">10%</span> Approach &amp; methodology</span>
-    <h2>Real data → 8,760-hour physics → five decision rules → stress-tested</h2>
-    <p class="lead">Everything is reproducible with one command (<code>python run_analysis.py</code>) and re-verified by CI on every push.</p>
-    <div class="three" style="margin-top:26px">
-      <div class="card step reveal"><span class="pill-num">1</span><h3>Real demand, real solar, real carbon</h3>
+    <div class="sec-head">
+      <span class="kicker"><span class="w">10%</span> Approach &amp; methodology</span>
+      <h2>Real data → 8,760-hour physics → five decision rules → stress-tested</h2>
+      <p class="lead">Everything is reproducible with one command (<code>python run_analysis.py</code>) and re-verified by CI on every push.</p>
+    </div>
+    <div class="three">
+      <div class="tile step reveal"><span class="pill-num">1</span><h3>Real demand, real solar, real carbon</h3>
         <p>Demand scenarios built from <b>DfT shared-micromobility monitoring data</b> (2022–24) calibrated to the UoW Bikes scheme; solar from the <b>PVGIS API</b> for Coventry; grid carbon from <b>National Grid ESO</b> (West Midlands). Nothing synthetic.</p></div>
-      <div class="card step reveal"><span class="pill-num">2</span><h3>15 probability-weighted futures</h3>
+      <div class="tile step reveal" style="--d:70"><span class="pill-num">2</span><h3>15 probability-weighted futures</h3>
         <p>Low/Medium/High usage × five growth paths, evaluated at the 5-year design horizon — the demand range is <b>observed, not assumed</b>, and each future gets a likelihood.</p></div>
-      <div class="card step reveal"><span class="pill-num">3</span><h3>Hourly energy balance</h3>
+      <div class="tile step reveal" style="--d:140"><span class="pill-num">3</span><h3>Hourly energy balance</h3>
         <p>For all 8,760 hours: PV serves demand first, surplus charges the battery then exports; deficits draw battery then the capped grid; what's left is <b>unmet</b> — the failure robust design must avoid.</p></div>
-      <div class="card step reveal"><span class="pill-num">4</span><h3>150 designs × 5 decision rules</h3>
+      <div class="tile step reveal"><span class="pill-num">4</span><h3>150 designs × 5 decision rules</h3>
         <p>Every PV × battery × bay combination scored under <b>naive, stochastic, CVaR, minimax-regret and maximin</b> rules — the robust pick must beat the worst case, not the average.</p></div>
-      <div class="card step reveal"><span class="pill-num">5</span><h3>Stress-test the conclusion itself</h3>
+      <div class="tile step reveal" style="--d:70"><span class="pill-num">5</span><h3>Stress-test the conclusion itself</h3>
         <p>500-sample Monte-Carlo, Sobol global sensitivity, and a penalty × grid × horizon sweep: the recommendation wins in <b>100% of 35 combinations</b> — it is not an artefact of one assumption.</p></div>
-      <div class="card step reveal"><span class="pill-num">6</span><h3>Validate &amp; operate</h3>
+      <div class="tile step reveal" style="--d:140"><span class="pill-num">6</span><h3>Validate &amp; operate</h3>
         <p><b>9/9 outputs and inputs</b> sit inside published benchmark ranges; an LP dispatch verifies the greedy controller; a <b>MATLAB/Simulink digital twin</b> shows how the chosen hub runs day-to-day.</p></div>
     </div>
   </div>
@@ -318,14 +387,16 @@ footer .cols{display:flex;gap:30px;flex-wrap:wrap;justify-content:space-between}
 <!-- ============================ LIVE LAB ============================ -->
 <section id="lab">
   <div class="wrap">
-    <span class="kicker"><span class="w">40%</span> Demonstration of model — live</span>
-    <h2>The Design Lab <span class="muted" style="font-size:.55em;font-weight:500">— the real model, running in your browser</span></h2>
-    <p class="lead">These are not pre-rendered charts. This page re-implements the project's dispatch engine and cost model in JavaScript,
-    <b>validated at load-time against the Python pipeline</b> (<span id="engine-delta">…</span>). Drag a slider and the full
-    8,760-hour × 15-scenario evaluation re-runs instantly.</p>
+    <div class="sec-head">
+      <span class="kicker"><span class="w">40%</span> Demonstration of model <span class="pulse" style="margin-left:4px"></span> <span style="color:var(--ok);letter-spacing:.05em">live</span></span>
+      <h2>The Design Lab <span class="muted" style="font-size:.5em;font-weight:500;font-family:var(--font-b)">— the real model, running in your browser</span></h2>
+      <p class="lead">These are not pre-rendered charts. This page re-implements the project's dispatch engine and cost model in JavaScript,
+      <b>validated at load-time against the Python pipeline</b> (<span id="engine-delta">…</span>). Drag a slider and the full
+      8,760-hour × 15-scenario evaluation re-runs instantly.</p>
+    </div>
 
-    <div class="layout" style="margin-top:26px">
-      <div class="card controls">
+    <div class="layout">
+      <div class="tile controls">
         <h3 style="margin-bottom:16px">⚙️ Design the hub</h3>
         <div class="row"><label>Solar PV array <output id="o-pv">15 kWp</output></label>
           <input type="range" id="s-pv" min="5" max="25" step="5" value="15" aria-label="Solar PV array size, kilowatt-peak"></div>
@@ -357,7 +428,7 @@ footer .cols{display:flex;gap:30px;flex-wrap:wrap;justify-content:space-between}
           <div class="kpi" id="k-lcoe"><div class="v num">—</div><div class="l">LCOE of delivered energy</div><i class="bar"></i></div>
           <div class="kpi" id="k-peak"><div class="v num">—</div><div class="l">peak grid draw (cap <span id="k-peak-cap">15</span> kW)</div><i class="bar"></i></div>
         </div>
-        <div class="card">
+        <div class="tile">
           <div class="chart-title"><h3>One week of hourly dispatch — worst-case demand future</h3>
             <div class="seg" id="seg-week"><button class="on" data-w="summer">Summer</button><button data-w="winter">Winter</button></div></div>
           <canvas id="c-week" height="240"></canvas>
@@ -373,19 +444,19 @@ footer .cols{display:flex;gap:30px;flex-wrap:wrap;justify-content:space-between}
       </div>
     </div>
 
-    <div class="two" style="margin-top:20px">
-      <div class="card">
+    <div class="two" style="margin-top:18px">
+      <div class="tile">
         <div class="chart-title"><h3>Cost vs robustness — every design this page has evaluated</h3><span class="muted" id="pareto-count"></span></div>
         <canvas id="c-pareto" height="270"></canvas>
         <p class="muted" style="margin-top:8px">Down-left is better. ◆ = five decision-rule picks; ★ = recommended maximin design. Grey ✕ designs miss the 95% service target in at least one future.</p>
       </div>
-      <div class="card">
+      <div class="tile">
         <div class="chart-title"><h3>When does a battery pay? Drag the grid slider.</h3><span class="badge" id="batt-verdict"></span></div>
         <canvas id="c-thresh" height="270"></canvas>
         <p class="muted" style="margin-top:8px">Battery size in the robust (maximin) design as the grid connection weakens — from the Python sweep. The <b style="color:var(--gold)">gold marker</b> is the live browser optimisation at your selected grid cap: storage enters at <b>≈9 kW and below</b>.</p>
       </div>
     </div>
-    <div class="card" style="margin-top:20px" id="rules-card">
+    <div class="tile" style="margin-top:18px" id="rules-card">
       <div class="chart-title"><h3>Five decision rules, one search space — what each would build</h3><span class="muted">click 🔍 to recompute live</span></div>
       <div style="overflow-x:auto"><table id="rules-table">
         <thead><tr><th>Decision rule</th><th>What it optimises</th><th>Design (PV · battery · bays)</th><th class="num">Expected £/yr</th><th class="num">Worst-case £/yr</th><th class="num">Min service</th></tr></thead>
@@ -396,19 +467,21 @@ footer .cols{display:flex;gap:30px;flex-wrap:wrap;justify-content:space-between}
 </section>
 
 <!-- ============================ THEME 2 ============================ -->
-<section id="theme2" style="background:linear-gradient(180deg,transparent,rgba(255,184,28,.04),transparent)">
+<section id="theme2">
   <div class="wrap">
-    <span class="kicker">Theme 2 · How the batteries are used</span>
-    <h2>Personal vs shared e-bikes — the physics of a day</h2>
-    <p class="lead">A physics route model (rolling + gradient + aerodynamic force, drivetrain efficiency, motor-assist share) gives the
-    energy cost of every kind of ride. The duty cycles then split: a personal bike takes one deep overnight home charge; a shared bike
-    drains through many trips and tops up at the depot — cycling <b>~1.3× harder</b> per year. That is why shared fleets need the managed hub.</p>
-    <div class="two" style="margin-top:26px">
-      <div class="card reveal">
+    <div class="sec-head">
+      <span class="kicker">Theme 2 · How the batteries are used</span>
+      <h2>Personal vs shared e-bikes — the physics of a day</h2>
+      <p class="lead">A physics route model (rolling + gradient + aerodynamic force, drivetrain efficiency, motor-assist share) gives the
+      energy cost of every kind of ride. The duty cycles then split: a personal bike takes one deep overnight home charge; a shared bike
+      drains through many trips and tops up at the depot — cycling <b>~1.3× harder</b> per year. That is why shared fleets need the managed hub.</p>
+    </div>
+    <div class="two">
+      <div class="tile reveal">
         <div class="chart-title"><h3>Energy per km by route type (at the wall)</h3></div>
         <canvas id="c-routes" height="250"></canvas>
       </div>
-      <div class="card reveal">
+      <div class="tile reveal" style="--d:90">
         <div class="chart-title"><h3>24-hour state of charge — personal vs shared</h3></div>
         <canvas id="c-soc" height="250"></canvas>
         <div class="legend" style="margin-top:8px">
@@ -423,10 +496,12 @@ footer .cols{display:flex;gap:30px;flex-wrap:wrap;justify-content:space-between}
 <!-- ============================ SCALE SAFETY COST ============================ -->
 <section id="ssc">
   <div class="wrap">
-    <span class="kicker"><span class="w">10%</span> Scalability · Safety · Cost</span>
-    <h2>Built to be copied — safely, and on budget</h2>
-    <div class="three" style="margin-top:26px">
-      <div class="card reveal">
+    <div class="sec-head">
+      <span class="kicker"><span class="w">10%</span> Scalability · Safety · Cost</span>
+      <h2>Built to be copied — safely, and on budget</h2>
+    </div>
+    <div class="three">
+      <div class="tile reveal">
         <div class="icon">📈</div><h3>Scalability</h3>
         <ul class="tick">
           <li><b>Site-agnostic by design:</b> swap the PVGIS coordinates, the demand CSV and the grid cap — the same pipeline re-sizes a hub anywhere.</li>
@@ -435,7 +510,7 @@ footer .cols{display:flex;gap:30px;flex-wrap:wrap;justify-content:space-between}
           <li><b>Growth-proof:</b> designs are sized across 0–15%/yr growth with S-curve saturation, so scale-up is already priced in.</li>
         </ul>
       </div>
-      <div class="card reveal">
+      <div class="tile reveal" style="--d:70">
         <div class="icon">🛡️</div><h3>Safety</h3>
         <ul class="tick">
           <li><b>Chemistry first:</b> where storage is used (weak-grid sites) we specify <b>LFP</b> — no cobalt/nickel, higher thermal-runaway onset than NMC.</li>
@@ -444,7 +519,7 @@ footer .cols{display:flex;gap:30px;flex-wrap:wrap;justify-content:space-between}
           <li><b>Electrical headroom:</b> smart charging caps peak draw below the 15 kW connection — the controller enforces the limit in software <i>and</i> the supply is fused for it in hardware.</li>
         </ul>
       </div>
-      <div class="card reveal">
+      <div class="tile reveal" style="--d:140">
         <div class="icon">💷</div><h3>Cost analysis</h3>
         <div class="chart-title" style="margin-top:2px"><h3 style="font-size:13px">Where the £29,400 CAPEX goes</h3></div>
         <canvas id="c-capex" height="150"></canvas>
@@ -459,22 +534,24 @@ footer .cols{display:flex;gap:30px;flex-wrap:wrap;justify-content:space-between}
 </section>
 
 <!-- ============================ IMPACT / VALIDATION ============================ -->
-<section id="impact" style="background:linear-gradient(180deg,transparent,rgba(52,211,153,.05),transparent)">
+<section id="impact">
   <div class="wrap">
-    <span class="kicker"><span class="w">10%</span> Technical feasibility · Validation</span>
-    <h2>Every number checked, every claim reproducible</h2>
-    <div class="two" style="margin-top:26px;align-items:start">
-      <div class="card reveal">
+    <div class="sec-head">
+      <span class="kicker"><span class="w">10%</span> Technical feasibility · Validation</span>
+      <h2>Every number checked, every claim reproducible</h2>
+    </div>
+    <div class="two" style="align-items:start">
+      <div class="tile reveal">
         <h3 style="margin-bottom:10px">Validation vs published benchmarks — <span class="accent-green">9/9 pass</span></h3>
         <div style="overflow-x:auto"><table id="val-table"><thead><tr><th>Metric</th><th class="num">Model</th><th>Published range</th><th></th></tr></thead><tbody></tbody></table></div>
       </div>
       <div style="display:grid;gap:16px">
-        <div class="card reveal">
+        <div class="tile reveal">
           <h3>Feasible with off-the-shelf kit, today</h3>
           <p style="font-size:14px;color:var(--ink2);margin-top:6px">Mono-Si PV (20% module efficiency), standard 3 kW AC bays, optional LFP cabinet — no exotic hardware, no planning-triggering structures. The Simulink digital twin
           (<code>matlab/chargingHubTwin.slx</code>) reproduces the EMS behaviour for operations hand-over.</p>
         </div>
-        <div class="card reveal">
+        <div class="tile reveal" style="--d:80">
           <h3>Carbon &amp; energy impact</h3>
           <ul class="tick" style="margin-top:6px">
             <li><b>3.7 tCO₂/yr avoided</b> (marginal-grid basis; 55 t over the PV lifetime) — stated honestly on a consequential basis, not inflated.</li>
@@ -482,7 +559,7 @@ footer .cols{display:flex;gap:30px;flex-wrap:wrap;justify-content:space-between}
             <li>Displaces <b>~10,200 kWh/yr</b> of marginal gas generation.</li>
           </ul>
         </div>
-        <div class="card reveal">
+        <div class="tile reveal" style="--d:160">
           <h3>Open &amp; auditable</h3>
           <p style="font-size:14px;color:var(--ink2);margin-top:6px">MIT-licensed. Deterministic (seeded). 11 regression tests + CI on every push. One command rebuilds every figure on this page — and this page itself
           <b>re-derives the headline numbers in your browser</b> (<span id="engine-delta2">engine check pending…</span>).</p>
@@ -494,7 +571,7 @@ footer .cols{display:flex;gap:30px;flex-wrap:wrap;justify-content:space-between}
 
 <footer>
   <div class="wrap cols">
-    <div>Solar Charging Hub · UK National Competition for Sustainable e-Micromobility 2025-26<br>
+    <div><b>Solar Charging Hub</b> · UK National Competition for Sustainable e-Micromobility 2025-26<br>
       Final round · WMG, University of Warwick · Stakeholder Engagement Workshop</div>
     <div>Model &amp; site: <a href="https://github.com/Gourav88502/emicromobility-robust-charging" target="_blank" rel="noopener">github.com/Gourav88502/emicromobility-robust-charging</a><br>
       Data: DfT (OGL) · PVGIS © EU JRC · National Grid ESO · MIT License</div>
@@ -1214,6 +1291,23 @@ document.querySelectorAll("[data-count]").forEach(el=>io2.observe(el));
 drawRoutes(); drawSoc(); drawCapex(); fillValidation();
 refresh();
 window.addEventListener("resize",()=>{drawWeek();drawPareto();drawThreshold();drawRoutes();drawSoc();drawCapex();});
+</script>
+<script>
+/* template enhancements: cursor spotlight + active nav */
+document.querySelectorAll(".tile").forEach(t=>{
+  t.addEventListener("pointermove",e=>{
+    const r=t.getBoundingClientRect();
+    t.style.setProperty("--mx",(e.clientX-r.left)+"px");
+    t.style.setProperty("--my",(e.clientY-r.top)+"px");
+  });
+});
+(function(){
+  const links=[...document.querySelectorAll("#navlinks a")];
+  const io=new IntersectionObserver(es=>es.forEach(en=>{
+    if(en.isIntersecting) links.forEach(a=>a.classList.toggle("active",a.getAttribute("href")==="#"+en.target.id));
+  }),{rootMargin:"-35% 0px -55% 0px"});
+  document.querySelectorAll("section[id],header[id]").forEach(s=>io.observe(s));
+})();
 </script>
 </body>
 </html>
