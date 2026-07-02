@@ -43,3 +43,5 @@ outputs/_slides/
 # the repo on GitHub without running anything:
 #   outputs/*.png, results.json, executive_summary.txt, scenario_summary.csv,
 #   pareto_frontier.csv, tornado_sensitivity.csv  (all kept by default)
+
+.claude/
