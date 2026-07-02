@@ -328,13 +328,13 @@ footer .cols{display:flex;gap:30px;flex-wrap:wrap;justify-content:space-between}
       <div class="card controls">
         <h3 style="margin-bottom:16px">⚙️ Design the hub</h3>
         <div class="row"><label>Solar PV array <output id="o-pv">15 kWp</output></label>
-          <input type="range" id="s-pv" min="5" max="25" step="5" value="15"></div>
+          <input type="range" id="s-pv" min="5" max="25" step="5" value="15" aria-label="Solar PV array size, kilowatt-peak"></div>
         <div class="row"><label>Battery storage <output id="o-batt">0 kWh</output></label>
-          <input type="range" id="s-batt" min="0" max="50" step="10" value="0"></div>
+          <input type="range" id="s-batt" min="0" max="50" step="10" value="0" aria-label="Battery storage size, kilowatt-hours"></div>
         <div class="row"><label>Charge bays (3 kW each) <output id="o-bays">8</output></label>
-          <input type="range" id="s-bays" min="4" max="20" step="4" value="8"></div>
+          <input type="range" id="s-bays" min="4" max="20" step="4" value="8" aria-label="Number of charge bays"></div>
         <div class="row"><label>Grid connection limit <output id="o-grid">15 kW</output></label>
-          <input type="range" id="s-grid" min="4" max="22" step="1" value="15"></div>
+          <input type="range" id="s-grid" min="4" max="22" step="1" value="15" aria-label="Grid connection limit, kilowatts"></div>
         <div class="presets">
           <button class="btn" id="p-naive">Naive 5/0/4</button>
           <button class="btn" id="p-robust">🏆 Robust 15/0/8</button>
@@ -367,6 +367,7 @@ footer .cols{display:flex;gap:30px;flex-wrap:wrap;justify-content:space-between}
             <span><i style="background:var(--grid)"></i>Grid → bikes</span>
             <span><i style="background:var(--unmet)"></i>Unmet</span>
             <span><i style="background:#fff;height:2px;border-radius:0"></i>Charging demand</span>
+            <span id="lg-soc" style="display:none"><i style="background:transparent;height:0;border-top:2px dashed var(--batt);border-radius:0"></i>Battery state of charge</span>
           </div>
         </div>
       </div>
@@ -778,6 +779,15 @@ function drawWeek(){
   ctx.beginPath();
   for (let i=0;i<n;i++){ const y=Y(tr.dem[t0+i]); i?ctx.lineTo(X(i),y):ctx.moveTo(X(i),y); }
   ctx.strokeStyle="#fff"; ctx.lineWidth=1.6; ctx.stroke();
+  // battery state-of-charge (scaled to chart height) when a battery is fitted
+  const battKwh=+sliders.batt.value, lg=$("lg-soc");
+  if (battKwh>0){
+    const usable=battKwh*G.battery_dod;
+    ctx.beginPath();
+    for (let i=0;i<n;i++){ const y=Y(tr.soc[t0+i]/usable*ymax*0.92); i?ctx.lineTo(X(i),y):ctx.moveTo(X(i),y); }
+    ctx.strokeStyle=COL("--batt"); ctx.lineWidth=1.6; ctx.setLineDash([5,4]); ctx.stroke(); ctx.setLineDash([]);
+  }
+  if (lg) lg.style.display = battKwh>0 ? "inline-flex" : "none";
 }
 $("seg-week").addEventListener("click",e=>{
   if (e.target.tagName!=="BUTTON") return;
@@ -875,7 +885,8 @@ function drawThreshold(){
   }
   const g=+sliders.grid.value;
   const verdict=$("batt-verdict");
-  if (g<=9){ verdict.textContent="battery pays at "+g+" kW"; verdict.className="badge ok"; }
+  if (g<=8){ verdict.textContent="battery pays at "+g+" kW"; verdict.className="badge ok"; }
+  else if (g<10){ verdict.textContent=g+" kW — the boundary zone"; verdict.className="badge"; }
   else { verdict.textContent="no battery needed at "+g+" kW"; verdict.className="badge"; }
 }
 
@@ -887,7 +898,10 @@ const RULE_META = {
   minimax_regret:["Minimax regret","minimise worst-case regret vs perfect foresight"],
   maximin_robust:["Maximin (robust) 🏆","minimise the worst-case absolute cost"],
 };
+let optRunning=false;
 async function optimise(){
+  if (optRunning) return;          // presenter steps can fire this mid-run
+  optRunning=true;
   const gridCap=+sliders.grid.value;
   const btn=$("btn-opt"); btn.disabled=true;
   const prog=$("opt-prog"), bar=prog.querySelector("i"); prog.style.display="block";
@@ -946,7 +960,7 @@ async function optimise(){
   const dt=((performance.now()-t0)/1000).toFixed(1);
   $("opt-note").innerHTML=`Done in <b>${dt}s</b>: ${nD} designs × ${SCEN.length} futures × 8,760 h at grid cap <b>${gridCap} kW</b>. Robust pick: <b style="color:var(--gold)">${rulePicks.rules.maximin_robust.pv} kWp · ${rulePicks.rules.maximin_robust.batt} kWh · ${rulePicks.rules.maximin_robust.bays} bays</b>.`;
   setTimeout(()=>{prog.style.display="none";bar.style.width="0";},600);
-  btn.disabled=false;
+  btn.disabled=false; optRunning=false;
   $("rules-card").classList.add("flash"); setTimeout(()=>$("rules-card").classList.remove("flash"),1000);
 }
 $("btn-opt").addEventListener("click",optimise);
