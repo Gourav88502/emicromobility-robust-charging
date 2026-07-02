@@ -1,50 +1,47 @@
-# Final-Round Script - 3 min oral + 3 min live demo
+# Final-Round Script - Part A (3-min oral) + Part B (3-min prototype demo)
 
-*Oral half ~485 words = 3.2 min at a calm 150 wpm; keep total oral under 3:00. Demo half is driven from the website's Presenter mode (open the site, press P; arrow keys advance).*
+*Part A is ~434 words = 2.9 min at a calm 150 wpm - keep it under 3:00. Part B is driven from the website's Presenter mode (open the site, press **P** or click **Start 3-minute demo**; arrow keys advance; the built-in timer turns red past 3:00). Total spoken time stays under 6 minutes.*
 
-## PART 1 - ORAL (3:00, slides 1-6)
+## PART A - ORAL (3:00, slides 1-6)
 
-### Slide 1 - Title & hook  (~22s)
+### Slide 1 - Problem  (~26s)
 
-Good morning. Charging infrastructure for shared e-bikes hides a trap: size a solar hub for average demand and it strands the fleet at peaks; size it for the worst case and capital sits idle. We asked the sharper question - which hub do you build when the future is uncertain? - and answered it with robust optimisation on real data. In three minutes you will see the model itself run live.
+Good morning. Instead of asking how large a charger should be for average demand, our prototype asks what design still works when demand, grid limits and future growth change. A hub sized for the average strands bikes on busy days; an oversized one wastes capital. We answer this with robust optimisation on open data - and in three minutes you will see it run live.
 
-### Slide 2 - The case (10%)  (~32s)
+### Slide 2 - Method / pipeline  (~32s)
 
-The case: UoW Bikes charges a mixed fleet at a campus depot behind a fifteen-kilowatt grid connection - upgrading that wire means a slow, expensive network reinforcement, so peaks must be met on site. Demand swings with term-time, weather and growth; our Low, Medium and High scenarios are built from real DfT monitoring data, so the demand range is observed, not assumed. The decision is set today - solar, battery, bays - but must perform for years.
+The method in one breath. Demand is calibrated to the UoW Bikes use case from open shared-micromobility evidence; solar comes from PVGIS for Coventry and grid carbon from National Grid ESO. Every candidate hub is simulated over all eight thousand seven hundred and sixty hours of a year. One hundred and fifty designs are scored across fifteen futures under five decision rules - and we recommend the one that still performs well when the future is worse than expected.
 
-### Slide 3 - Approach (10%)  (~30s)
+### Slide 3 - Final design result  (~34s)
 
-The approach in one breath: real solar from PVGIS, real carbon from National Grid, real demand from DfT. Fifteen probability-weighted futures. For every candidate hub we simulate all eight thousand seven hundred and sixty hours of the year - solar first, then battery, then the capped grid. A hundred and fifty designs are scored under five decision rules, from naive to maximin, and the winner is stress-tested until the conclusion itself proves robust.
+The recommended design is 15 kilowatt-peak of solar, zero kilowatt-hours of battery, and 8 smart-managed bays. Twenty-nine thousand four hundred pounds of capital, twenty-five pence per kilowatt-hour delivered, and three point seven tonnes of CO2 avoided each year. The reason there is no battery: a returned bike only needs to be ready by morning, so smart charging schedules the energy into sunny and off-peak hours and the load never breaks the fifteen-kilowatt connection.
 
-### Slide 4 - Result + feasibility (10%)  (~42s)
+### Slide 4 - Robustness under uncertainty  (~30s)
 
-The result. The naive hub is cheapest on an average day but collapses in the high-demand future: forty-seven thousand pounds a year and one bike in twenty-one stranded. The robust hub - fifteen kilowatt-peak of solar and eight smart-managed bays - cuts that worst case by fifty-nine percent and guarantees ninety-nine point six percent service. And the surprise: no battery. Smart charging flattens the load below the grid limit, so at a connected site storage adds cost and embodied carbon for nothing. Everything is off-the-shelf hardware, validated nine-for-nine against published benchmarks.
+What does robustness buy? The average-demand design looks cheapest on a normal day, but in the worst demand future its cost reaches forty-seven thousand pounds a year and it strands one bike in twenty-one. The robust design cuts that worst case by nearly sixty percent and lifts guaranteed service from ninety-five point three to ninety-nine point six percent. And we stress-tested the conclusion itself: it held in one hundred percent of thirty-five assumption combinations.
 
-### Slide 5 - Scalability, Safety & Cost (10%)  (~32s)
+### Slide 5 - Battery threshold & sustainability  (~32s)
 
-Scaling, safety, cost. A city scales by copying twenty-nine-thousand-pound modular hubs - no grid reinforcement - and under the UK-India partnership the same pipeline re-sizes for Indian solar and two- and three-wheeler fleets. Safety is standards-mapped: LFP chemistry where storage is used, BS EN battery standards, IP65 bays, and the peak is enforced in software and hardware. Costs are end-to-end: twenty-five pence per kilowatt-hour delivered, and three point seven tonnes of CO2 avoided every year, stated honestly on a marginal basis.
+This result is not anti-battery. It shows that for a connected Warwick campus hub, smart charging gives the required robustness without extra battery cost, degradation or material impact. We swept the grid connection to find exactly where that changes: at roughly eight to ten kilowatts, storage starts entering the optimal design - and there we specify LFP chemistry with second-life reuse. The most sustainable battery is sometimes the one you do not need to install.
 
-### Slide 6 - Demo handoff (into the 40%)  (~22s)
+### Slide 6 - Demo handoff + conclusion  (~24s)
 
-That is the argument - now watch the model make it. The demonstration you are about to see is not a video and not slides: the full dispatch engine runs live in the browser, validated against our Python pipeline at load time. Four things to watch: the hub animated hour by hour; the naive design failing where the robust one holds; the browser re-searching all one hundred and fifty designs in about a second; and a battery entering the design the moment the grid weakens to eight kilowatts. Over to the demo.
+That is the argument - now the prototype makes it live: the full model runs in the browser, checks itself against our Python pipeline, and works offline. Watch four things: the recommendation recomputed in front of you; the average-demand design failing where the robust one holds; a battery entering the design when the grid weakens to eight kilowatts; and the validation behind every number. Over to the demo.
 
-## PART 2 - LIVE DEMO (3:00, website Presenter mode)
+## PART B - LIVE PROTOTYPE DEMO (3:00, website Presenter mode, 7 steps)
 
-*Open docs/index.html (or the GitHub Pages URL), press **P**. The overlay*
-*shows each cue and a running timer; -> advances. Steps 1-10 below match*
-*the on-screen tour. Speak over each step; the actions fire automatically.*
+*Each step scrolls the page and fires its action automatically; speak one line per step.*
 
-| # | ~t | On screen | Say |
+| Step | ~t | On screen | Say |
 |---|----|-----------|-----|
-| 1 | 0:00 | Hub animation playing | This is the hub - every flow is the real model's hourly output, not an illustration. |
-| 2 | 0:20 | The case section | Sized for average, it fails; sized for the worst, it wastes. Robust design threads that needle. |
-| 3 | 0:40 | Approach pipeline | Real DfT, PVGIS and National Grid data; 15 futures; 8,760-hour physics; 5 decision rules. |
-| 4 | 1:00 | Lab - naive preset | The naive hub: watch the worst-case cost and the service KPI go red. |
-| 5 | 1:25 | Lab - robust preset | The robust hub: minus 59% worst-case, 99.6% guaranteed. That's the value of robustness. |
-| 6 | 1:50 | Click Optimise | The browser is now re-solving all 150 designs across 15 futures - 20 million hours - done in a second. Five rules, same winner. |
-| 7 | 2:20 | Grid slider to 8 kW | Weaken the grid and the optimiser buys a battery - the storage boundary is nine kilowatts. That's a design rule, not a guess. |
-| 8 | 2:40 | Theme 2 profiles | Physics per route: 4 to 18 watt-hours per km. Shared bikes cycle 1.3x harder - hence the managed hub. |
-| 9 | 2:50 | Scale-Safety-Cost | Modular GBP 29k hubs, LFP + BS EN safety, 25p per kWh delivered - and the same pipeline re-sizes for India. |
-| 10 | 2:58 | Validation close | Nine-for-nine validated, fully reproducible - we made uncertainty a design input. Thank you. |
+| 1/7 | 0:00 | Problem section | Shared e-bike demand is uncertain - the average-demand hub is cheap but fragile; the oversized one is reliable but wasteful. |
+| 2/7 | 0:25 | Method pipeline | Open solar, carbon and mobility data feed an 8,760-hour simulation - 150 designs, 15 futures, five decision rules. |
+| 3/7 | 0:50 | Live model - robust preset | The recommendation: 15 kWp solar, no battery, 8 smart bays - 19,232 pounds worst-case, 99.6% service. Green status: it holds in every future. |
+| 4/7 | 1:15 | Live model - naive preset | Every number recomputes live. The average-demand design: watch the status turn amber - cheap on paper, fragile at peaks. |
+| 5/7 | 1:40 | Battery threshold | Now weaken the grid to 8 kilowatts - the optimiser adds a battery, live. Storage pays only when the connection is weak, around 8 to 10 kW. |
+| 6/7 | 2:15 | Validation | Nine of nine checks in published ranges, the browser matches the Python pipeline to a hundredth of a percent, and one command reproduces everything. |
+| 7/7 | 2:40 | Hero / recommendation | The prototype turns uncertain e-bike demand into a clear infrastructure decision: how much solar, whether a battery is needed, and how many smart bays to install. Thank you. |
 
-**Q&A (4:00):** leave Slide 7 (backdrop) or the site's validation section on screen.
+**Q&A (4:00):** leave the site's validation section or Slide 6 on screen.
+
+**Fallbacks:** no internet -> open `demo.html` from the cloned repo (fully offline). Display failure -> the QR on Slide 6 opens the same demo on any phone.

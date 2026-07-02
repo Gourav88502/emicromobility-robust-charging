@@ -97,7 +97,7 @@ a.btn:hover{text-decoration:none;filter:brightness(1.12);transform:translateY(-1
 #hero .sub b{color:var(--ink)}
 .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:30px}
 .stat{border-radius:16px;padding:15px 15px 13px;background:rgba(255,255,255,.03);border:1px solid var(--line)}
-.stat .v{font-family:var(--font-d);font-size:clamp(20px,2.3vw,28px);font-weight:700;letter-spacing:-.02em}
+.stat .v{font-family:var(--font-d);font-size:clamp(17px,2vw,24px);font-weight:700;letter-spacing:-.02em}
 .stat .l{font-size:11.5px;color:var(--ink3);margin-top:3px;line-height:1.4}
 .stat .v .u{font-size:.62em;color:var(--ink2);font-weight:600}
 .accent-gold{color:var(--gold)} .accent-green{color:var(--batt)} .accent-purple{color:var(--purple2)} .accent-blue{color:var(--grid)}
@@ -124,7 +124,7 @@ a.btn:hover{text-decoration:none;filter:brightness(1.12);transform:translateY(-1
 .step p{font-size:13.5px;color:var(--ink2)}
 .step p b{color:var(--ink)}
 /* case bento */
-.case-bento{grid-template-columns:repeat(2,1fr)}
+.case-bento{grid-template-columns:repeat(3,1fr)}
 .case-bento .span2{grid-column:1/-1}
 .big{font-family:var(--font-d);font-size:clamp(28px,3.6vw,44px);font-weight:700;letter-spacing:-.02em}
 table{width:100%;border-collapse:collapse;font-size:13.5px}
@@ -203,6 +203,20 @@ footer b{color:var(--ink2)}
   #presenter .keys{display:none}
   section,header#hero{padding:56px 0}
 }
+
+/* ---- v3 additions ---- */
+.hint{font-size:11.5px;color:var(--ink3);margin-top:6px;line-height:1.4}
+.status{margin-top:2px;padding:11px 15px;border-radius:13px;font-size:13.5px;border:1px solid var(--line);background:rgba(255,255,255,.03);color:var(--ink2)}
+.status.good{border-color:rgba(47,215,155,.45);background:rgba(47,215,155,.07);color:#8ff0cd}
+.status.warn{border-color:rgba(255,179,71,.45);background:rgba(255,179,71,.07);color:#ffcf8a}
+.status.bad{border-color:rgba(255,107,107,.5);background:rgba(255,107,107,.08);color:#ffb3b3}
+.kpi.warn .v{color:#ffb347}
+.pipeline{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin-bottom:24px;padding:15px 18px;border-radius:16px;border:1px solid var(--line);background:rgba(255,255,255,.025);font-size:13px;color:var(--ink2)}
+.pipeline span,.pipeline b{padding:5px 11px;border-radius:999px;border:1px solid var(--line2);background:rgba(124,92,255,.08);white-space:nowrap}
+.pipeline b{border-color:rgba(255,194,51,.5);background:rgba(255,194,51,.1);color:var(--gold)}
+.pipeline i{color:var(--ink3);font-style:normal}
+pre.repro{font-size:12.5px;line-height:1.7;background:rgba(0,0,0,.35);border:1px solid var(--line);border-radius:12px;padding:14px 16px;overflow-x:auto;color:#cfe3d8;margin-top:8px}
+@media (max-width:960px){.case-bento{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
@@ -213,8 +227,8 @@ footer b{color:var(--ink2)}
   <div class="wrap">
     <span class="logo"><span class="mark">☀</span>Solar&nbsp;Charging&nbsp;Hub</span>
     <div class="links" id="navlinks">
-      <a href="#case">The Case</a><a href="#approach">Approach</a><a href="#lab">Live Model</a>
-      <a href="#theme2">Battery Use</a><a href="#ssc">Scale · Safety · Cost</a><a href="#impact">Validation</a>
+      <a href="#case">Problem</a><a href="#approach">Method</a><a href="#lab">Live Model</a>
+      <a href="#threshold">Battery Threshold</a><a href="#ssc">Scale · Safety · Cost</a><a href="#impact">Validation</a>
     </div>
     <button class="btn" id="btn-presenter" title="Guided 3-minute demo tour (P)">▶ Presenter</button>
     <a class="cta" href="https://github.com/Gourav88502/emicromobility-robust-charging" target="_blank" rel="noopener">GitHub ↗</a>
@@ -227,19 +241,20 @@ footer b{color:var(--ink2)}
     <div class="top">
       <div>
         <span class="kicker">UK National Competition · Sustainable e-Micromobility · Final Round</span>
-        <h1>Which charging hub do you build when the <span class="grad">future is uncertain?</span></h1>
-        <p class="sub">A solar charging hub for the shared e-bike fleet at the <b>University of Warwick</b>, sized with
-        <b>robust optimisation</b> so it performs in <i>every</i> plausible demand future — not just the average one.
-        The full 8,760-hour model is running <b>live on this page</b>.</p>
+        <h1>Which solar charging hub should Warwick build when <span class="grad">e-bike demand is uncertain?</span></h1>
+        <p class="sub">A live <b>robust-optimisation prototype</b> for sizing solar PV, batteries and smart charging bays.
+        It compares 150 hub designs across 15 demand futures and recommends the one that keeps working
+        when the future is worse than expected — <b>running live on this page</b>.</p>
         <div style="display:flex;gap:12px;flex-wrap:wrap;align-items:center">
+          <button class="btn gold" id="btn-start-demo">▶ Start 3-minute demo</button>
           <a class="btn" href="#lab">⚡ Open the live model</a>
           <span class="badge" id="engine-badge"><span class="dot"></span>validating engine…</span>
         </div>
         <div class="stats">
-          <div class="stat"><div class="v accent-gold num" data-count="59" data-suffix="%">0%</div><div class="l">worst-case cost cut vs a naive design</div></div>
-          <div class="stat"><div class="v accent-green num" data-count="99.6" data-dec="1" data-suffix="%">0%</div><div class="l">fleet service guaranteed in the worst future</div></div>
-          <div class="stat"><div class="v accent-purple num" data-count="55" data-suffix=" t">0</div><div class="l">CO₂ avoided over the project life</div></div>
-          <div class="stat"><div class="v accent-blue num" data-count="9" data-suffix="/9">0</div><div class="l">outputs validated vs published benchmarks</div></div>
+          <div class="stat" style="border-color:rgba(255,194,51,.4)"><div class="v accent-gold num" id="h-kpi-design">15 kWp · 0 kWh · 8 bays</div><div class="l">recommended robust design (solar · battery · smart bays)</div></div>
+          <div class="stat"><div class="v accent-purple num" id="h-kpi-cost">−59.2%</div><div class="l">worst-case annual cost vs an average-demand design</div></div>
+          <div class="stat"><div class="v accent-green num" id="h-kpi-serv">99.6%</div><div class="l">fleet service guaranteed in the worst future</div></div>
+          <div class="stat"><div class="v accent-blue num" id="h-kpi-co2">3.7 t</div><div class="l">CO₂ avoided per year (marginal basis)</div></div>
         </div>
       </div>
       <div class="tile hub-card reveal">
@@ -300,33 +315,11 @@ footer b{color:var(--ink2)}
   </div>
 </header>
 
-<!-- ============================ MARQUEE BAND ============================ -->
-<div class="band" aria-hidden="true">
-  <div class="band-track">
-    <span><b>−59%</b> worst-case cost vs naive<i></i></span>
-    <span><b>99.6%</b> guaranteed fleet service<i></i></span>
-    <span><b>£29,400</b> CAPEX, battery-free<i></i></span>
-    <span><b>£0.253/kWh</b> LCOE delivered<i></i></span>
-    <span><b>3.7 tCO₂/yr</b> avoided, marginal basis<i></i></span>
-    <span><b>9/9</b> outputs validated<i></i></span>
-    <span><b>≈9 kW</b> storage boundary, located<i></i></span>
-    <span><b>20M hours</b> simulated live in your browser<i></i></span>
-    <span><b>−59%</b> worst-case cost vs naive<i></i></span>
-    <span><b>99.6%</b> guaranteed fleet service<i></i></span>
-    <span><b>£29,400</b> CAPEX, battery-free<i></i></span>
-    <span><b>£0.253/kWh</b> LCOE delivered<i></i></span>
-    <span><b>3.7 tCO₂/yr</b> avoided, marginal basis<i></i></span>
-    <span><b>9/9</b> outputs validated<i></i></span>
-    <span><b>≈9 kW</b> storage boundary, located<i></i></span>
-    <span><b>20M hours</b> simulated live in your browser<i></i></span>
-  </div>
-</div>
-
 <!-- ============================ CASE ============================ -->
 <section id="case">
   <div class="wrap">
     <div class="sec-head">
-      <span class="kicker"><span class="w">10%</span> Case understanding</span>
+      <span class="kicker">The problem</span>
       <h2>The trap in sizing charging infrastructure</h2>
       <p class="lead">UoW Bikes charges a mixed fleet of shared e-bikes and e-cargo bikes at a depot behind a
       <b>constrained 15 kW grid connection</b> — a bigger import limit means a costly, slow DNO reinforcement.
@@ -341,15 +334,22 @@ footer b{color:var(--ink2)}
         <p style="color:var(--ink2);font-size:14px;margin-top:10px">Cheapest on a normal day — but in the high-demand future its unmet-charging penalty balloons and it strands
         <b style="color:var(--unmet)">1 bike in 21</b> (95.3% service).</p>
       </div>
-      <div class="tile hot reveal" style="--d:90">
-        <h3>🏆 Robust design — performs in every future</h3>
+      <div class="tile reveal" style="--d:90">
+        <h3>🧱 Oversized design — reliable but wasteful</h3>
+        <p class="muted" style="margin:4px 0 14px">25 kWp PV · 50 kWh battery · 20 bays</p>
+        <div class="big num" style="color:var(--ink2)">£78,000<span style="font-size:.4em;color:var(--ink3)"> capital</span></div>
+        <p style="color:var(--ink2);font-size:14px;margin-top:10px">Nearly 3× the capital of the robust hub for the <b>same 99.6%</b> guaranteed service — and a worse
+        worst-case cost (£23,714/yr). The extra battery adds cost, degradation and embodied materials, not resilience.</p>
+      </div>
+      <div class="tile hot reveal" style="--d:160">
+        <h3>🏆 Robust design — balanced, reliable, cost-aware</h3>
         <p class="muted" style="margin:4px 0 14px">15 kWp PV · 0 kWh battery · 8 smart-managed bays</p>
         <div class="big accent-gold num">£19,232<span style="font-size:.4em;color:var(--ink3)"> /yr worst case</span></div>
         <p style="color:var(--ink2);font-size:14px;margin-top:10px"><b style="color:var(--gold)">−59% worst-case cost</b> and guaranteed service lifted to
         <b style="color:var(--batt)">99.6%</b> — a small expected-cost premium buys protection against the demand tail.</p>
       </div>
-      <div class="tile span2 reveal" style="--d:160">
-        <h3>💡 The surprise: smart charging is the cheapest robustness lever</h3>
+      <div class="tile span2 reveal" style="--d:220">
+        <h3>💡 The key insight: smart charging is the cheapest robustness lever</h3>
         <p style="color:var(--ink2);font-size:14.5px;margin-top:8px;max-width:900px">A bike returned in the evening only needs to be ready by morning, so the controller schedules charging into sunny and
         cheap off-peak hours. That flattens the load below the grid limit — so at this connected site <b style="color:var(--ink)">a battery does not pay</b>.
         Storage only enters the design when the grid connection weakens to <b style="color:var(--ink)">≈9 kW or below</b>.
@@ -363,13 +363,17 @@ footer b{color:var(--ink2)}
 <section id="approach">
   <div class="wrap">
     <div class="sec-head">
-      <span class="kicker"><span class="w">10%</span> Approach &amp; methodology</span>
+      <span class="kicker">Method</span>
       <h2>Real data → 8,760-hour physics → five decision rules → stress-tested</h2>
-      <p class="lead">Everything is reproducible with one command (<code>python run_analysis.py</code>) and re-verified by CI on every push.</p>
+      <p class="lead">In plain terms: <b>the model chooses the design that still performs well when the future is worse than
+      expected.</b> Everything is reproducible with one command (<code>python run_analysis.py</code>) and re-verified by CI on every push.</p>
+    </div>
+    <div class="pipeline reveal" aria-label="Model pipeline">
+      <span>UoW e-bike demand</span><i>→</i><span>Coventry solar (PVGIS)</span><i>→</i><span>West Midlands carbon (ESO)</span><i>→</i><span>8,760-hour simulation</span><i>→</i><span>150 designs</span><i>→</i><span>5 decision rules</span><i>→</i><b>robust recommendation</b>
     </div>
     <div class="three">
       <div class="tile step reveal"><span class="pill-num">1</span><h3>Real demand, real solar, real carbon</h3>
-        <p>Demand scenarios built from <b>DfT shared-micromobility monitoring data</b> (2022–24) calibrated to the UoW Bikes scheme; solar from the <b>PVGIS API</b> for Coventry; grid carbon from <b>National Grid ESO</b> (West Midlands). Nothing synthetic.</p></div>
+        <p>Demand is <b>calibrated to the UoW Bikes use case</b> using open shared-micromobility evidence (DfT monitoring data, 2022–24); the pipeline <b>auto-ingests the official UoW Bikes CSV when present</b>. Solar comes from the <b>PVGIS API</b> for Coventry; grid carbon from <b>National Grid ESO</b> (West Midlands).</p></div>
       <div class="tile step reveal" style="--d:70"><span class="pill-num">2</span><h3>15 probability-weighted futures</h3>
         <p>Low/Medium/High usage × five growth paths, evaluated at the 5-year design horizon — the demand range is <b>observed, not assumed</b>, and each future gets a likelihood.</p></div>
       <div class="tile step reveal" style="--d:140"><span class="pill-num">3</span><h3>Hourly energy balance</h3>
@@ -388,7 +392,7 @@ footer b{color:var(--ink2)}
 <section id="lab">
   <div class="wrap">
     <div class="sec-head">
-      <span class="kicker"><span class="w">40%</span> Demonstration of model <span class="pulse" style="margin-left:4px"></span> <span style="color:var(--ok);letter-spacing:.05em">live</span></span>
+      <span class="kicker">Live model <span class="pulse" style="margin-left:4px"></span> <span style="color:var(--ok);letter-spacing:.05em">running in your browser</span></span>
       <h2>The Design Lab <span class="muted" style="font-size:.5em;font-weight:500;font-family:var(--font-b)">— the real model, running in your browser</span></h2>
       <p class="lead">These are not pre-rendered charts. This page re-implements the project's dispatch engine and cost model in JavaScript,
       <b>validated at load-time against the Python pipeline</b> (<span id="engine-delta">…</span>). Drag a slider and the full
@@ -399,13 +403,17 @@ footer b{color:var(--ink2)}
       <div class="tile controls">
         <h3 style="margin-bottom:16px">⚙️ Design the hub</h3>
         <div class="row"><label>Solar PV array <output id="o-pv">15 kWp</output></label>
-          <input type="range" id="s-pv" min="5" max="25" step="5" value="15" aria-label="Solar PV array size, kilowatt-peak"></div>
+          <input type="range" id="s-pv" min="5" max="25" step="5" value="15" aria-label="Solar PV array size, kilowatt-peak">
+          <p class="hint">Local renewable supply — serves bikes first, then export.</p></div>
         <div class="row"><label>Battery storage <output id="o-batt">0 kWh</output></label>
-          <input type="range" id="s-batt" min="0" max="50" step="10" value="0" aria-label="Battery storage size, kilowatt-hours"></div>
+          <input type="range" id="s-batt" min="0" max="50" step="10" value="0" aria-label="Battery storage size, kilowatt-hours">
+          <p class="hint">Useful only when the grid connection is constrained.</p></div>
         <div class="row"><label>Charge bays (3 kW each) <output id="o-bays">8</output></label>
-          <input type="range" id="s-bays" min="4" max="20" step="4" value="8" aria-label="Number of charge bays"></div>
+          <input type="range" id="s-bays" min="4" max="20" step="4" value="8" aria-label="Number of charge bays">
+          <p class="hint">Charging capacity — sets the service level at peaks.</p></div>
         <div class="row"><label>Grid connection limit <output id="o-grid">15 kW</output></label>
-          <input type="range" id="s-grid" min="4" max="22" step="1" value="15" aria-label="Grid connection limit, kilowatts"></div>
+          <input type="range" id="s-grid" min="4" max="22" step="1" value="15" aria-label="Grid connection limit, kilowatts">
+          <p class="hint">Site connection constraint — the crux of the design problem.</p></div>
         <div class="presets">
           <button class="btn" id="p-naive">Naive 5/0/4</button>
           <button class="btn" id="p-robust">🏆 Robust 15/0/8</button>
@@ -428,6 +436,10 @@ footer b{color:var(--ink2)}
           <div class="kpi" id="k-lcoe"><div class="v num">—</div><div class="l">LCOE of delivered energy</div><i class="bar"></i></div>
           <div class="kpi" id="k-peak"><div class="v num">—</div><div class="l">peak grid draw (cap <span id="k-peak-cap">15</span> kW)</div><i class="bar"></i></div>
         </div>
+        <div id="status-line" class="status" role="status">…</div>
+        <div id="engine-fallback" class="status bad" style="display:none">⚠️ The live engine could not start in this browser.
+          Static results from the Python pipeline: robust design <b>15 kWp · 0 kWh · 8 bays</b> — £19,232/yr worst-case,
+          99.6% guaranteed service, £29,400 CAPEX (see <code>outputs/results.json</code> in the repository).</div>
         <div class="tile">
           <div class="chart-title"><h3>One week of hourly dispatch — worst-case demand future</h3>
             <div class="seg" id="seg-week"><button class="on" data-w="summer">Summer</button><button data-w="winter">Winter</button></div></div>
@@ -444,17 +456,10 @@ footer b{color:var(--ink2)}
       </div>
     </div>
 
-    <div class="two" style="margin-top:18px">
-      <div class="tile">
-        <div class="chart-title"><h3>Cost vs robustness — every design this page has evaluated</h3><span class="muted" id="pareto-count"></span></div>
-        <canvas id="c-pareto" height="270"></canvas>
-        <p class="muted" style="margin-top:8px">Down-left is better. ◆ = five decision-rule picks; ★ = recommended maximin design. Grey ✕ designs miss the 95% service target in at least one future.</p>
-      </div>
-      <div class="tile">
-        <div class="chart-title"><h3>When does a battery pay? Drag the grid slider.</h3><span class="badge" id="batt-verdict"></span></div>
-        <canvas id="c-thresh" height="270"></canvas>
-        <p class="muted" style="margin-top:8px">Battery size in the robust (maximin) design as the grid connection weakens — from the Python sweep. The <b style="color:var(--gold)">gold marker</b> is the live browser optimisation at your selected grid cap: storage enters at <b>≈9 kW and below</b>.</p>
-      </div>
+    <div class="tile" style="margin-top:18px">
+      <div class="chart-title"><h3>Cost vs robustness — every design this page has evaluated</h3><span class="muted" id="pareto-count"></span></div>
+      <canvas id="c-pareto" height="270"></canvas>
+      <p class="muted" style="margin-top:8px">Down-left is better. ◆ = five decision-rule picks; ★ = recommended maximin design. Grey ✕ designs miss the 95% service target in at least one future.</p>
     </div>
     <div class="tile" style="margin-top:18px" id="rules-card">
       <div class="chart-title"><h3>Five decision rules, one search space — what each would build</h3><span class="muted">click 🔍 to recompute live</span></div>
@@ -462,6 +467,43 @@ footer b{color:var(--ink2)}
         <thead><tr><th>Decision rule</th><th>What it optimises</th><th>Design (PV · battery · bays)</th><th class="num">Expected £/yr</th><th class="num">Worst-case £/yr</th><th class="num">Min service</th></tr></thead>
         <tbody></tbody>
       </table></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ BATTERY THRESHOLD ============================ -->
+<section id="threshold">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="kicker">Battery threshold</span>
+      <h2>When does a battery actually pay?</h2>
+      <p class="lead">At the campus hub's <b>15 kW connection, the recommendation is 0 kWh of battery</b> — smart charging alone
+      keeps the load under the limit. Weaken the connection to <b>around 8–10 kW</b> and storage starts entering the
+      optimal design. This is <b>not an anti-battery result</b>: it avoids unnecessary battery cost, degradation and
+      material impact when smart charging can solve the problem — and it tells you exactly when storage becomes worth it.</p>
+    </div>
+    <div class="two" style="align-items:stretch">
+      <div class="tile">
+        <div class="chart-title"><h3>Battery size in the robust design vs grid connection</h3><span class="badge" id="batt-verdict"></span></div>
+        <canvas id="c-thresh" height="270"></canvas>
+        <p class="muted" style="margin-top:8px">Bars: Python sweep. The <b style="color:var(--gold)">gold star</b> is the live browser optimisation at your selected grid cap.</p>
+        <div class="presets" style="margin-top:12px">
+          <button class="btn" id="p-thresh-weak">Prove it live: 8 kW grid → optimise</button>
+          <button class="btn" id="p-thresh-strong">Back to 15 kW → optimise</button>
+        </div>
+      </div>
+      <div class="tile">
+        <h3>🔋 Battery sustainability &amp; circularity</h3>
+        <ul class="tick" style="margin-top:8px">
+          <li><b>Storage is conditional, not default:</b> the model adds a battery only when the grid is weak enough to need one — around 8–10 kW here.</li>
+          <li><b>Avoided material impact:</b> skipping an unnecessary 20–50 kWh pack avoids its lithium, iron-phosphate and manufacturing footprint entirely.</li>
+          <li><b>LFP chemistry preferred</b> where storage is needed — cobalt- and nickel-free, long cycle life, safer thermal behaviour.</li>
+          <li><b>Second life &amp; recycling:</b> weak-grid deployments should plan second-life reuse and end-of-life recycling from day one.</li>
+          <li><b>Degradation is priced in:</b> the cost model ages the battery by cycling <i>and</i> calendar time, so replacements are never hidden.</li>
+        </ul>
+        <p style="margin-top:14px;padding:14px 16px;border-left:3px solid var(--gold);background:rgba(255,194,51,.06);border-radius:0 12px 12px 0;color:var(--ink);font-size:15px">
+        “The most sustainable battery is sometimes the one you do not need to install.”</p>
+      </div>
     </div>
   </div>
 </section>
@@ -497,8 +539,10 @@ footer b{color:var(--ink2)}
 <section id="ssc">
   <div class="wrap">
     <div class="sec-head">
-      <span class="kicker"><span class="w">10%</span> Scalability · Safety · Cost</span>
+      <span class="kicker">Scale · Safety · Cost</span>
       <h2>Built to be copied — safely, and on budget</h2>
+      <p class="lead">This is a <b>decision-support prototype</b> — it tells an operator what to build and when storage pays;
+      detailed electrical design and installation remain a contractor task.</p>
     </div>
     <div class="three">
       <div class="tile reveal">
@@ -537,7 +581,7 @@ footer b{color:var(--ink2)}
 <section id="impact">
   <div class="wrap">
     <div class="sec-head">
-      <span class="kicker"><span class="w">10%</span> Technical feasibility · Validation</span>
+      <span class="kicker">Validation &amp; reproducibility</span>
       <h2>Every number checked, every claim reproducible</h2>
     </div>
     <div class="two" style="align-items:start">
@@ -559,6 +603,14 @@ footer b{color:var(--ink2)}
             <li>Displaces <b>~10,200 kWh/yr</b> of marginal gas generation.</li>
           </ul>
         </div>
+        <div class="tile reveal" style="--d:120">
+          <h3>Reproduce this yourself</h3>
+          <pre class="repro">git clone https://github.com/Gourav88502/emicromobility-robust-charging.git
+cd emicromobility-robust-charging
+pip install -r requirements.txt
+python run_analysis.py      # full pipeline → outputs/
+python -m pytest -q         # 11 regression tests</pre>
+        </div>
         <div class="tile reveal" style="--d:160">
           <h3>Open &amp; auditable</h3>
           <p style="font-size:14px;color:var(--ink2);margin-top:6px">MIT-licensed. Deterministic (seeded). 11 regression tests + CI on every push. One command rebuilds every figure on this page — and this page itself
@@ -572,7 +624,8 @@ footer b{color:var(--ink2)}
 <footer>
   <div class="wrap cols">
     <div><b>Solar Charging Hub</b> · UK National Competition for Sustainable e-Micromobility 2025-26<br>
-      Final round · WMG, University of Warwick · Stakeholder Engagement Workshop</div>
+      Final round · WMG, University of Warwick · Stakeholder Engagement Workshop<br>
+      <span style="color:var(--ink3)">A decision-support prototype — not a construction-ready engineering design.</span></div>
     <div>Model &amp; site: <a href="https://github.com/Gourav88502/emicromobility-robust-charging" target="_blank" rel="noopener">github.com/Gourav88502/emicromobility-robust-charging</a><br>
       Data: DfT (OGL) · PVGIS © EU JRC · National Grid ESO · MIT License</div>
   </div>
@@ -814,11 +867,20 @@ function refresh(){
 }
 function renderKPIs(){
   const c=current, wc=c.worstCosts;
-  const set=(id,html,cls)=>{ const el=$(id); el.querySelector(".v").innerHTML=html; el.classList.remove("bad","good"); if(cls) el.classList.add(cls); };
+  const set=(id,html,cls)=>{ const el=$(id); el.querySelector(".v").innerHTML=html; el.classList.remove("bad","good","warn"); if(cls) el.classList.add(cls); };
   set("k-worst", fmtGBP(c.worst)+"<span class='u'>/yr</span>", c.worst>30000?"bad":(c.worst<20000?"good":null));
   set("k-exp", fmtGBP(c.expected)+"<span class='u'>/yr</span>");
   const sp=(c.minService*100);
-  set("k-serv", sp.toFixed(1)+"<span class='u'>%</span>", sp>=99?"good":(sp<G.service_target*100?"bad":null));
+  set("k-serv", sp.toFixed(1)+"<span class='u'>%</span>", sp>=99?"good":(sp<G.service_target*100?"bad":"warn"));
+  const st=$("status-line");
+  if (st){
+    if (sp < G.service_target*100){ st.className="status bad";
+      st.textContent="\u{1F534} Below the 95% service target in the worst future \u2014 risk of stranded bikes."; }
+    else if (sp < 99){ st.className="status warn";
+      st.textContent="\u{1F7E0} Meets the 95% service target, but with little headroom in the worst future."; }
+    else { st.className="status good";
+      st.textContent="\u{1F7E2} Meets the service target in every one of the 15 demand futures."; }
+  }
   set("k-capex", fmtGBP(capex(c.pv,c.batt,c.bays).total));
   set("k-solar",(c.solarFractionWorst*100).toFixed(1)+"<span class='u'>%</span>");
   set("k-co2", c.co2SavedWorst.toFixed(1)+"<span class='u'> t</span>","good");
@@ -1229,22 +1291,19 @@ function fillValidation(){
    PRESENTER MODE — guided 3-minute demo tour
    ===================================================================== */
 const TOUR=[
-  {sec:"#hero",t:"<b>This is the hub we designed</b> for UoW Bikes — solar, smart controller, charge bays, a capped grid link. Press ▶ Play: these flows are the model's real hourly output.",act:()=>{setDesign(15,0,8,15); if(!hubPlaying) $("hub-play").click();}},
-  {sec:"#case",t:"<b>The trap:</b> size for the average and the busy future strands 1 bike in 21 at £47k/yr. Size robustly: −59% worst-case cost, 99.6% service.",act:()=>{if(hubPlaying) $("hub-play").click();}},
-  {sec:"#approach",t:"<b>Method in one breath:</b> real DfT + PVGIS + ESO data → 15 weighted futures → 8,760-h dispatch → 150 designs × 5 decision rules → stress-tested & validated.",act:null},
-  {sec:"#lab",t:"<b>Live model.</b> This browser re-derives every number — validated against the Python pipeline at load. Watch the naive design first…",act:()=>setDesign(5,0,4,15)},
-  {sec:"#lab",t:"Naive: fine on average, <b>collapses in the worst future</b>. Now the robust design — worst-case cost drops ~60%, guaranteed service jumps to 99.6%.",act:()=>setDesign(15,0,8,15)},
-  {sec:"#lab",t:"<b>Click 🔍 and the browser searches all 150 designs × 15 futures live</b> — five decision rules, one winner: maximin picks 15 kWp · 0 kWh · 8 bays.",act:()=>optimise()},
-  {sec:"#lab",t:"<b>Why no battery?</b> Smart charging already flattens the load. Weaken the grid to 8 kW… now storage enters the optimal design. The boundary is ≈9 kW.",act:()=>{setDesign(15,20,8,8); optimise();}},
-  {sec:"#theme2",t:"<b>Theme 2:</b> physics gives 4–18 Wh/km by route; shared bikes cycle ~1.3× harder than private ones — that's why shared fleets need the managed hub.",act:null},
-  {sec:"#ssc",t:"<b>Scale, safety, cost:</b> £29.4k modular hubs, LFP + BS EN standards where storage is used, LCOE £0.253/kWh — and the same pipeline resizes for India.",act:null},
-  {sec:"#impact",t:"<b>Close:</b> 9/9 validated, 3.7 tCO₂/yr avoided, fully reproducible — we turned demand uncertainty from a risk into a design input. Questions welcome.",act:null},
+  {sec:"#case",t:"<b>1 \u00b7 Problem.</b> Shared e-bike demand is uncertain: an average-demand hub fails on busy days, an oversized one wastes capital \u2014 we want the design that stays balanced.",act:()=>{if(hubPlaying) $("hub-play").click(); setDesign(15,0,8,15);}},
+  {sec:"#approach",t:"<b>2 \u00b7 Data &amp; method.</b> Open solar, carbon and mobility data feed an 8,760-hour simulation \u2014 150 designs are tested across 15 futures under five decision rules.",act:null},
+  {sec:"#lab",t:"<b>3 \u00b7 Recommended design.</b> The robust answer: 15 kWp solar, no battery, 8 smart bays \u2014 \u00a319,232 worst-case cost and 99.6% guaranteed service.",act:()=>setDesign(15,0,8,15)},
+  {sec:"#lab",t:"<b>4 \u00b7 Live model.</b> Everything recomputes in the browser \u2014 the average-demand design turns the status red: cheap on paper, fragile at peaks.",act:()=>setDesign(5,0,4,15)},
+  {sec:"#threshold",t:"<b>5 \u00b7 Battery threshold.</b> Weaken the grid to 8 kW and the optimiser adds storage live \u2014 batteries pay only when the connection is weak, around 8\u201310 kW.",act:()=>{setDesign(15,20,8,8); optimise();}},
+  {sec:"#impact",t:"<b>6 \u00b7 Robustness &amp; validation.</b> The conclusion held across all 35 stress-test combinations; 9 of 9 checks sit in published ranges; one command reproduces it all.",act:()=>setDesign(15,0,8,15)},
+  {sec:"#hero",t:"<b>7 \u00b7 Final message.</b> The prototype turns uncertain e-bike demand into a clear infrastructure decision: how much solar, whether a battery is needed, and how many smart bays to install.",act:null},
 ];
 let tourIdx=0,tourT0=null,tourTick=null;
 const pres=$("presenter");
 function tourShow(){
   const s=TOUR[tourIdx];
-  $("pr-step").textContent=`STEP ${tourIdx+1}/${TOUR.length}`;
+  $("pr-step").textContent=`Step ${tourIdx+1}/${TOUR.length}`;
   $("pr-text").innerHTML=s.t;
   document.querySelector(s.sec).scrollIntoView({behavior:"smooth",block:"start"});
   if (s.act) s.act();
@@ -1290,10 +1349,11 @@ document.querySelectorAll("[data-count]").forEach(el=>io2.observe(el));
 /* init */
 drawRoutes(); drawSoc(); drawCapex(); fillValidation();
 refresh();
+window.__bootOK = true;
 window.addEventListener("resize",()=>{drawWeek();drawPareto();drawThreshold();drawRoutes();drawSoc();drawCapex();});
 </script>
 <script>
-/* template enhancements: cursor spotlight + active nav */
+/* enhancements: cursor spotlight, active nav, demo bindings, engine fallback */
 document.querySelectorAll(".tile").forEach(t=>{
   t.addEventListener("pointermove",e=>{
     const r=t.getBoundingClientRect();
@@ -1307,6 +1367,34 @@ document.querySelectorAll(".tile").forEach(t=>{
     if(en.isIntersecting) links.forEach(a=>a.classList.toggle("active",a.getAttribute("href")==="#"+en.target.id));
   }),{rootMargin:"-35% 0px -55% 0px"});
   document.querySelectorAll("section[id],header[id]").forEach(s=>io.observe(s));
+})();
+(function(){
+  // engine-failure fallback: if the main script crashed, show static results
+  setTimeout(()=>{
+    if (!window.__bootOK){
+      const fb=document.getElementById("engine-fallback");
+      if (fb) fb.style.display="block";
+      const sl=document.getElementById("status-line");
+      if (sl) sl.style.display="none";
+      const badge=document.getElementById("engine-badge");
+      if (badge){ badge.classList.remove("ok"); badge.innerHTML="<span class='dot'></span>live engine unavailable \u2014 static results shown"; }
+      return;
+    }
+    // engine OK: sync hero KPI cards to the embedded results.json (single source of truth)
+    try{
+      const R=window.DEMO_DATA.results, v=R.value_of_robustness, d=R.recommended_design;
+      document.getElementById("h-kpi-design").textContent=`${d.pv_kwp} kWp \u00b7 ${d.battery_kwh} kWh \u00b7 ${d.n_chargers} bays`;
+      document.getElementById("h-kpi-cost").textContent=`\u2212${v.worst_cost_reduction_pct.toFixed(1)}%`;
+      document.getElementById("h-kpi-serv").textContent=`${(v.robust_min_service*100).toFixed(1)}%`;
+      document.getElementById("h-kpi-co2").textContent=`${R.emissions.carbon_saving_tCO2_yr.toFixed(1)} t`;
+    }catch(e){}
+    // demo bindings
+    const sd=document.getElementById("btn-start-demo");
+    if (sd) sd.addEventListener("click",()=>tourStart());
+    const tw=document.getElementById("p-thresh-weak"), ts=document.getElementById("p-thresh-strong");
+    if (tw) tw.addEventListener("click",()=>{ setDesign(15,20,8,8); optimise(); });
+    if (ts) ts.addEventListener("click",()=>{ setDesign(15,0,8,15); optimise(); });
+  }, 1200);
 })();
 </script>
 </body>

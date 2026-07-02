@@ -1,11 +1,11 @@
 # Safety & Scalability Analysis
 
-> Final-round criterion: **Scalability, Safety & Cost Analysis (10%)**. This
-> document is the engineering back-up for the claims made on Slide 5 of the
-> presentation and the *Scale · Safety · Cost* section of the live demo site.
-> Cost analysis lives in the model itself (`src/economics.py`, every figure
-> traceable to `src/config.py` sources); this file covers what the code cannot:
-> physical safety and the scale-up path.
+> Engineering back-up for the safety and scale-up claims made in the
+> presentation and in the *Scale · Safety · Cost* section of the live demo
+> site. Cost analysis lives in the model itself (`src/economics.py`, every
+> figure traceable to `src/config.py` sources); this file covers what the code
+> cannot: physical safety and the scale-up path. This project is a
+> **decision-support prototype**, not a construction-ready engineering design.
 
 ---
 

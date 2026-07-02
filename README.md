@@ -1,5 +1,16 @@
 # 🚲 Robust Charging Infrastructure Design under Demand Uncertainty
 
+## ▶️ Live demo: **https://gourav88502.github.io/emicromobility-robust-charging/**
+
+**The result in one sentence:** for a shared e-bike charging hub at the University of Warwick, the robust design is
+**15 kWp solar · 0 kWh battery · 8 smart-managed bays** — smart charging is the cheapest robustness lever, and battery
+storage only becomes useful once the grid connection weakens to roughly **8–10 kW**.
+
+*Offline: open [`demo.html`](demo.html) from a clone — one self-contained file, nothing to install. Press **P** (or click
+"Start 3-minute demo") for the guided Presenter tour.*
+
+---
+
 **Solar-powered charging hub for a shared e‑bike scheme — University of Warwick, Coventry (CV4 7AL)**
 
 [![Python](https://img.shields.io/badge/Python-3.10%2B-blue.svg)](https://www.python.org/)
@@ -14,17 +25,16 @@
 > **Theme 2 (secondary)** — route-based energy model + personal-vs-shared e‑bike charge/discharge profiles
 > **Example site:** University of Warwick, Coventry (CV4 7AL) — the location named in the competition's Supplementary Data sheet
 
-## ▶️ FINAL-ROUND LIVE DEMO — the model, running in your browser
+## ▶️ What the live demo can do
 
-**https://gourav88502.github.io/emicromobility-robust-charging/** — or simply open
-[`demo.html`](demo.html) from a clone (single file, fully offline, nothing to install).
-
-The page re-implements the dispatch engine and cost model in JavaScript, **validates
+The demo page re-implements the dispatch engine and cost model in JavaScript, **validates
 itself against this Python pipeline at load time (max Δ <0.005%)**, and lets you:
 drag PV/battery/bay/grid sliders and watch the 8,760-hour × 15-scenario evaluation
 re-run instantly · re-solve the full **150-design robust optimisation live (~1 s)** ·
-find the **≈9 kW storage boundary** yourself · and run the timed 3-minute
-**Presenter mode** (press `P`) used for the in-person demo.
+find the **≈8–10 kW storage boundary** yourself · and run the timed 3-minute
+**Presenter mode** (press `P`) used for the in-person demo. It is a
+**decision-support prototype**: it tells an operator what to build and when storage
+pays, not a construction-ready electrical design.
 
 ---
 
@@ -109,21 +119,20 @@ python run_analysis.py
 
 That single command **prepares the datasets, runs every model, and writes all figures and a combined report** to `outputs/`. It is deterministic (fixed seed) and self‑healing (it regenerates any missing data), so it works on a fresh clone in under a minute.
 
-That command also rebuilds the **methodology flow diagram**, the **2‑page anonymised
-Executive Summary** (`.docx` + `.pdf`), and the **anonymised 3‑minute presentation deck + script** — the full
-blind‑judged Level‑1 package.
+That command also rebuilds the **methodology flow diagram**, the **2‑page
+Executive Summary** (`.docx` + `.pdf`), and the **final‑round presentation deck +
+dual timed script** (3‑min oral + 3‑min demo).
 
 **Then open the interactive report and deliverables:**
 
 ```
-demo.html / docs/index.html      ← FINAL-ROUND live demo (offline, self-validating; press P for Presenter mode)
+demo.html / docs/index.html      ← live demo (offline, self-validating; press P for Presenter mode)
 outputs/index.html               ← interactive results report
 outputs/Executive_Summary.docx   ← 2-page summary (Aptos 11; open in Word → Save as PDF)
 outputs/Executive_Summary.pdf    ← ready-to-send PDF backup
-outputs/Presentation.pptx        ← final-round deck: 3-min oral + demo handoff + Q&A backdrop
-outputs/presentation_script.md   ← timed scripts for BOTH halves (3-min oral + 3-min demo)
-SAFETY_AND_SCALING.md            ← safety standards mapping + scale-up analysis (10% criterion)
-DEFENSE_NOTES.md                 ← Q&A drill + event-day runbook
+outputs/Presentation.pptx        ← final-round deck: 6-slide story + live-demo handoff
+outputs/presentation_script.md   ← timed scripts: Part A (3-min oral) + Part B (3-min demo)
+SAFETY_AND_SCALING.md            ← safety standards mapping + scale-up analysis
 ```
 
 Rebuild the demo site after changing the model: `python scripts/build_demo_site.py`
@@ -244,7 +253,7 @@ Nine uncertain variables are propagated through Monte‑Carlo and ranked by torn
 This is **100 % original work** written for this competition:
 
 - All model code, the dispatch engine, the five‑rule optimisation, the Sobol and robustness analyses, and every figure were written from scratch for this project.
-- **All data is real or real‑grounded**: live **PVGIS** solar (Coventry) and live **National Grid ESO** carbon intensity (West Midlands); demand is built from the **real DfT shared‑micromobility monitoring data** (Open Government Licence, Jan 2022–May 2024), adapted to a UoW e‑bike scheme and validated against published ranges, and it ingests the official `UoW Bikes Data(Sheet1).csv` when provided.
+- **Data provenance is explicit**: live **PVGIS** solar (Coventry) and live **National Grid ESO** carbon intensity (West Midlands) are real API pulls; demand is **calibrated to the UoW Bikes use case** from the open **DfT shared‑micromobility monitoring data** (Open Government Licence, Jan 2022–May 2024), validated against published ranges, and the pipeline **auto‑ingests the official `UoW Bikes Data(Sheet1).csv` when provided**.
 - Seven model outputs are **validated** against published benchmark ranges, and the headline conclusion is shown to be **robust to its own assumptions** (penalty × grid × horizon).
 - Every numeric assumption carries an inline source comment in `config.py`; all literature is cited in `REFERENCES.md`.
 - No text or code was copied from third parties. The repository is self‑contained and fully reproducible, supporting the competition's AI/plagiarism checks.

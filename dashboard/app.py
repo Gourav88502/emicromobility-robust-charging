@@ -51,7 +51,7 @@ def _bootstrap():
     return (demand_model.load_demand(), pv_model.load_solar(), emissions.load_carbon())
 
 
-@st.cache_data(show_spinner="Running robust optimisation (150 designs × 9 scenarios)…")
+@st.cache_data(show_spinner="Running robust optimisation (150 designs × 15 scenarios)…")
 def _optimise():
     return optimization.run_full_optimisation()
 
@@ -81,8 +81,8 @@ st.title("🛴 Robust Charging Infrastructure Design under Demand Uncertainty")
 st.caption(f"Solar-powered shared e-micromobility charging station · {config.SITE_NAME} "
            f"· National Competition for Sustainable e-Micromobility 2025-26")
 
-tab_over, tab_design, tab_opt, tab_unc, tab_sens, tab_data = st.tabs(
-    ["📌 Overview", "🎛️ Station designer", "🛡️ Robust optimiser",
+tab_over, tab_design, tab_thresh, tab_opt, tab_unc, tab_sens, tab_data = st.tabs(
+    ["📌 Overview", "🎛️ Station designer", "🔋 Battery threshold", "🛡️ Robust optimiser",
      "🎲 Uncertainty", "🌪️ Sensitivity", "📚 Data & method"])
 
 
@@ -168,10 +168,58 @@ with tab_design:
 
 
 # --------------------------------------------------------------------------- #
-#  Tab 3 — Robust optimiser
+#  Tab 3 — Battery threshold (the one-slider stakeholder demo)
+# --------------------------------------------------------------------------- #
+with tab_thresh:
+    st.subheader("When does a battery pay? Move one slider.")
+    st.markdown(
+        "At the site's **15 kW connection the robust design carries no battery** — "
+        "smart charging keeps the load under the limit. Weaken the connection and "
+        "watch storage enter the optimal design.")
+
+    thr_path = config.OUTPUT_DIR / "grid_battery_threshold.csv"
+    if thr_path.exists():
+        thr = pd.read_csv(thr_path).sort_values("grid_kW")
+        g = st.slider("Grid connection limit (kW)", int(thr["grid_kW"].min()),
+                      int(thr["grid_kW"].max()), int(config.GRID_CONNECTION_KW),
+                      help="The robust (maximin) design at each grid limit, "
+                           "precomputed by src/robustness.py")
+        row = thr.iloc[(thr["grid_kW"] - g).abs().argsort().iloc[0]]
+        c1, c2, c3, c4 = st.columns(4)
+        c1.metric("Nearest swept grid limit", f"{row['grid_kW']:g} kW")
+        c2.metric("Solar PV", f"{row['pv_kwp']:g} kWp")
+        c3.metric("Battery in robust design", f"{row['battery_kwh']:g} kWh",
+                  "storage pays here" if row["battery_kwh"] > 0 else "no battery needed",
+                  delta_color="normal" if row["battery_kwh"] > 0 else "off")
+        c4.metric("Charge bays", f"{row['n_chargers']:g}")
+
+        st.bar_chart(thr.set_index("grid_kW")["battery_kwh"],
+                     x_label="grid connection limit (kW)",
+                     y_label="battery in robust design (kWh)")
+        if row["battery_kwh"] > 0:
+            st.warning(
+                f"At **{row['grid_kW']:g} kW** the connection is too weak for smart "
+                "charging alone — the optimiser buys storage to shift solar into the "
+                "overnight load. For these weak-grid sites we specify LFP chemistry "
+                "with second-life reuse (see SAFETY_AND_SCALING.md).")
+        else:
+            st.success(
+                f"At **{row['grid_kW']:g} kW** smart charging alone keeps the load "
+                "under the connection limit — a battery would add cost, degradation "
+                "and embodied materials without improving service. The most "
+                "sustainable battery is sometimes the one you do not need to install.")
+        st.caption("Battery enters the robust design at ≤8 kW and is gone by 10 kW — "
+                   "the storage boundary sits around 8–10 kW for this site.")
+    else:
+        st.info("Run `python run_analysis.py` (or `python scripts/grid_threshold_sweep.py`) "
+                "to generate outputs/grid_battery_threshold.csv first.")
+
+
+# --------------------------------------------------------------------------- #
+#  Tab 4 — Robust optimiser
 # --------------------------------------------------------------------------- #
 with tab_opt:
-    st.subheader("Four decision rules compared")
+    st.subheader("Five decision rules compared")
     rows = []
     for rule, info in opt["rules"].items():
         d = info["design"]

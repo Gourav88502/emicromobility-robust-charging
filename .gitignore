@@ -45,3 +45,5 @@ outputs/_slides/
 #   pareto_frontier.csv, tornado_sensitivity.csv  (all kept by default)
 
 .claude/
+DEFENSE_NOTES.md
+PRIVATE_QA*
