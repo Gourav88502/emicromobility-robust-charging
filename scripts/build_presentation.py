@@ -225,7 +225,11 @@ def build():
     s = prs.slides.add_slide(blank); bg(s, WHITE)
     text(s, 0.7, 0.5, 12, 0.8, [[("When does a battery pay? Only when the grid is weak", {"size": 29, "bold": True, "color": NAVY, "font": HEAD})]])
     # threshold graphic (simple bar strip built from shapes)
-    caps = [(4, 50), (6, 50), (8, 20), (10, 0), (12, 0), (15, 0), (18, 0), (20, 0)]
+    import csv
+    with open(OUT / "grid_battery_threshold.csv", newline="", encoding="utf-8") as fh:
+        rows = sorted(csv.DictReader(fh), key=lambda r: float(r["grid_kW"]))
+    caps = [(float(r["grid_kW"]), float(r["battery_kwh"])) for r in rows
+            if float(r["grid_kW"]) in (4, 6, 8, 10, 12, 15, 18, 20)]
     x0, y_base, bw, gap = 0.9, 4.55, 0.62, 0.28
     maxh = 2.3
     for k, (cap, batt) in enumerate(caps):
