@@ -36,7 +36,7 @@ OUT = ROOT / "outputs"
 R = json.loads((OUT / "results.json").read_text(encoding="utf-8"))
 
 # ---- identity (final round is NOT blind — put your names here) -------------
-TEAM_LINE = "UoW-Bikes Solar Hub Team"          # <-- EDIT: team / member names
+TEAM_LINE = "Team SolarCycle - Gourav Singh, Neelesh Raj, Priti Burud (Newcastle University)"
 EVENT_LINE = ("Sustainable e-Micromobility Stakeholder Engagement Workshop - "
               "WMG, University of Warwick - 6 July 2026")
 DEMO_URL = "gourav88502.github.io/emicromobility-robust-charging"
