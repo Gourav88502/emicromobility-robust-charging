@@ -10,7 +10,7 @@ Option 2 - LP smart charging (200 vehicles):
   peak 15.4 -> 10.0 kW (-35%); cost GBP29.31 -> GBP17.40 (-41%)
 
 Option 3 - solar+battery EMS (25 kWp, 30 kWh):
-  solar fraction 41%, grid import 59.1 kWh/day
+  solar fraction 40%, grid import 59.6 kWh/day
 
 Option 4 - Simulink digital twin validation:
   max SoC error vs MATLAB EMS: 0.000 kWh (0.00%); grid error 0.00%
