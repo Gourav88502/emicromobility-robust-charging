@@ -663,14 +663,6 @@ pre.repro{font-size:12.5px;line-height:1.7;background:rgba(0,0,0,.35);border:1px
             <li>Displaces <b>~10,200 kWh/yr</b> of marginal gas generation.</li>
           </ul>
         </div>
-        <div class="tile reveal" style="--d:120">
-          <h3>Reproduce this yourself</h3>
-          <pre class="repro">git clone https://github.com/Gourav88502/emicromobility-robust-charging.git
-cd emicromobility-robust-charging
-pip install -r requirements.txt
-python run_analysis.py      # full pipeline → outputs/
-python -m pytest -q         # 11 regression tests</pre>
-        </div>
         <div class="tile reveal" style="--d:160">
           <h3>Open &amp; auditable</h3>
           <p style="font-size:14px;color:var(--ink2);margin-top:6px">MIT-licensed. Deterministic (seeded). 11 regression tests + CI on every push. One command rebuilds every figure on this page — and this page itself
