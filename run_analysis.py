@@ -10,7 +10,7 @@ Steps
 -----
   0. Prepare datasets (UoW Bikes + calibrated solar/carbon) if missing.
   1. Build Low/Medium/High demand scenarios (with weekday/weekend distinction).
-  2. Robust optimisation: 150 designs x 9 scenarios -> 5 decision rules,
+  2. Robust optimisation: 150 designs x 15 scenarios -> 5 decision rules,
      Pareto frontier, value of robustness. Each design evaluated under
      OPTIMAL LP dispatch (rolling-horizon, scipy HiGHS) — the coupled
      LP+sizing pipeline (Silvente et al. 2018; Morales-España et al. 2014).
@@ -85,7 +85,7 @@ def main():
         visualize.fig_scenario_demand(scen_summary), "01_scenario_demand")
 
     # ---- 2. Robust optimisation ------------------------------------------- #
-    print("\n[2] Robust optimisation (150 designs x 9 scenarios, LP optimal dispatch) ...")
+    print("\n[2] Robust optimisation (150 designs x 15 scenarios, LP optimal dispatch) ...")
     opt = optimization.run_full_optimisation(df, solar)
     print(f"    Dispatch method: {opt.get('dispatch_method', 'unknown')}")
     print(f"    Robustly feasible designs: {opt['robust_feasible_count']}/{opt['n_designs']}")

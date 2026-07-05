@@ -50,7 +50,7 @@ def main():
 
     # Row 2: scenarios
     box(ax, 6.0, 9.6, 8.6, 0.85,
-        "Demand scenarios x growth rate  ->  9 probability-weighted scenarios", C["demand"],
+        "3 usage levels x 5 growth paths  ->  15 probability-weighted futures", C["demand"],
         tcolor=C["core"], fs=10)
     arrow(ax, 2.2, 10.75, 3.2, 10.05)
     arrow(ax, 6.0, 10.75, 6.0, 10.05)
@@ -64,15 +64,15 @@ def main():
 
     # Row 4: cost matrix
     box(ax, 6.0, 6.5, 9.2, 0.85,
-        "Cost matrix: 150 candidate designs  x  9 scenarios", C["side"], fs=10)
+        "Cost matrix: 150 candidate designs  x  15 weighted futures", C["side"], fs=10)
     arrow(ax, 6.0, 7.5, 6.0, 6.95)
 
-    # Row 5: four decision rules
-    rules = [("Naive\n(deterministic)", 2.0), ("Stochastic\n(chance-constr.)", 5.0),
-             ("Minimax\nregret", 8.0), ("Maximin\n(robust)", 11.0)]
+    # Row 5: five decision rules (symmetric, fits within xlim 0-12)
+    rules = [("Naive\n(determ.)", 1.4), ("Stochastic", 3.7), ("CVaR\n(tail-risk)", 6.0),
+             ("Minimax\nregret", 8.3), ("Maximin\n(robust)", 10.6)]
     for txt, x in rules:
         col = C["robust"] if "Maximin" in txt else C["side"]
-        box(ax, x, 5.0, 2.4, 0.95, txt, col, fs=9.5)
+        box(ax, x, 5.0, 2.1, 0.95, txt, col, fs=8.5)
         arrow(ax, 6.0, 6.05, x, 5.5)
 
     # Row 6: outputs
@@ -80,7 +80,7 @@ def main():
         "Recommended robust design\n+ Value of Robustness (cost & service)", C["robust"], fs=10)
     box(ax, 8.9, 3.4, 4.8, 0.95,
         "Cost-vs-robustness\nPareto frontier", C["out"], fs=10)
-    for x in (2.0, 5.0, 8.0, 11.0):
+    for x in (1.4, 3.7, 6.0, 8.3, 10.6):
         arrow(ax, x, 4.5, 3.2 if x < 6.5 else 8.9, 3.9)
 
     # Side analyses

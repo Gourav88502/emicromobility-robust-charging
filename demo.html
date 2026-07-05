@@ -1080,29 +1080,49 @@ function drawThreshold(){
   const c=$("c-thresh"), {ctx,w,h}=setupCanvas(c);
   ctx.clearRect(0,0,w,h);
   const rows=[...D.threshold].map(r=>({grid:+(r.grid_kW??r.grid_kw),batt:+r.battery_kwh})).sort((a,b)=>a.grid-b.grid);
-  const bmax=Math.max(...rows.map(r=>r.batt),10)*1.25;
-  const pad={l:46,t:14,r:10,b:30};
-  const xs=rows.map(r=>r.grid), xmin=Math.min(...xs)-1, xmax=Math.max(...xs)+1;
+  const bmax=Math.max(...rows.map(r=>r.batt),10)*1.32;
+  const pad={l:48,t:30,r:12,b:34};
+  const xs=rows.map(r=>r.grid), xmin=Math.min(...xs)-1.3, xmax=Math.max(...xs)+1.3;
   const X=v=>pad.l+(v-xmin)/(xmax-xmin)*(w-pad.l-pad.r), Y=v=>h-pad.b-v/bmax*(h-pad.t-pad.b);
+  const plotT=pad.t, plotB=h-pad.b;
+  // ---- zone shading: battery zone (left) / boundary band 8-10 / no-battery zone (right) ----
+  ctx.fillStyle="rgba(47,215,155,.09)"; ctx.fillRect(X(xmin),plotT,X(8)-X(xmin),plotB-plotT);
+  ctx.fillStyle="rgba(242,183,5,.13)"; ctx.fillRect(X(8),plotT,X(10)-X(8),plotB-plotT);
+  ctx.fillStyle="rgba(148,163,184,.07)"; ctx.fillRect(X(10),plotT,X(xmax)-X(10),plotB-plotT);
   axes(ctx,w,h,pad,xmin,xmax,0,bmax,xs,[0,10,20,30,40,50].filter(v=>v<=bmax),v=>v,v=>v+" kWh");
   ctx.fillStyle=COL("--ink3");ctx.font="11px system-ui";ctx.textAlign="center";
   ctx.fillText("grid connection limit (kW) →",(pad.l+w-pad.r)/2,h-4);
-  const bw=Math.min(26,(w-pad.l-pad.r)/rows.length*0.55);
+  // ---- zone captions ----
+  ctx.font="600 11px system-ui"; ctx.textAlign="center";
+  ctx.fillStyle=COL("--batt"); ctx.fillText("◀ battery pays", X(6), plotT+13);
+  ctx.fillStyle=COL("--ink3"); ctx.fillText("smart charging alone ▶", X(15.5), plotT+13);
+  // ---- bars ----
+  const bw=Math.min(26,(w-pad.l-pad.r)/rows.length*0.58);
   for (const r of rows){
-    const x=X(r.grid);
-    ctx.fillStyle = r.batt>0 ? COL("--batt") : "rgba(148,163,184,.35)";
-    const y=Y(r.batt);
-    ctx.beginPath(); ctx.roundRect(x-bw/2, r.batt>0?y:Y(0)-3, bw, r.batt>0?(Y(0)-y):3, 3); ctx.fill();
-    if (r.batt>0){ ctx.fillStyle=COL("--batt");ctx.font="700 11px system-ui";ctx.fillText(r.batt,x,y-7); }
+    const x=X(r.grid), isOurs=r.grid===G.grid_kw;
+    if (r.batt>0){
+      const y=Y(r.batt);
+      ctx.fillStyle=COL("--batt");
+      ctx.beginPath(); ctx.roundRect(x-bw/2, y, bw, Y(0)-y, {tl:4,tr:4,bl:0,br:0}); ctx.fill();
+      ctx.fillStyle=COL("--batt");ctx.font="700 11px system-ui";ctx.textAlign="center";ctx.fillText(r.batt,x,y-6);
+    } else {
+      // zero-battery: a flat baseline chip
+      ctx.fillStyle="rgba(148,163,184,.4)";
+      ctx.beginPath(); ctx.roundRect(x-bw/2, Y(0)-3.5, bw, 3.5, 2); ctx.fill();
+    }
+    // highlight OUR site (15 kW)
+    if (isOurs){
+      ctx.strokeStyle=COL("--gold"); ctx.lineWidth=2; ctx.setLineDash([3,3]);
+      ctx.beginPath(); ctx.moveTo(x,plotT+18); ctx.lineTo(x,Y(0)); ctx.stroke(); ctx.setLineDash([]);
+      ctx.fillStyle=COL("--gold"); ctx.font="700 10.5px system-ui"; ctx.textAlign="center";
+      ctx.fillText("our site", x, plotT+30);
+      ctx.fillText("0 kWh", x, Y(0)+14);
+    }
   }
-  // boundary annotation
-  const bx=X(9);
-  ctx.strokeStyle=COL("--gold"); ctx.setLineDash([4,4]); ctx.beginPath(); ctx.moveTo(bx,pad.t); ctx.lineTo(bx,h-pad.b); ctx.stroke(); ctx.setLineDash([]);
-  ctx.fillStyle=COL("--gold"); ctx.font="700 11px system-ui"; ctx.fillText("storage boundary ≈9 kW", bx, pad.t-2);
-  // live optimisation marker
+  // ---- live optimisation star marker ----
   if (liveThreshPoint){
     const x=X(liveThreshPoint.grid), y=Y(liveThreshPoint.batt);
-    star(ctx,x,liveThreshPoint.batt>0?y-14:Y(0)-16,9,COL("--gold"));
+    star(ctx,x,liveThreshPoint.batt>0?y-16:Y(0)-16,9,COL("--gold"));
   }
   const g=+sliders.grid.value;
   const verdict=$("batt-verdict");
