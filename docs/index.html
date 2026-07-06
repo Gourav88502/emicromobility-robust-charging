@@ -545,8 +545,9 @@ pre.repro{font-size:12.5px;line-height:1.7;background:rgba(0,0,0,.35);border:1px
     <div class="two" style="align-items:stretch">
       <div class="tile">
         <div class="chart-title"><h3>Battery size in the robust design vs grid connection</h3><span class="badge" id="batt-verdict"></span></div>
+        <p class="hint" style="margin:0 0 8px"><b>How to read it:</b> each <b style="color:var(--batt)">green bar</b> is the battery the optimiser buys when the grid is that weak — the flat grey chip means <b>£0 battery</b>. The <b style="color:var(--gold)">gold dashed line</b> is our 15 kW site: no battery needed.</p>
         <canvas id="c-thresh" height="270"></canvas>
-        <p class="muted" style="margin-top:8px">Bars: Python sweep. The <b style="color:var(--gold)">gold star</b> is the live browser optimisation at your selected grid cap.</p>
+        <p class="muted" style="margin-top:8px">Bars: precomputed Python sweep. The <b style="color:var(--gold)">gold star</b> appears when you run the live optimiser at a different grid cap.</p>
         <div class="presets" style="margin-top:12px">
           <button class="btn" id="p-thresh-weak">Prove it live: 8 kW grid → optimise</button>
           <button class="btn" id="p-thresh-strong">Back to 15 kW → optimise</button>
@@ -896,7 +897,10 @@ const CSS = getComputedStyle(document.documentElement);
 const COL = n => CSS.getPropertyValue(n).trim();
 function setupCanvas(c){
   const dpr = window.devicePixelRatio||1;
-  const w = c.clientWidth, h = parseInt(c.getAttribute("height"))||240;
+  // cache the DESIGN height once: c.height=h*dpr rewrites the height attribute,
+  // so re-reading it every redraw compounds by dpr (charts grew on scaled displays)
+  if (!c.dataset.baseH) c.dataset.baseH = parseInt(c.getAttribute("height"))||240;
+  const w = c.clientWidth, h = +c.dataset.baseH;
   c.width=w*dpr; c.height=h*dpr; c.style.height=h+"px";
   const ctx=c.getContext("2d"); ctx.setTransform(dpr,0,0,dpr,0,0);
   return {ctx,w,h};
@@ -1092,10 +1096,10 @@ function drawThreshold(){
   axes(ctx,w,h,pad,xmin,xmax,0,bmax,xs,[0,10,20,30,40,50].filter(v=>v<=bmax),v=>v,v=>v+" kWh");
   ctx.fillStyle=COL("--ink3");ctx.font="11px system-ui";ctx.textAlign="center";
   ctx.fillText("grid connection limit (kW) →",(pad.l+w-pad.r)/2,h-4);
-  // ---- zone captions ----
+  // ---- zone captions (kept clear of the our-site line at X(15)) ----
   ctx.font="600 11px system-ui"; ctx.textAlign="center";
   ctx.fillStyle=COL("--batt"); ctx.fillText("◀ battery pays", X(6), plotT+13);
-  ctx.fillStyle=COL("--ink3"); ctx.fillText("smart charging alone ▶", X(15.5), plotT+13);
+  ctx.fillStyle=COL("--ink3"); ctx.fillText("smart charging alone ▶", X(17.6), plotT+13);
   // ---- bars ----
   const bw=Math.min(26,(w-pad.l-pad.r)/rows.length*0.58);
   for (const r of rows){
@@ -1110,13 +1114,12 @@ function drawThreshold(){
       ctx.fillStyle="rgba(148,163,184,.4)";
       ctx.beginPath(); ctx.roundRect(x-bw/2, Y(0)-3.5, bw, 3.5, 2); ctx.fill();
     }
-    // highlight OUR site (15 kW)
+    // highlight OUR site (15 kW) — one combined label, line starts below it
     if (isOurs){
+      ctx.fillStyle=COL("--gold"); ctx.font="700 11px system-ui"; ctx.textAlign="center";
+      ctx.fillText("our site — 0 kWh", x, plotT+32);
       ctx.strokeStyle=COL("--gold"); ctx.lineWidth=2; ctx.setLineDash([3,3]);
-      ctx.beginPath(); ctx.moveTo(x,plotT+18); ctx.lineTo(x,Y(0)); ctx.stroke(); ctx.setLineDash([]);
-      ctx.fillStyle=COL("--gold"); ctx.font="700 10.5px system-ui"; ctx.textAlign="center";
-      ctx.fillText("our site", x, plotT+30);
-      ctx.fillText("0 kWh", x, Y(0)+14);
+      ctx.beginPath(); ctx.moveTo(x,plotT+40); ctx.lineTo(x,Y(0)); ctx.stroke(); ctx.setLineDash([]);
     }
   }
   // ---- live optimisation star marker ----
