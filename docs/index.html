@@ -519,7 +519,7 @@ pre.repro{font-size:12.5px;line-height:1.7;background:rgba(0,0,0,.35);border:1px
     <div class="tile" style="margin-top:18px">
       <div class="chart-title"><h3>Cost vs robustness — every design this page has evaluated</h3><span class="muted" id="pareto-count"></span></div>
       <canvas id="c-pareto" height="270"></canvas>
-      <p class="muted" style="margin-top:8px">Down-left is better. ◆ = five decision-rule picks; ★ = recommended maximin design. Grey ✕ designs miss the 95% service target in at least one future.</p>
+      <p class="hint" style="margin-top:8px"><b>How to read it:</b> every dot is one of the 150 candidate hubs. <b>Left</b> = cheaper in a normal year · <b>down</b> = cheaper in the worst year — so <b>bottom-left wins</b>. The upper band is designs with too few charge bays: cheap to buy, ruinous when demand peaks. The <b style="color:var(--gold)">★ gold star</b> is our recommendation — nearly the cheapest normal-year cost <i>and</i> the lowest worst-case.</p>
     </div>
     <div class="tile" style="margin-top:18px" id="rules-card">
       <div class="chart-title"><h3>Five decision rules, one search space — what each would build</h3><span class="muted">click 🔍 to recompute live</span></div>
@@ -932,7 +932,8 @@ let weekMode = "summer";
 let current = null;          // last evaluate() result
 let currentTraces = null;    // traces for worst scenario
 let evaluatedSet = new Map();// key -> {expected,worst,minService,pv,batt,bays} for pareto cloud
-let rulePicks = null;        // optimisation results
+let rulePicks = null;        // optimisation results (feeds the rules table)
+let paretoPicks = null;      // picks shown on the pareto chart - locked to the 15 kW baseline
 let liveThreshPoint = null;  // {grid, batt} from last optimisation
 
 function designKey(pv,batt,bays){ return pv+"/"+batt+"/"+bays; }
@@ -1026,51 +1027,73 @@ function drawPareto(){
   const c=$("c-pareto"), {ctx,w,h}=setupCanvas(c);
   ctx.clearRect(0,0,w,h);
   const pts=[...evaluatedSet.values()];
-  $("pareto-count").textContent = pts.length + " designs evaluated";
+  $("pareto-count").textContent = pts.length + " designs · at the site's 15 kW grid";
   if (!pts.length) return;
   let xmin=1e18,xmax=-1e18,ymin=1e18,ymax=-1e18;
-  // include python pareto for stable frame
   const pyP = D.pareto.map(p=>({expected:p.expected_cost,worst:p.worst_cost}));
   for (const p of pts.concat(pyP)){ xmin=Math.min(xmin,p.expected);xmax=Math.max(xmax,p.expected);ymin=Math.min(ymin,p.worst);ymax=Math.max(ymax,p.worst); }
   const padv=(xmax-xmin)*0.08||1000; xmin-=padv;xmax+=padv;
-  const padh=(ymax-ymin)*0.08||1000; ymin-=padh;ymax+=padh;
-  const pad={l:56,t:12,r:10,b:26};
+  const padh=(ymax-ymin)*0.10||1000; ymin-=padh;ymax+=padh;
+  const pad={l:56,t:30,r:12,b:34};
   const X=v=>pad.l+(v-xmin)/(xmax-xmin)*(w-pad.l-pad.r), Y=v=>h-pad.b-(v-ymin)/(ymax-ymin)*(h-pad.t-pad.b);
   const ticks=(a,b,n)=>Array.from({length:n},(_,i)=>a+(b-a)*i/(n-1));
   axes(ctx,w,h,pad,xmin,xmax,ymin,ymax,ticks(xmin+padv,xmax-padv,4),ticks(ymin+padh,ymax-padh,4),fmtGBPk,fmtGBPk);
   ctx.fillStyle=COL("--ink3"); ctx.font="11px system-ui"; ctx.textAlign="center";
-  ctx.fillText("expected annual cost →",(pad.l+w-pad.r)/2,h-4);
-  ctx.save(); ctx.translate(11,(h-pad.b)/2); ctx.rotate(-Math.PI/2); ctx.fillText("worst-case annual cost →",0,0); ctx.restore();
-  // python pareto frontier line
+  ctx.fillText("cost in a NORMAL year → (left = cheaper)",(pad.l+w-pad.r)/2,h-5);
+  ctx.save(); ctx.translate(11,(h-pad.b+pad.t)/2); ctx.rotate(-Math.PI/2);
+  ctx.fillText("cost in the WORST year → (down = safer)",0,0); ctx.restore();
+  // helper: text chip with translucent bg so labels stay readable over dots
+  function chip(txt,x,y,color,align){
+    ctx.font="700 11px system-ui"; ctx.textAlign=align||"center";
+    const tw=ctx.measureText(txt).width;
+    const bx = align==="left"? x-5 : align==="right"? x-tw-5 : x-tw/2-5;
+    ctx.fillStyle="rgba(10,8,18,.82)";
+    ctx.beginPath(); ctx.roundRect(bx,y-10,tw+10,15,4); ctx.fill();
+    ctx.fillStyle=color; ctx.fillText(txt,x,y+2);
+  }
+  // python pareto frontier
   const pf=[...D.pareto].sort((a,b)=>a.expected_cost-b.expected_cost);
   ctx.beginPath(); pf.forEach((p,i)=>{const x=X(p.expected_cost),y=Y(p.worst_cost); i?ctx.lineTo(x,y):ctx.moveTo(x,y);});
   ctx.strokeStyle=COL("--purple"); ctx.setLineDash([5,5]); ctx.lineWidth=1.4; ctx.stroke(); ctx.setLineDash([]);
-  // cloud
+  // cloud + cluster means for the story labels
+  let topSumY=0,topN=0,botSumY=0,botN=0; const ymid=(ymin+ymax)/2;
   for (const p of pts){
     const x=X(p.expected),y=Y(p.worst);
-    if (p.minService < G.service_target){
-      ctx.strokeStyle="rgba(150,145,175,.5)"; ctx.lineWidth=1.4;
-      ctx.beginPath();ctx.moveTo(x-3.4,y-3.4);ctx.lineTo(x+3.4,y+3.4);ctx.moveTo(x+3.4,y-3.4);ctx.lineTo(x-3.4,y+3.4);ctx.stroke();
-    } else {
-      ctx.fillStyle="rgba(96,165,250,.75)"; ctx.beginPath(); ctx.arc(x,y,3.4,0,7); ctx.fill();
-    }
+    ctx.fillStyle="rgba(96,165,250,.7)"; ctx.beginPath(); ctx.arc(x,y,3.2,0,7); ctx.fill();
+    if (p.worst>ymid){ topSumY+=y; topN++; } else { botSumY+=y; botN++; }
   }
-  // rule picks
-  if (rulePicks){
+  // plain-words cluster labels
+  if (topN) chip("⚠ too few bays — cheap to buy, ruinous when demand peaks", (pad.l+w-pad.r)/2, topSumY/topN-16, "#ff9d9d");
+  if (botN) chip("enough bays — the worst year stays cheap", (pad.l+w-pad.r)/2+40, botSumY/botN-18, "#7fe0b8");
+  // decision-rule picks (15 kW story, never overwritten by demo clicks)
+  if (paretoPicks){
     ctx.fillStyle=COL("--gold");
-    for (const r of Object.values(rulePicks.rules)){
+    for (const r of Object.values(paretoPicks.rules)){
       const x=X(r.expected),y=Y(r.worst);
       ctx.save();ctx.translate(x,y);ctx.rotate(Math.PI/4);ctx.fillRect(-4.5,-4.5,9,9);ctx.restore();
     }
-    const rob=rulePicks.rules.maximin_robust;
-    star(ctx,X(rob.expected),Y(rob.worst),11,COL("--gold"));
+    const nai=paretoPicks.rules.naive_deterministic;
+    if (nai) chip("average-demand pick", X(nai.expected)+10, Y(nai.worst)-12, "#ffb4a8", "left");
+    const rob=paretoPicks.rules.maximin_robust;
+    star(ctx,X(rob.expected),Y(rob.worst),12,COL("--gold"));
+    chip("★ OUR PICK — 15 kWp · 0 kWh · 8 bays", X(rob.expected)+14, Y(rob.worst)+16, COL("--gold"), "left");
   }
-  // current design
-  if (current && current.gridCap===G.grid_kw && current.stress===1){
+  // current slider design ("you") - hidden when it IS our pick (the star already marks it)
+  if (current && current.gridCap===G.grid_kw && current.stress===1 &&
+      !(paretoPicks && current.pv===15&&current.batt===0&&current.bays===8)){
     const x=X(current.expected),y=Y(current.worst);
     ctx.strokeStyle=COL("--ink"); ctx.lineWidth=2; ctx.beginPath(); ctx.arc(x,y,7,0,7); ctx.stroke();
-    ctx.fillStyle=COL("--ink"); ctx.font="700 11px system-ui"; ctx.textAlign="left"; ctx.fillText("you",x+10,y+3);
+    chip("you", x+11, y+3, COL("--ink"), "left");
   }
+  // legend (top, on-canvas)
+  ctx.font="600 11px system-ui"; ctx.textAlign="left";
+  let lx=pad.l+2; const ly=pad.t-14;
+  ctx.fillStyle="rgba(96,165,250,.9)"; ctx.beginPath(); ctx.arc(lx+4,ly,3.4,0,7); ctx.fill();
+  ctx.fillStyle=COL("--ink3"); ctx.fillText("one of 150 designs", lx+12, ly+4); lx+=132;
+  ctx.fillStyle=COL("--gold"); ctx.save();ctx.translate(lx+4,ly);ctx.rotate(Math.PI/4);ctx.fillRect(-3.6,-3.6,7.2,7.2);ctx.restore();
+  ctx.fillStyle=COL("--ink3"); ctx.fillText("5 decision-rule picks", lx+13, ly+4); lx+=148;
+  star(ctx,lx+5,ly,7,COL("--gold"));
+  ctx.fillStyle=COL("--ink3"); ctx.fillText("our robust pick", lx+15, ly+4);
 }
 function star(ctx,x,y,r,col){
   ctx.fillStyle=col; ctx.beginPath();
@@ -1199,6 +1222,7 @@ async function optimise(){
     rulePicks.rules[rule]={...e, maxRegret:maxRegret[idx]};
   }
   liveThreshPoint={grid:gridCap,batt:rulePicks.rules.maximin_robust.batt};
+  if (gridCap===G.grid_kw && DSTRESS===1) paretoPicks = rulePicks;   // chart stays the 15 kW story
   renderRules();
   drawPareto(); drawThreshold();
   const dt=((performance.now()-t0)/1000).toFixed(1);
@@ -1228,6 +1252,7 @@ function renderRules(){
     rulePicks.rules[rule]={pv:info.design.pv_kwp,batt:info.design.battery_kwh,bays:info.design.n_chargers,
       expected:info.expected_cost,worst:info.worst_cost,minService:info.min_service_pct/100};
   }
+  paretoPicks = rulePicks;
   renderRules();
 })();
 
