@@ -27,7 +27,7 @@ def validate(df=None, solar=None, carbon=None, recommended: Design | None = None
     if carbon is None:
         carbon = emissions.load_carbon()
     if recommended is None:
-        recommended = Design(25, 50, 8)
+        recommended = Design(15, 0, 8)   # the actual robust recommendation
 
     # --- model outputs ----------------------------------------------------- #
     specific_yield = pv_model.specific_yield_per_kwp(solar).sum()

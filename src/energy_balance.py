@@ -11,9 +11,7 @@ For each of the 8,760 hours the controller resolves, in priority order:
     3. Remaining surplus PV is exported to the grid.
     4. A demand deficit is met first from the battery, then from the capped grid
        connection.
-    5. During the off-peak window the battery is topped up from spare grid
-       capacity (peak-shaving / arbitrage) so it is ready for the evening peak.
-    6. Demand that still cannot be served (charger limit, or grid cap with an
+    5. Demand that still cannot be served (charger limit, or grid cap with an
        empty battery) is recorded as UNMET — the failure mode robust design
        must avoid.
 
@@ -46,9 +44,6 @@ except Exception:                                            # pragma: no cover
             return fn
         return _wrap(args[0]) if args and callable(args[0]) else _wrap
 
-
-# Off-peak window (overnight) when grid top-up of the battery is permitted.
-_OFFPEAK_START, _OFFPEAK_END = 0, 6      # 00:00-05:59
 
 
 @njit(cache=True, fastmath=True)
@@ -159,12 +154,6 @@ def _dispatch(demand, pv, tou, usable_cap, p_batt_max, deliver_cap,
             tr_grid, tr_pv_d, tr_bat_d, tr_pv_x, tr_soc, tr_unmet)
 
 
-def _offpeak_mask() -> np.ndarray:
-    hours = np.arange(config.HOURS_PER_YEAR) % 24
-    return ((hours >= _OFFPEAK_START) & (hours < _OFFPEAK_END)).astype(np.float64)
-
-
-_OFFPEAK = _offpeak_mask()
 _TOU = np.asarray(config.TOU_TARIFF, float)[np.arange(config.HOURS_PER_YEAR) % 24]
 
 
